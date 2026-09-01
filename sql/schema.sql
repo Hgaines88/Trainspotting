@@ -80,3 +80,20 @@ CREATE TABLE collection_media (
 
 CREATE INDEX idx_collection_media_collection_id
     ON collection_media(collection_id);
+
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    clerk_user_id TEXT NOT NULL UNIQUE
+        CHECK (length(trim(clerk_user_id)) > 0),
+    email TEXT,
+    display_name TEXT,
+    role TEXT NOT NULL DEFAULT 'member'
+        CHECK (role IN ('member', 'moderator', 'admin')),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE INDEX idx_users_role
+    ON users(role);

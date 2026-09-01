@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import database
+from app.auth import ClerkIdentity, require_authenticated_user
 from app.main import app, require_archive_admin
 
 
@@ -145,6 +146,36 @@ def test_list_designers(client):
         "John Elliott",
         "Haider Ackermann",
     } <= designer_names
+
+
+def test_me_creates_one_member_for_the_verified_clerk_identity(client):
+    app.dependency_overrides[require_authenticated_user] = lambda: ClerkIdentity(
+        user_id="user_first123",
+        session_id="sess_first123",
+    )
+
+    try:
+        first_response = client.get("/me")
+        second_response = client.get("/me")
+    finally:
+        app.dependency_overrides.pop(require_authenticated_user, None)
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    assert first_response.json()["clerk_user_id"] == "user_first123"
+    assert first_response.json()["role"] == "member"
+    assert second_response.json()["id"] == first_response.json()["id"]
+
+    connection = database.connect()
+    try:
+        user_count = connection.execute(
+            "SELECT COUNT(*) FROM users WHERE clerk_user_id = ?",
+            ("user_first123",),
+        ).fetchone()[0]
+    finally:
+        connection.close()
+
+    assert user_count == 1
 
 def test_get_designer(client):
     response = client.get("/designers/1")

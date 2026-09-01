@@ -56,6 +56,22 @@ archive stores links and YouTube video IDs, not copyrighted media files.
 - One collection may have a source link and a YouTube video.
 - Deleting a collection deletes its media records.
 
+## Application user
+
+Represents an authenticated Clerk identity and Trainspotting's authoritative
+application role. New identities are always created as members; clients cannot
+provide or change their own role.
+
+| Field | Meaning | Required? |
+|---|---|---|
+| id | Internal unique identifier | Yes |
+| clerk_user_id | Clerk's immutable external user identifier | Yes |
+| email | Optional synchronized contact address | No |
+| display_name | Optional synchronized public name | No |
+| role | Member, moderator, or administrator | Yes |
+| created_at | Local identity creation time | Yes |
+| updated_at | Last administrative profile update time | Yes |
+
 ---
 
 *(h)gaines.*

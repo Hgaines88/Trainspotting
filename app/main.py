@@ -4,6 +4,7 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import apply_migrations, connect
 from app.schemas import CollectionCreate, DesignerCreate
+from app.users import get_or_create_user
 from fastapi.staticfiles import StaticFiles
 
 
@@ -120,6 +121,13 @@ def authenticated_session(
         "authenticated": True,
         "user_id": identity.user_id,
     }
+
+
+@app.get("/me")
+def current_user(
+    identity: ClerkIdentity = Depends(require_authenticated_user),
+):
+    return get_or_create_user(identity.user_id)
 
 @app.get("/designers")
 def list_designers():

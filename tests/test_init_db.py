@@ -22,7 +22,7 @@ def test_fresh_initialization_uses_canonical_archive(tmp_path, monkeypatch):
     try:
         counts = tuple(
             connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-            for table in ("designers", "collections")
+            for table in ("designers", "collections", "users")
         )
     finally:
         connection.close()
@@ -30,4 +30,8 @@ def test_fresh_initialization_uses_canonical_archive(tmp_path, monkeypatch):
     payload = json.loads(
         (PROJECT_ROOT / "data" / "archive.json").read_text(encoding="utf-8")
     )
-    assert counts == (len(payload["designers"]), len(payload["collections"]))
+    assert counts == (
+        len(payload["designers"]),
+        len(payload["collections"]),
+        0,
+    )
