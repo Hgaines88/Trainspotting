@@ -26,6 +26,17 @@ def test_session_endpoint_requires_a_bearer_token(client, monkeypatch):
     assert response.json() == {"detail": "Authentication required."}
 
 
+def test_default_authorized_parties_cover_localhost_and_loopback(monkeypatch):
+    monkeypatch.delenv("CLERK_AUTHORIZED_PARTIES", raising=False)
+
+    assert auth.authorized_parties() == [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
+
+
 def test_session_endpoint_reports_missing_backend_configuration(
     client,
     monkeypatch,
