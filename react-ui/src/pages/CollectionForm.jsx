@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
+import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 const emptyCollection = {
   label: "", name: "", season: "", release_year: "", status: "concept",
@@ -12,6 +13,7 @@ export default function CollectionForm() {
   const params = useParams();
   const editing = Boolean(params.collectionId);
   const navigate = useNavigate();
+  const { authorizedRequest } = useApplicationUser();
   const [designerId, setDesignerId] = useState(params.designerId || "");
   const [form, setForm] = useState(emptyCollection);
   const [status, setStatus] = useState(editing ? "Loading collection…" : "");
@@ -57,7 +59,7 @@ export default function CollectionForm() {
       youtube_video_id: form.youtube_video_id || null,
     };
     try {
-      const result = await apiRequest(editing ? `/collections/${params.collectionId}` : "/collections", {
+      const result = await authorizedRequest(editing ? `/collections/${params.collectionId}` : "/collections", {
         method: editing ? "PUT" : "POST",
         body: JSON.stringify(payload),
       });

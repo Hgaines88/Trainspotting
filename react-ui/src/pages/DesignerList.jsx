@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
 import { nationalityFlags } from "../nationalityFlags";
+import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 export default function DesignerList() {
+  const { isAdmin } = useApplicationUser();
   const [designers, setDesigners] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -20,6 +22,7 @@ export default function DesignerList() {
     <>
       <div className="page-heading hero-heading">
         <div><p className="eyebrow">Index / {String(designers.length).padStart(3, "0")} active profiles</p><h1>Who<br />made it?</h1></div>
+        {isAdmin && <Link className="button" to="/designers/new">Add a designer</Link>}
       </div>
       <StatusMessage>{loading ? "Loading designers…" : ""}</StatusMessage>
       <StatusMessage error>{error}</StatusMessage>

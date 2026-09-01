@@ -88,7 +88,7 @@ def test_vanilla_pages_share_react_layout_and_detail_features():
     assert 'id="collection-media"' in collection_page
 
 
-def test_public_clients_do_not_expose_archive_mutations():
+def test_react_mutations_are_only_exposed_through_admin_guards():
     react_app = (PROJECT_ROOT / "react-ui" / "src" / "App.jsx").read_text(
         encoding="utf-8"
     )
@@ -111,9 +111,11 @@ def test_public_clients_do_not_expose_archive_mutations():
         for filename in ("app.js", "designer.js", "collection.js")
     )
 
-    assert "DesignerForm" not in react_app
-    assert "CollectionForm" not in react_app
-    for public_source in (react_pages, vanilla_pages):
+    assert "DesignerForm" in react_app
+    assert "CollectionForm" in react_app
+    assert react_app.count("<RequireAdmin>") == 4
+    assert "isAdmin &&" in react_pages
+    for public_source in (vanilla_pages,):
         assert "Add a designer" not in public_source
         assert "Add a collection" not in public_source
         assert "Edit designer" not in public_source
@@ -143,10 +145,33 @@ def test_react_uses_clerk_without_exposing_the_secret_key():
 
 def test_signed_in_react_users_sync_with_a_bearer_token():
     sync_source = (
-        PROJECT_ROOT / "react-ui" / "src" / "components" / "UserSync.jsx"
+        PROJECT_ROOT
+        / "react-ui"
+        / "src"
+        / "auth"
+        / "ApplicationUserContext.jsx"
     ).read_text(encoding="utf-8")
 
     assert "useAuth" in sync_source
     assert "getToken" in sync_source
-    assert 'apiRequest("/me"' in sync_source
+    assert 'authorizedRequest("/me")' in sync_source
     assert "Authorization: `Bearer ${token}`" in sync_source
+
+
+def test_react_archive_writes_use_fresh_clerk_tokens():
+    forms = "\n".join(
+        (PROJECT_ROOT / "react-ui" / "src" / "pages" / filename).read_text(
+            encoding="utf-8"
+        )
+        for filename in ("DesignerForm.jsx", "CollectionForm.jsx")
+    )
+    details = "\n".join(
+        (PROJECT_ROOT / "react-ui" / "src" / "pages" / filename).read_text(
+            encoding="utf-8"
+        )
+        for filename in ("DesignerDetail.jsx", "CollectionDetail.jsx")
+    )
+
+    assert forms.count("authorizedRequest(") == 2
+    assert details.count("authorizedRequest(") == 2
+    assert 'method: "DELETE"' in details

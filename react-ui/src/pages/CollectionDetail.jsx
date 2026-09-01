@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
+import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 function labelMonogram(label) {
   return label.split(/\s+/).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
@@ -9,6 +10,8 @@ function labelMonogram(label) {
 
 export default function CollectionDetail() {
   const { collectionId } = useParams();
+  const navigate = useNavigate();
+  const { authorizedRequest, isAdmin } = useApplicationUser();
   const [collection, setCollection] = useState(null);
   const [error, setError] = useState("");
 
@@ -20,6 +23,16 @@ export default function CollectionDetail() {
 
   if (error && !collection) return <StatusMessage error>{error}</StatusMessage>;
   if (!collection) return <StatusMessage>Loading collection…</StatusMessage>;
+
+  async function deleteCollection() {
+    if (!window.confirm(`Delete ${collection.name || collection.label}?`)) return;
+    try {
+      await authorizedRequest(`/collections/${collectionId}`, { method: "DELETE" });
+      navigate(`/designers/${collection.designer_id}`);
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
 
   return (
     <article>
@@ -33,6 +46,7 @@ export default function CollectionDetail() {
         <div><dt>Piece count</dt><dd>{collection.piece_count ?? "Unavailable"}</dd></div>
       </dl>
       <p>{collection.description || "No description is available."}</p>
+      {isAdmin && <div className="actions"><Link className="button" to={`/collections/${collectionId}/edit`}>Edit collection</Link><button className="danger" type="button" onClick={deleteCollection}>Delete collection</button></div>}
 
       {(collection.youtube_video_id || collection.source_url) && (
         <section className="section media-section">

@@ -109,10 +109,23 @@ def test_public_archive_mutations_require_admin(
     }
 
 
-def test_authenticated_member_cannot_mutate_the_archive(public_client):
+@pytest.mark.parametrize("role", ["member", "moderator"])
+def test_authenticated_non_admin_cannot_mutate_the_archive(public_client, role):
+    clerk_user_id = f"user_{role}123"
+    if role == "moderator":
+        connection = database.connect()
+        try:
+            connection.execute(
+                "INSERT INTO users (clerk_user_id, role) VALUES (?, ?)",
+                (clerk_user_id, role),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
     app.dependency_overrides[require_authenticated_user] = lambda: ClerkIdentity(
-        user_id="user_member123",
-        session_id="sess_member123",
+        user_id=clerk_user_id,
+        session_id=f"sess_{role}123",
     )
 
     try:
@@ -130,12 +143,12 @@ def test_authenticated_member_cannot_mutate_the_archive(public_client):
     try:
         member = connection.execute(
             "SELECT role FROM users WHERE clerk_user_id = ?",
-            ("user_member123",),
+            (clerk_user_id,),
         ).fetchone()
     finally:
         connection.close()
 
-    assert member["role"] == "member"
+    assert member["role"] == role
 
 
 def test_authenticated_admin_can_mutate_the_archive(public_client):

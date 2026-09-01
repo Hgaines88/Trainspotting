@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
+import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 const emptyDesigner = {
   full_name: "",
@@ -14,6 +15,7 @@ export default function DesignerForm() {
   const { designerId } = useParams();
   const editing = Boolean(designerId);
   const navigate = useNavigate();
+  const { authorizedRequest } = useApplicationUser();
   const [form, setForm] = useState(emptyDesigner);
   const [status, setStatus] = useState(editing ? "Loading designer…" : "");
   const [error, setError] = useState("");
@@ -53,7 +55,7 @@ export default function DesignerForm() {
       biography: form.biography || null,
     };
     try {
-      const result = await apiRequest(
+      const result = await authorizedRequest(
         editing ? `/designers/${designerId}` : "/designers",
         { method: editing ? "PUT" : "POST", body: JSON.stringify(payload) },
       );

@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
 import { nationalityFlags } from "../nationalityFlags";
+import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 export default function DesignerDetail() {
   const { designerId } = useParams();
+  const navigate = useNavigate();
+  const { authorizedRequest, isAdmin } = useApplicationUser();
   const [designer, setDesigner] = useState(null);
   const [collections, setCollections] = useState([]);
   const [error, setError] = useState("");
@@ -25,12 +28,22 @@ export default function DesignerDetail() {
 
   const flags = nationalityFlags(designer.nationality);
   const details = [designer.nationality, designer.birth_year ? `Born ${designer.birth_year}` : null].filter(Boolean);
+  async function deleteDesigner() {
+    if (!window.confirm(`Delete ${designer.full_name} and all associated collections?`)) return;
+    try {
+      await authorizedRequest(`/designers/${designerId}`, { method: "DELETE" });
+      navigate("/");
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
   return (
     <>
       <p className="eyebrow">Designer profile / ID {String(designer.id).padStart(3, "0")}</p>
       <h1 className="profile-title">{flags && <span className="profile-flag" aria-label={`${designer.nationality} flag`}>{flags}</span>}{designer.full_name}</h1>
       <div className="profile-intro"><p className="meta">{details.join(" · ") || "Additional details unavailable"}</p><p className="biography">{designer.biography || "No biography is available."}</p></div>
       <p className="external-link">{designer.website ? <a href={designer.website} target="_blank" rel="noreferrer">Official transmission ↗</a> : "No website is available."}</p>
+      {isAdmin && <div className="actions"><Link className="button" to={`/designers/${designerId}/edit`}>Edit designer</Link><Link className="button secondary" to={`/designers/${designerId}/collections/new`}>Add a collection</Link><button className="danger" type="button" onClick={deleteDesigner}>Delete designer</button></div>}
       <StatusMessage error>{error}</StatusMessage>
       <section className="section">
         <div className="section-heading"><h2>Collections</h2><span>{String(collections.length).padStart(2, "0")} records</span></div>
