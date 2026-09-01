@@ -1,3 +1,9 @@
+import {
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/react";
 import { Link, Outlet } from "react-router-dom";
 
 export default function Layout() {
@@ -9,6 +15,24 @@ export default function Layout() {
           <small>FASHION HISTORY IN MOTION</small>
         </Link>
         <div className="signal-stack">
+          <div className="auth-controls" aria-label="Account controls">
+            <Show when="signed-out">
+              <SignInButton mode="modal">
+                <button className="auth-button secondary" type="button">
+                  Sign in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="auth-button" type="button">
+                  Join
+                </button>
+              </SignUpButton>
+            </Show>
+            <Show when="signed-in">
+              <span className="account-label">Account</span>
+              <UserButton />
+            </Show>
+          </div>
           <div className="signal">
             <i aria-hidden="true" /> LIVE DATABASE <span>CH. 001</span>
           </div>

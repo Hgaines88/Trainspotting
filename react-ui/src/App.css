@@ -5,6 +5,10 @@
 .brand small { margin-top:.9rem; font-family:"IBM Plex Mono",monospace; font-size:.58rem; line-height:1; letter-spacing:.15em; }
 .signal { display:flex; align-items:center; gap:.65rem; border:1px solid var(--line); padding:.6rem .75rem; color:var(--signal); font-size:.68rem; text-transform:uppercase; }
 .signal-stack { display:flex; flex-direction:column; align-items:flex-end; gap:.42rem; }
+.auth-controls { display:flex; min-height:2rem; align-items:center; justify-content:flex-end; gap:.45rem; }
+.auth-button { min-width:auto; padding:.42rem .65rem; font-size:.62rem; }
+.auth-button.secondary { color:var(--paper); background:transparent; }
+.account-label { color:var(--dim); font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; }
 .header-signature { margin-right:.18rem; color:var(--paper); font-size:.7rem; font-weight:500; letter-spacing:-.03em; transform:rotate(-2deg); opacity:.78; }
 .signal i { width:.55rem; height:.55rem; border-radius:50%; background:var(--signal); box-shadow:0 0 12px var(--signal); animation:blink 1.4s step-end infinite; }
 .signal span { color:var(--dim); }
@@ -76,5 +80,5 @@ p { line-height:1.65; }
 .video-frame iframe { width:100%; height:100%; border:0; }
 .site-footer { display:flex; justify-content:space-between; padding:1rem clamp(1rem,3vw,2.5rem); border-top:1px solid var(--paper); color:var(--dim); font-size:.62rem; letter-spacing:.1em; }
 .digital-signature { color:var(--paper); font-size:.76rem; font-weight:500; letter-spacing:-.04em; text-transform:none; transform:rotate(-2deg); }
-@media (max-width:760px) { .site-header{align-items:flex-start}.signal span{display:none}.page{width:min(100% - 1rem,1500px)}.page-heading,.profile-intro{display:block}.page-heading .button{margin-top:2rem}.hero-heading{min-height:26vh}.card{grid-column:span 12!important;min-height:190px}.collection-heading{grid-template-columns:1fr}.collection-list a{grid-template-columns:2rem 1fr}.collection-list span{grid-column:2;text-align:left}.site-footer{gap:1rem} }
+@media (max-width:760px) { .site-header{align-items:flex-start}.signal span{display:none}.account-label{display:none}.page{width:min(100% - 1rem,1500px)}.page-heading,.profile-intro{display:block}.page-heading .button{margin-top:2rem}.hero-heading{min-height:26vh}.card{grid-column:span 12!important;min-height:190px}.collection-heading{grid-template-columns:1fr}.collection-list a{grid-template-columns:2rem 1fr}.collection-list span{grid-column:2;text-align:left}.site-footer{gap:1rem} }
 @media (prefers-reduced-motion:reduce) { .ticker span,.signal i { animation:none; } }

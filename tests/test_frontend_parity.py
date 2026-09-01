@@ -121,3 +121,21 @@ def test_public_clients_do_not_expose_archive_mutations():
         assert "Delete designer" not in public_source
         assert "Delete collection" not in public_source
     assert 'method: "DELETE"' not in vanilla_scripts
+
+
+def test_react_uses_clerk_without_exposing_the_secret_key():
+    main_source = (
+        PROJECT_ROOT / "react-ui" / "src" / "main.jsx"
+    ).read_text(encoding="utf-8")
+    layout_source = (
+        PROJECT_ROOT / "react-ui" / "src" / "components" / "Layout.jsx"
+    ).read_text(encoding="utf-8")
+
+    assert "ClerkProvider" in main_source
+    assert "VITE_CLERK_PUBLISHABLE_KEY" in main_source
+    assert "CLERK_SECRET_KEY" not in main_source
+    assert '<Show when="signed-out">' in layout_source
+    assert '<Show when="signed-in">' in layout_source
+    assert "SignInButton" in layout_source
+    assert "SignUpButton" in layout_source
+    assert "UserButton" in layout_source
