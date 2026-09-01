@@ -21,12 +21,17 @@ app = FastAPI(
 )
 
 
-def require_archive_admin() -> None:
-    """Deny archive mutations until Clerk-backed admin roles are available."""
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="Archive changes require administrator access.",
-    )
+def require_archive_admin(
+    identity: ClerkIdentity = Depends(require_authenticated_user),
+) -> dict:
+    """Require a verified Clerk identity with Trainspotting's admin role."""
+    user = get_or_create_user(identity.user_id)
+    if user["role"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator access required.",
+        )
+    return user
 
 
 COLLECTION_SELECT = """

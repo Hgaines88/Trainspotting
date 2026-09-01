@@ -11,8 +11,8 @@ discovery mission.
 
 Today, visitors can browse designers and their collections across labels,
 seasons, and years through matching React and Vanilla JavaScript clients backed
-by FastAPI and SQLite. The public archive is read-only; canonical records cannot
-be changed without administrator authorization.
+by FastAPI and SQLite. The public archive is read-only; only a Clerk-authenticated
+Trainspotting administrator can change canonical records.
 
 ## Why Trainspotting is the next version
 

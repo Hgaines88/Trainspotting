@@ -103,10 +103,67 @@ def test_public_archive_mutations_require_admin(
 ):
     response = public_client.request(method, path, json=payload)
 
-    assert response.status_code == 403
+    assert response.status_code == 401
     assert response.json() == {
-        "detail": "Archive changes require administrator access."
+        "detail": "Authentication required."
     }
+
+
+def test_authenticated_member_cannot_mutate_the_archive(public_client):
+    app.dependency_overrides[require_authenticated_user] = lambda: ClerkIdentity(
+        user_id="user_member123",
+        session_id="sess_member123",
+    )
+
+    try:
+        response = public_client.post(
+            "/designers",
+            json={"full_name": "Member Write Attempt"},
+        )
+    finally:
+        app.dependency_overrides.pop(require_authenticated_user, None)
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Administrator access required."}
+
+    connection = database.connect()
+    try:
+        member = connection.execute(
+            "SELECT role FROM users WHERE clerk_user_id = ?",
+            ("user_member123",),
+        ).fetchone()
+    finally:
+        connection.close()
+
+    assert member["role"] == "member"
+
+
+def test_authenticated_admin_can_mutate_the_archive(public_client):
+    connection = database.connect()
+    try:
+        connection.execute(
+            "INSERT INTO users (clerk_user_id, role) VALUES (?, 'admin')",
+            ("user_admin123",),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    app.dependency_overrides[require_authenticated_user] = lambda: ClerkIdentity(
+        user_id="user_admin123",
+        session_id="sess_admin123",
+    )
+
+    try:
+        response = public_client.post(
+            "/designers",
+            json={"full_name": "Administrator Created Designer"},
+        )
+    finally:
+        app.dependency_overrides.pop(require_authenticated_user, None)
+
+    assert response.status_code == 201
+    assert response.json()["full_name"] == "Administrator Created Designer"
 
 
 def test_list_designers(client):
