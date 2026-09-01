@@ -115,6 +115,16 @@ python3 -m app.list_designers
 snapshot only when the database does not already exist. It never overwrites
 live archive records.
 
+After the first Clerk user signs in and synchronizes through `/me`, bootstrap
+the first administrator with that user's immutable Clerk ID:
+
+```bash
+python3 -m scripts.bootstrap_admin user_your_clerk_user_id
+```
+
+The command is deliberately limited to the first administrator. It is
+idempotent for that user and refuses to replace an existing administrator.
+
 ## Preserve and restore archive content
 
 SQLite is the local runtime database and remains ignored by Git. The canonical,
