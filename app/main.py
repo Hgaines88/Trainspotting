@@ -12,7 +12,11 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="Collection Archive", lifespan=lifespan)
+app = FastAPI(
+    title="Trainspotting API",
+    description="Structured fashion-history data for designers, labels, and collections.",
+    lifespan=lifespan,
+)
 
 
 COLLECTION_SELECT = """

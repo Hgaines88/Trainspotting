@@ -1,4 +1,9 @@
-# Collection Archive v0.2.0 Data Model
+# Trainspotting: Current Data Model
+
+This document describes the schema implemented today. Trainspotting's planned
+model adds labels, designer tenures, shared collection credits, collectives,
+style tags, users, favorites, and connections; those additions will be
+documented here as they are implemented.
 
 ## Designer
 

@@ -1,17 +1,51 @@
-## Collection Archive v0.2.0
+# Trainspotting
 
-A public-facing archive that helps people discover which individual designers created collections for different fashion labels throughout their careers.
+**Fashion history in motion.**
 
-### What this product does:
+Trainspotting is a public, structured record of the designers, labels, and
+collections that shape fashion history. It began as **Collection Archive
+(OneToManys)**, a three-tier learning project built around a designer-to-
+collections relationship. Trainspotting carries that working foundation
+forward as an independent product with a broader data model and a clearer
+discovery mission.
 
-Users can add/edit designer/collection records (think Wiki)
-Visitors can view archived collections to discover the designers who created certain fashion collections across different labels and seasons.
+Today, visitors can browse designers and their collections across labels,
+seasons, and years. Editors can create, update, and delete archive records
+through matching React and Vanilla JavaScript clients backed by FastAPI and
+SQLite.
 
-### Data relationship
+## Why Trainspotting is the next version
 
-One designer may have many collections across many labels/seasons. (OneToMany) Eventually I think I should include a junction table to represent collections credited to multiple designers. (ManyToMany)
+Most fashion archives present editorial pages. Trainspotting is designed to
+treat fashion history as connected, queryable data: who worked at which label,
+when they worked there, what they released, who shared credit, and how one body
+of work relates stylistically to another.
 
-### Technology
+The planned model expands the inherited archive with:
+
+- labels as first-class records rather than collection text;
+- designer tenures that capture roles and creative-director succession;
+- multi-designer credits for collaborations and guest designers;
+- collective membership without erasing individual contributors;
+- weighted style tags that can power content-based recommendations;
+- user favorites and connections for personal discovery; and
+- source reconciliation across open datasets and primary records.
+
+These are the product direction, not claims about the current schema. The
+current application still uses its proven designer-to-collections model while
+the expanded ERD is implemented incrementally.
+
+## Current capabilities
+
+- Browse designer profiles and their related collections.
+- View collection details, curated sources, and official runway videos.
+- Create, edit, and delete designer and collection records.
+- Use either the React client or the matching Vanilla JavaScript client.
+- Preserve canonical archive content in reviewable JSON.
+- Run locally or as a Docker Compose stack.
+- Validate API, data, migration, and frontend parity behavior with tests.
+
+## Technology
 
 - SQLite
 - Python
@@ -20,7 +54,7 @@ One designer may have many collections across many labels/seasons. (OneToMany) E
 - React and Vite
 - Pytest
 
-### Run locally
+## Run locally
 
 ```bash
 python3 -m venv .venv
@@ -42,7 +76,7 @@ Vite serves React at `http://localhost:5173` and proxies `/api` requests to
 FastAPI at `http://127.0.0.1:8000`. The Vanilla client is served directly by
 FastAPI at `http://127.0.0.1:8000`.
 
-### Run with Docker
+## Run with Docker
 
 Build and start the API, React client, and persistent SQLite storage:
 
@@ -61,7 +95,7 @@ and recreate it from `data/archive.json` on the next start, run:
 docker compose down --volumes
 ```
 
-### Run the tests
+## Run the tests
 
 With the virtual environment active, run the complete suite from the repository
 root:
@@ -81,7 +115,7 @@ python3 -m app.list_designers
 snapshot only when the database does not already exist. It never overwrites
 live archive records.
 
-### Preserve and restore archive content
+## Preserve and restore archive content
 
 SQLite is the local runtime database and remains ignored by Git. The canonical,
 reviewable content record is `data/archive.json`. After making approved content
@@ -107,7 +141,7 @@ under `sql/migrations/` contain deliberate database upgrades. FastAPI applies
 each migration once at startup and records it in `schema_migrations`; migrations
 never recreate the database from seed data.
 
-### Application Structure
+## Application structure
 
 sql/schema.sql
     #Schema.sql defines the database tables, fields, constraints, foreign key, and index.

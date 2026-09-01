@@ -1,10 +1,11 @@
-# Collection Archive v0.2.0
+# Trainspotting Product Direction
 
 ## Purpose
 
-A public-facing archive that helps people discover which individual designers created collections for different fashion labels throughout their careers.
+A public-facing fashion-history platform for discovering the relationships
+among designers, labels, collections, seasons, and creative movements.
 
-## v0.2.0 user stories
+## Current user stories
 
 - As a user, I can view all archived designers so I can discover who created fashion collections.
 - As a user, I can view the collections credited to a designer across different labels and seasons.
@@ -36,19 +37,20 @@ Description
 Curated source link
 Official YouTube runway video
 
-## v0.2.0 features
+## Current features
 
 CRUD functionality for Designers & Collections by any/all users.
 
-## Future features
+## Trainspotting roadmap
 
-What are we deliberately postponing for v1.0.0?
-- Postponing Authentication (login) for authorized edits vs everyday users. Every edit: record the author, timestamp, previous value, and reason for the change
-- Direct image uploads and image hosting remain postponed. Collection pages can include curated source links and official YouTube embeds.
-- Support for multiple credited designers on one collection through a
-`collection_designers` junction table. This would extend the v0.2.0
-designer-to-collections model for collaborations and co-designer credits.
-- Authentication, Role-based permissions, edit history, rollback, and a small moderation queue.
+- Promote labels to first-class entities and record designer tenures by role and date.
+- Support multiple designer credits and collective membership.
+- Add weighted style tags and content-based collection recommendations.
+- Add users, favorites, follows, and private or public profiles.
+- Build a traceable ingestion and reconciliation pipeline from open sources.
+- Add authentication, role-based editing, attribution, history, rollback, and moderation.
+- Keep direct image hosting postponed while curated sources and official embeds
+  meet the archive's needs.
 
 ---
 

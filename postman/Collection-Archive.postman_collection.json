@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Collection Archive API",
-    "description": "CRUD and relationship validation for the OnesToManys FastAPI service.",
+    "name": "Trainspotting API",
+    "description": "CRUD and relationship validation for the Trainspotting FastAPI service.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

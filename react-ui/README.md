@@ -1,4 +1,4 @@
-# Collection Archive v0.2.0 React UI
+# Trainspotting React UI
 
 This client recreates the CRUD features in `web/` with React. During
 development, Vite forwards requests beginning with `/api` to the FastAPI

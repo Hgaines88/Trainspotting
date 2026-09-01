@@ -5,8 +5,8 @@ export default function Layout() {
     <div className="app-shell">
       <header className="site-header">
         <Link className="brand" to="/">
-          <span>ONE→MANY</span>
-          <small>DESIGN TRANSMISSION ARCHIVE</small>
+          <span>TRAINSPOTTING</span>
+          <small>FASHION HISTORY IN MOTION</small>
         </Link>
         <div className="signal-stack">
           <div className="signal">
