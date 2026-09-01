@@ -86,3 +86,38 @@ def test_vanilla_pages_share_react_layout_and_detail_features():
     assert 'id="designer-flag"' in designer_page
     assert 'id="collection-label"' in collection_page
     assert 'id="collection-media"' in collection_page
+
+
+def test_public_clients_do_not_expose_archive_mutations():
+    react_app = (PROJECT_ROOT / "react-ui" / "src" / "App.jsx").read_text(
+        encoding="utf-8"
+    )
+    react_pages = "\n".join(
+        (
+            PROJECT_ROOT / "react-ui" / "src" / "pages" / filename
+        ).read_text(encoding="utf-8")
+        for filename in (
+            "DesignerList.jsx",
+            "DesignerDetail.jsx",
+            "CollectionDetail.jsx",
+        )
+    )
+    vanilla_pages = "\n".join(
+        (PROJECT_ROOT / "web" / filename).read_text(encoding="utf-8")
+        for filename in ("index.html", "designer.html", "collection.html")
+    )
+    vanilla_scripts = "\n".join(
+        (PROJECT_ROOT / "web" / filename).read_text(encoding="utf-8")
+        for filename in ("app.js", "designer.js", "collection.js")
+    )
+
+    assert "DesignerForm" not in react_app
+    assert "CollectionForm" not in react_app
+    for public_source in (react_pages, vanilla_pages):
+        assert "Add a designer" not in public_source
+        assert "Add a collection" not in public_source
+        assert "Edit designer" not in public_source
+        assert "Edit collection" not in public_source
+        assert "Delete designer" not in public_source
+        assert "Delete collection" not in public_source
+    assert 'method: "DELETE"' not in vanilla_scripts

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
 
@@ -9,7 +9,6 @@ function labelMonogram(label) {
 
 export default function CollectionDetail() {
   const { collectionId } = useParams();
-  const navigate = useNavigate();
   const [collection, setCollection] = useState(null);
   const [error, setError] = useState("");
 
@@ -18,16 +17,6 @@ export default function CollectionDetail() {
       .then(setCollection)
       .catch((requestError) => setError(requestError.message));
   }, [collectionId]);
-
-  async function deleteCollection() {
-    if (!window.confirm("Delete this collection permanently?")) return;
-    try {
-      await apiRequest(`/collections/${collectionId}`, { method: "DELETE" });
-      navigate(`/designers/${collection.designer_id}`);
-    } catch (requestError) {
-      setError(requestError.message);
-    }
-  }
 
   if (error && !collection) return <StatusMessage error>{error}</StatusMessage>;
   if (!collection) return <StatusMessage>Loading collection…</StatusMessage>;
@@ -62,10 +51,6 @@ export default function CollectionDetail() {
         </section>
       )}
 
-      <div className="actions">
-        <Link className="button secondary" to={`/collections/${collectionId}/edit`}>Edit collection</Link>
-        <button className="danger" type="button" onClick={deleteCollection}>Delete collection</button>
-      </div>
       <StatusMessage error>{error}</StatusMessage>
     </article>
   );

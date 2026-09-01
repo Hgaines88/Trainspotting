@@ -10,9 +10,9 @@ forward as an independent product with a broader data model and a clearer
 discovery mission.
 
 Today, visitors can browse designers and their collections across labels,
-seasons, and years. Editors can create, update, and delete archive records
-through matching React and Vanilla JavaScript clients backed by FastAPI and
-SQLite.
+seasons, and years through matching React and Vanilla JavaScript clients backed
+by FastAPI and SQLite. The public archive is read-only; canonical records cannot
+be changed without administrator authorization.
 
 ## Why Trainspotting is the next version
 
@@ -39,7 +39,7 @@ the expanded ERD is implemented incrementally.
 
 - Browse designer profiles and their related collections.
 - View collection details, curated sources, and official runway videos.
-- Create, edit, and delete designer and collection records.
+- Browse without an account while all archive mutations remain protected.
 - Use either the React client or the matching Vanilla JavaScript client.
 - Preserve canonical archive content in reviewable JSON.
 - Run locally or as a Docker Compose stack.
@@ -118,8 +118,8 @@ live archive records.
 ## Preserve and restore archive content
 
 SQLite is the local runtime database and remains ignored by Git. The canonical,
-reviewable content record is `data/archive.json`. After making approved content
-changes through either UI, refresh that snapshot with:
+reviewable content record is `data/archive.json`. After making an approved
+administrative content change, refresh that snapshot with:
 
 ```bash
 python3 -m scripts.archive_data export
@@ -135,8 +135,10 @@ Designer and collection keys in the JSON are stable text identifiers; generated
 SQLite IDs are deliberately not exported. Tests verify that export → import →
 export produces identical content and that repeated merge imports are idempotent.
 
-After initialization, designers and collections added through either web UI
-are stored in that same live database and appear in both interfaces. SQL files
+Historically, records added through either client were stored in the same live
+database and appeared in both interfaces. The public clients are now read-only;
+future authenticated admin tools will preserve the same canonical-data
+workflow. SQL files
 under `sql/migrations/` contain deliberate database upgrades. FastAPI applies
 each migration once at startup and records it in `schema_migrations`; migrations
 never recreate the database from seed data.
@@ -156,23 +158,23 @@ app/database.py
 app/schemas.py
     #Schemas.py defines the accepted structure and validation rules for designer and collection data received by the API. The SQL tables remain defined separately in schema.sql.
 app/main.py
-    #Main.py defines the middle-tier FastAPI application. Uvicorn receives HTTP requests and passes them to matching FastAPI routes. Those routes validate requests, run SQL through a database connection, and return data or errors to the frontend as HTTP responses.
+    #Main.py defines the middle-tier FastAPI application. Public read routes query SQLite, while every mutation route passes through the centralized administrator guard that will be connected to Clerk authentication.
 web/
-    #The web/ directory contains the user-facing layer. HTML defines the structure and content of each page, CSS controls its visual presentation, and JavaScript loads archive data, handles forms, and communicates with the API.
+    #The web/ directory contains the read-only Vanilla client. Legacy form files remain unlinked until an authenticated administrative interface replaces them.
 tests/
     #The tests verify API functionality by sending predefined input and comparing the response with expected output. Each test uses a temporary database so the real archive data is not changed.
 react-ui/src/App.jsx
-    #App.jsx is the React routing map. It connects browser URLs to page components, places those pages inside a shared layout, and includes routes for listing, viewing, creating, editing, and handling unknown pages.
+    #App.jsx is the public React routing map. It exposes list and detail views inside the shared layout; mutation forms are deliberately absent.
 react-ui/src/pages/DesignerList.jsx
     #DesignerList.jsx requests designers from FastAPI when it first loads, stores the result in React state, and maps each designer record into a linked card on the home page.
 react-ui/src/pages/DesignerDetail.jsx
-    #DesignerDetail reads a designer ID from the React route. When the component loads, it requests both the designer record and that designer’s collections from FastAPI. It stores both responses in React state and renders the one-to-many relationship. It also links to the create and edit forms. When a deletion is confirmed, it sends a DELETE request and SQLite performs the cascading collection deletion.
+    #DesignerDetail reads a designer ID from the React route, requests the designer and related collections from FastAPI, and renders the one-to-many relationship without public mutation controls.
 react-ui/src/pages/DesignerForm.jsx
-    #DesignerForm handles both creating and editing designers. It detects edit mode from the route parameter. Its inputs are controlled by one state object, and a shared change handler updates the relevant property. On submission, it converts form strings into the types expected by FastAPI, changes blank optional fields to null, normalizes the website address, and sends either POST or PUT. After a successful response, it navigates to the saved designer’s profile.
+    #DesignerForm retains the former create/edit implementation for reuse by a future authenticated admin interface, but no public React route exposes it.
 react-ui/src/pages/CollectionDetail.jsx
-    #CollectionDetail gets the collection ID from the React route and requests that record from FastAPI. The API response includes the collection’s foreign key and the designer name obtained through a SQL join. The component displays optional fields with appropriate fallbacks and links back to the parent designer. It can also navigate to the edit form or delete the collection and return to its designer’s profile.
+    #CollectionDetail requests one collection, displays its joined designer and optional media, and links back to the designer without public mutation controls.
 react-ui/src/pages/CollectionForm.jsx
-    #CollectionForm handles both collection creation and editing. When creating, it obtains the parent designer ID from the nested URL. When editing, it obtains the designer ID from the existing collection. Its controlled fields are stored in React state, and submission converts the string input values into the integer and null values expected by FastAPI. The payload includes designer_id, which connects the collection to its parent. FastAPI validates the parent, while SQLite enforces the foreign key and uniqueness rules.
+    #CollectionForm retains the former create/edit implementation for reuse by a future authenticated admin interface, but no public React route exposes it.
 react-ui/src/api.js
     #Api.js centralizes communication between React and FastAPI. It prefixes API requests so Vite can proxy them to the backend, adds the JSON content header when a request has a body, parses successful JSON responses, handles empty deletion responses, and converts unsuccessful HTTP responses into JavaScript errors that page components can display.
 

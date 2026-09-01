@@ -29,9 +29,6 @@ async function loadCollection() {
                 .map((word) => word[0])
                 .join("")
                 .toUpperCase();
-        document.querySelector("#edit-collection").href =
-            `/collection-form.html?collection_id=${collection.id}`;
-
         document.querySelector("#collection-label").textContent =
             collection.label;
 
@@ -104,38 +101,6 @@ async function loadCollection() {
 
         statusMessage.textContent = "";
         collectionArticle.hidden = false;
-        const deleteButton =
-            document.querySelector("#delete-collection");
-
-        deleteButton.addEventListener("click", async function () {
-            const confirmed = window.confirm(
-                "Delete this collection permanently?"
-            );
-
-            if (!confirmed) {
-                return;
-            }
-
-            try {
-                const deleteResponse = await fetch(
-                    `/collections/${collection.id}`,
-                    {
-                        method: "DELETE",
-                    }
-                );
-
-                if (!deleteResponse.ok) {
-                    throw new Error(
-                        "Collection could not be deleted"
-                    );
-                }
-
-                window.location.href =
-                    `/designer.html?id=${collection.designer_id}`;
-            } catch (error) {
-                statusMessage.textContent = error.message;
-            }
-        });
     } catch (error) {
         statusMessage.textContent =
             "This collection could not be loaded.";

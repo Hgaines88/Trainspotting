@@ -1,6 +1,6 @@
 import sqlite3
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Response, status
 from app.database import apply_migrations, connect
 from app.schemas import CollectionCreate, DesignerCreate
 from fastapi.staticfiles import StaticFiles
@@ -17,6 +17,14 @@ app = FastAPI(
     description="Structured fashion-history data for designers, labels, and collections.",
     lifespan=lifespan,
 )
+
+
+def require_archive_admin() -> None:
+    """Deny archive mutations until Clerk-backed admin roles are available."""
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Archive changes require administrator access.",
+    )
 
 
 COLLECTION_SELECT = """
@@ -224,7 +232,11 @@ def get_collection(collection_id: int):
     finally:
         connection.close()
 
-@app.post("/designers", status_code=status.HTTP_201_CREATED)
+@app.post(
+    "/designers",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_archive_admin)],
+)
 def create_designer(payload: DesignerCreate):
     connection = connect()
 
@@ -279,7 +291,10 @@ def create_designer(payload: DesignerCreate):
     finally:
         connection.close()
 
-@app.put("/designers/{designer_id}")
+@app.put(
+    "/designers/{designer_id}",
+    dependencies=[Depends(require_archive_admin)],
+)
 def update_designer(designer_id: int, payload: DesignerCreate):
     connection = connect()
 
@@ -353,6 +368,7 @@ def update_designer(designer_id: int, payload: DesignerCreate):
 @app.delete(
     "/designers/{designer_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_archive_admin)],
 )
 def delete_designer(designer_id: int):
     connection = connect()
@@ -392,6 +408,7 @@ def delete_designer(designer_id: int):
 @app.post(
     "/collections",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_archive_admin)],
 )
 def create_collection(payload: CollectionCreate):
     connection = connect()
@@ -465,7 +482,10 @@ def create_collection(payload: CollectionCreate):
     finally:
         connection.close()
 
-@app.put("/collections/{collection_id}")
+@app.put(
+    "/collections/{collection_id}",
+    dependencies=[Depends(require_archive_admin)],
+)
 def update_collection(
     collection_id: int,
     payload: CollectionCreate,
@@ -560,6 +580,7 @@ def update_collection(
 @app.delete(
     "/collections/{collection_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_archive_admin)],
 )
 def delete_collection(collection_id: int):
     connection = connect()
@@ -644,6 +665,7 @@ def list_collections():
 @app.post(
     "/designers/{designer_id}/collections",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_archive_admin)],
 )
 def create_designer_collection(
     designer_id: int,

@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import database
-from app.main import app
+from app.main import app, require_archive_admin
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -36,8 +36,76 @@ def client(tmp_path, monkeypatch):
     finally:
         connection.close()
 
+    app.dependency_overrides[require_archive_admin] = lambda: None
+
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        app.dependency_overrides.pop(require_archive_admin, None)
+
+
+@pytest.fixture
+def public_client(tmp_path, monkeypatch):
+    test_database_path = tmp_path / "public-test.db"
+
+    monkeypatch.setattr(database, "DATABASE_PATH", test_database_path)
+    connection = database.connect()
+
+    try:
+        connection.executescript(
+            (PROJECT_ROOT / "sql" / "schema.sql").read_text()
+        )
+        connection.executescript(
+            (PROJECT_ROOT / "sql" / "seed.sql").read_text()
+        )
+    finally:
+        connection.close()
+
+    app.dependency_overrides.pop(require_archive_admin, None)
+
     with TestClient(app) as test_client:
         yield test_client
+
+
+DESIGNER_PAYLOAD = {"full_name": "Public Write Attempt"}
+COLLECTION_PAYLOAD = {
+    "designer_id": 1,
+    "label": "Public Write Attempt",
+    "season": "Resort",
+    "release_year": 2030,
+    "status": "concept",
+}
+
+
+@pytest.mark.parametrize(
+    ("method", "path", "payload"),
+    [
+        ("post", "/designers", DESIGNER_PAYLOAD),
+        ("put", "/designers/1", DESIGNER_PAYLOAD),
+        ("delete", "/designers/1", None),
+        ("post", "/collections", COLLECTION_PAYLOAD),
+        ("put", "/collections/1", COLLECTION_PAYLOAD),
+        ("delete", "/collections/1", None),
+        (
+            "post",
+            "/designers/1/collections",
+            COLLECTION_PAYLOAD,
+        ),
+    ],
+)
+def test_public_archive_mutations_require_admin(
+    public_client,
+    method,
+    path,
+    payload,
+):
+    response = public_client.request(method, path, json=payload)
+
+    assert response.status_code == 403
+    assert response.json() == {
+        "detail": "Archive changes require administrator access."
+    }
 
 
 def test_list_designers(client):

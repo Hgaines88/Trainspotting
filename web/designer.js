@@ -33,9 +33,6 @@ async function loadDesigner() {
             `DESIGNER PROFILE / ID ${String(designer.id).padStart(3, "0")}`;
         document.querySelector("#collection-count").textContent =
             `${String(collections.length).padStart(2, "0")} RECORDS`;
-        document.querySelector("#edit-designer").href =
-            `/designer-form.html?id=${designer.id}`;
-
         const flags = nationalityFlags(designer.nationality);
         const flagElement = document.querySelector("#designer-flag");
         flagElement.textContent = flags;
@@ -73,9 +70,6 @@ async function loadDesigner() {
         document.querySelector("#designer-biography").textContent =
             designer.biography || "No biography is available.";
 
-        document.querySelector("#add-collection-link").href =
-            `/collection-form.html?designer_id=${designerId}`;
-
         const collectionList =
             document.querySelector("#collection-list");
 
@@ -99,38 +93,6 @@ async function loadDesigner() {
 
         status.textContent = "";
         profile.hidden = false;
-
-        const deleteButton =
-    document.querySelector("#delete-designer");
-
-    deleteButton.addEventListener("click", async function () {
-        const confirmed = window.confirm(
-            "Delete this designer and all of their collections permanently?"
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
-        try {
-            const deleteResponse = await fetch(
-                `/designers/${designerId}`,
-                {
-                    method: "DELETE",
-                }
-            );
-
-            if (!deleteResponse.ok) {
-                throw new Error(
-                    "Designer could not be deleted"
-                );
-            }
-
-            window.location.href = "/";
-        } catch (error) {
-            status.textContent = error.message;
-        }
-    });
 
     } catch (error) {
         status.textContent =
