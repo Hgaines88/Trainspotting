@@ -61,7 +61,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 python3 -m scripts.init_db
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --env-file .env
 ```
 
 In a second terminal, start the React client:

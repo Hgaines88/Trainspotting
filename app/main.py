@@ -1,6 +1,7 @@
 import sqlite3
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, Response, status
+from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import apply_migrations, connect
 from app.schemas import CollectionCreate, DesignerCreate
 from fastapi.staticfiles import StaticFiles
@@ -109,6 +110,16 @@ def sync_collection_media(
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/auth/session")
+def authenticated_session(
+    identity: ClerkIdentity = Depends(require_authenticated_user),
+):
+    return {
+        "authenticated": True,
+        "user_id": identity.user_id,
+    }
 
 @app.get("/designers")
 def list_designers():
