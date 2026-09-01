@@ -139,3 +139,14 @@ def test_react_uses_clerk_without_exposing_the_secret_key():
     assert "SignInButton" in layout_source
     assert "SignUpButton" in layout_source
     assert "UserButton" in layout_source
+
+
+def test_signed_in_react_users_sync_with_a_bearer_token():
+    sync_source = (
+        PROJECT_ROOT / "react-ui" / "src" / "components" / "UserSync.jsx"
+    ).read_text(encoding="utf-8")
+
+    assert "useAuth" in sync_source
+    assert "getToken" in sync_source
+    assert 'apiRequest("/me"' in sync_source
+    assert "Authorization: `Bearer ${token}`" in sync_source

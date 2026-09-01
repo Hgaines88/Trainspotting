@@ -9,6 +9,7 @@
 .auth-button { min-width:auto; padding:.42rem .65rem; font-size:.62rem; }
 .auth-button.secondary { color:var(--paper); background:transparent; }
 .account-label { color:var(--dim); font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; }
+.auth-sync-error { max-width:18rem; color:#ff4b39; font-size:.58rem; text-transform:uppercase; }
 .header-signature { margin-right:.18rem; color:var(--paper); font-size:.7rem; font-weight:500; letter-spacing:-.03em; transform:rotate(-2deg); opacity:.78; }
 .signal i { width:.55rem; height:.55rem; border-radius:50%; background:var(--signal); box-shadow:0 0 12px var(--signal); animation:blink 1.4s step-end infinite; }
 .signal span { color:var(--dim); }

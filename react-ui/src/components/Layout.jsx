@@ -5,6 +5,7 @@ import {
   UserButton,
 } from "@clerk/react";
 import { Link, Outlet } from "react-router-dom";
+import UserSync from "./UserSync";
 
 export default function Layout() {
   return (
@@ -16,6 +17,7 @@ export default function Layout() {
         </Link>
         <div className="signal-stack">
           <div className="auth-controls" aria-label="Account controls">
+            <UserSync />
             <Show when="signed-out">
               <SignInButton mode="modal">
                 <button className="auth-button secondary" type="button">
