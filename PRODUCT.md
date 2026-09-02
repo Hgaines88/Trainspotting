@@ -39,33 +39,34 @@ Official YouTube runway video
 
 ## Current features
 
-Public read access to designers, collections, sources, and runway media. All
-API mutations are denied until Clerk-backed administrator authorization is
-implemented.
+Public read access to designers, collections, sources, and runway media;
+Clerk-backed accounts and application roles; administrator-only canonical
+editing; sourced member submissions; moderator decisions; transactional,
+idempotent approval; append-only audit history; and controlled rollback.
 
 ## Editorial policy
 
 Trainspotting is an archive, not a public wiki. Canonical records are read-only
-for visitors and ordinary members. Future members may submit sourced additions
-or corrections to a separate review queue, but submissions will never write
-directly to the archive. Moderators will review proposals, and only
-administrators will be able to create, edit, or remove canonical records. Every
-approved change should retain its author, reviewer, sources, timestamp, and
-decision history.
+for visitors and ordinary members. Members may submit sourced additions or
+corrections to a separate review queue, but submissions never write directly
+to the archive. Moderators review proposals, while administrators retain
+direct canonical editing and controlled rollback. Every approved change
+retains its author, reviewer, sources, timestamp, and decision history.
 
 ## Trainspotting roadmap
 
 - Promote labels to first-class entities and record designer tenures by role and date.
 - Support multiple designer credits and collective membership.
 - Add weighted style tags and content-based collection recommendations.
-- Add Clerk passwordless email and Google authentication.
-- Add application roles for members, moderators, and administrators.
-- Add sourced submissions and a moderation queue without direct member CRUD.
+- Harden and deploy the completed authentication and moderation foundation.
 - Add users, favorites, follows, and private or public profiles.
 - Build a traceable ingestion and reconciliation pipeline from open sources.
-- Add administrative editing, attribution, audit history, and rollback.
+- Expand field-level provenance and public source transparency.
 - Keep direct image hosting postponed while curated sources and official embeds
   meet the archive's needs.
+
+The ordered implementation board, dependencies, and acceptance criteria live
+in [`docs/TRAINSPOTTING_KANBAN.md`](docs/TRAINSPOTTING_KANBAN.md).
 
 ---
 

@@ -205,6 +205,9 @@ rollback only when the canonical record has not changed since approval. See
 [`docs/SUBMISSION_FIELD_REQUIREMENTS.md`](docs/SUBMISSION_FIELD_REQUIREMENTS.md)
 for field rules and state transitions.
 
+The detailed product roadmap is maintained as an ordered Kanban in
+[`docs/TRAINSPOTTING_KANBAN.md`](docs/TRAINSPOTTING_KANBAN.md).
+
 # OnesToManys (ListDetails)
 
 The point of this project is to explore what a 3-tier web application is like.
