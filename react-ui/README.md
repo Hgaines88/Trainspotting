@@ -23,9 +23,17 @@ Open `http://127.0.0.1:5173`.
 Useful checks:
 
 ```bash
+npm test
 npm run lint
 npm run build
+npm run test:e2e
 ```
+
+The Playwright test starts its own React and FastAPI processes on ports `4173`
+and `8001`. It uses a temporary SQLite database and synthetic identities that
+are available only in E2E mode, so the development archive and Clerk accounts
+remain untouched. Install the local browser binary after a fresh checkout with
+`npx playwright install chromium`.
 
 ---
 

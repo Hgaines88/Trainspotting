@@ -15,7 +15,6 @@ const ApplicationUserContext = createContext(null);
 export function ApplicationUserProvider({ children }) {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const [appUser, setAppUser] = useState(null);
-  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState("");
 
   const authorizedRequest = useCallback(async (path, options = {}) => {
@@ -35,13 +34,12 @@ export function ApplicationUserProvider({ children }) {
     if (!isLoaded) return;
     if (!isSignedIn) {
       setAppUser(null);
-      setSyncing(false);
       setError("");
       return;
     }
 
     let cancelled = false;
-    setSyncing(true);
+    setAppUser(null);
     setError("");
 
     authorizedRequest("/me")
@@ -53,9 +51,6 @@ export function ApplicationUserProvider({ children }) {
           setAppUser(null);
           setError(requestError.message || "Account sync failed.");
         }
-      })
-      .finally(() => {
-        if (!cancelled) setSyncing(false);
       });
 
     return () => {
@@ -68,9 +63,9 @@ export function ApplicationUserProvider({ children }) {
     authorizedRequest,
     error,
     isAdmin: appUser?.role === "admin",
-    isLoading: !isLoaded || (Boolean(isSignedIn) && syncing),
+    isLoading: !isLoaded || (Boolean(isSignedIn) && !appUser && !error),
     isSignedIn: Boolean(isSignedIn),
-  }), [appUser, authorizedRequest, error, isLoaded, isSignedIn, syncing]);
+  }), [appUser, authorizedRequest, error, isLoaded, isSignedIn]);
 
   return (
     <ApplicationUserContext.Provider value={value}>
