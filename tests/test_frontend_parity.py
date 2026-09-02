@@ -189,8 +189,11 @@ def test_submission_and_moderation_routes_are_role_guarded():
     ).read_text(encoding="utf-8")
 
     assert '<RequireAuthenticated><SubmissionForm />' in app_source
+    assert 'path="/submissions/:submissionId/edit"' in app_source
     assert '<RequireAuthenticated><MySubmissions />' in app_source
     assert '<RequireModerator><ModerationQueue />' in app_source
     assert 'authorizedRequest("/submissions"' in submission_source
     assert "authorizedRequest(`/moderation/submissions/${id}/decisions`" in moderation_source
+    assert "authorizedRequest(`/moderation/submissions/${id}/rollback`" in moderation_source
+    assert 'appUser?.role === "admin"' in moderation_source
     assert "appUser?.clerk_user_id" in moderation_source

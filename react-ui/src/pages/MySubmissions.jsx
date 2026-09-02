@@ -14,6 +14,6 @@ export default function MySubmissions() {
     <div className="page-heading"><div><p className="eyebrow">Community research</p><h1>My submissions</h1></div><Link className="button" to="/submissions/new">New proposal</Link></div>
     <StatusMessage error>{error}</StatusMessage>
     {!error && submissions.length === 0 && <StatusMessage>No submissions yet.</StatusMessage>}
-    <ul className="collection-list">{submissions.map((item) => <li key={item.id}><div className="submission-row"><strong>#{item.id} · {item.record_type} {item.submission_type}</strong><span>{item.status.replace("_", " ")} · version {item.version}</span><small>{item.explanation || "Draft explanation not provided"}</small>{item.decisions.at(-1)?.notes && <small>Reviewer: {item.decisions.at(-1).notes}</small>}</div></li>)}</ul>
+    <ul className="collection-list">{submissions.map((item) => <li key={item.id}><div className="submission-row"><strong>#{item.id} · {item.record_type} {item.submission_type}</strong><span>{item.status.replace("_", " ")} · version {item.version}</span><small>{item.explanation || "Draft explanation not provided"}</small>{item.decisions.at(-1)?.notes && <small>Reviewer: {item.decisions.at(-1).notes}</small>}{["draft", "changes_requested"].includes(item.status) && <Link className="button secondary" to={`/submissions/${item.id}/edit`}>{item.status === "changes_requested" ? "Edit and resubmit" : "Continue draft"}</Link>}</div></li>)}</ul>
   </>;
 }

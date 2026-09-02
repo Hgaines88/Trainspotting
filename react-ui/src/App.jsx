@@ -25,6 +25,7 @@ export default function App() {
       <Route path="/designers/:designerId/collections/new" element={<RequireAdmin><CollectionForm /></RequireAdmin>} />
       <Route path="/collections/:collectionId/edit" element={<RequireAdmin><CollectionForm /></RequireAdmin>} />
       <Route path="/submissions/new" element={<RequireAuthenticated><SubmissionForm /></RequireAuthenticated>} />
+      <Route path="/submissions/:submissionId/edit" element={<RequireAuthenticated><SubmissionForm /></RequireAuthenticated>} />
       <Route path="/submissions/mine" element={<RequireAuthenticated><MySubmissions /></RequireAuthenticated>} />
       <Route path="/moderation" element={<RequireModerator><ModerationQueue /></RequireModerator>} />
       <Route path="*" element={<NotFound />} />
