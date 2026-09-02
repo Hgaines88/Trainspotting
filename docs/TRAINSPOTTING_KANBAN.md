@@ -1,5 +1,11 @@
 # Trainspotting Product Kanban
 
+The live, instructor-facing board is maintained in
+[GitHub Projects](https://github.com/users/Hgaines88/projects/11). This document
+preserves the planning rationale and recommended execution sequence in the
+repository; GitHub Projects is the authoritative source for current card
+status.
+
 This board translates the product vision into an implementation order. Cards
 move from **Backlog** to **Ready**, then **In progress**, **Validate**, and
 **Done**. Only one major feature epic should be in progress at a time.

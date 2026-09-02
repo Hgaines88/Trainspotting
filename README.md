@@ -206,6 +206,8 @@ rollback only when the canonical record has not changed since approval. See
 for field rules and state transitions.
 
 The detailed product roadmap is maintained as an ordered Kanban in
+[GitHub Projects](https://github.com/users/Hgaines88/projects/11), with the
+planning rationale mirrored in
 [`docs/TRAINSPOTTING_KANBAN.md`](docs/TRAINSPOTTING_KANBAN.md).
 
 # OnesToManys (ListDetails)
