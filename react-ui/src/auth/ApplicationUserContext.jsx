@@ -39,6 +39,7 @@ export function ApplicationUserProvider({ children }) {
     }
 
     let cancelled = false;
+    setAppUser(null);
     setError("");
 
     authorizedRequest("/me")
