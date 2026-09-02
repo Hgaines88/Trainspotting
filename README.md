@@ -55,6 +55,7 @@ the expanded ERD is implemented incrementally.
 - FastAPI
 - Vanilla HTML, CSS, and JavaScript
 - React and Vite
+- Playwright
 - Pytest
 
 ## Run locally
@@ -106,6 +107,21 @@ root:
 ```bash
 pytest -q
 ```
+
+Run the React unit checks and the isolated browser workflow separately:
+
+```bash
+cd react-ui
+npm test
+npm run test:e2e
+```
+
+The Playwright workflow creates a disposable SQLite archive and uses synthetic
+member, moderator, and administrator identities in dedicated E2E processes. It
+does not use Clerk credentials or read from or write to `data/archive.db`.
+Synthetic backend authentication refuses to start unless the test runner sets
+`TRAINSPOTTING_E2E_TEST=1`; normal development and production builds continue
+to use Clerk.
 
 To print the designers currently stored in the archive from the project root,
 run the utility script as a Python module:

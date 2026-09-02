@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+react-ui/playwright-report/
+react-ui/test-results/
 data/*.db
 .DS_Store
 .env
