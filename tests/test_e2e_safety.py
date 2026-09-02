@@ -18,6 +18,7 @@ def test_e2e_server_refuses_to_start_without_explicit_test_flag():
         capture_output=True,
         text=True,
         check=False,
+        timeout=10,
     )
 
     assert result.returncode != 0
