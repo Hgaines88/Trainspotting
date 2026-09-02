@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
+import { SUPPORTED_NATIONALITIES } from "../nationalityFlags";
 
 const emptyDesigner = {
   full_name: "",
@@ -85,9 +86,11 @@ export default function DesignerForm() {
           Nationality
           <input
             name="nationality"
+            list="supported-nationalities"
             value={form.nationality}
             onChange={updateField}
           />
+          <datalist id="supported-nationalities">{SUPPORTED_NATIONALITIES.map((nationality) => <option key={nationality} value={nationality} />)}</datalist>
         </label>
         <label>
           Birth year

@@ -1,4 +1,5 @@
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -246,6 +247,43 @@ def test_me_creates_one_member_for_the_verified_clerk_identity(client):
         connection.close()
 
     assert user_count == 1
+
+
+def test_me_synchronizes_trusted_clerk_profile_fields(client, monkeypatch):
+    monkeypatch.setenv("CLERK_SECRET_KEY", "test-secret")
+
+    class FakeClerk:
+        def __init__(self, bearer_auth):
+            assert bearer_auth == "test-secret"
+            self.users = self
+
+        def get(self, *, user_id):
+            assert user_id == "user_profile123"
+            return SimpleNamespace(
+                first_name="Grace",
+                last_name="Hopper",
+                username="grace",
+                primary_email_address_id="email_primary",
+                email_addresses=[SimpleNamespace(
+                    id="email_primary",
+                    email_address="grace@example.com",
+                )],
+            )
+
+    monkeypatch.setattr("app.users.Clerk", FakeClerk)
+    app.dependency_overrides[require_authenticated_user] = lambda: ClerkIdentity(
+        user_id="user_profile123",
+        session_id="sess_profile123",
+    )
+    try:
+        response = client.get("/me")
+    finally:
+        app.dependency_overrides.pop(require_authenticated_user, None)
+
+    assert response.status_code == 200
+    assert response.json()["display_name"] == "Grace Hopper"
+    assert response.json()["email"] == "grace@example.com"
+    assert response.json()["role"] == "member"
 
 def test_get_designer(client):
     response = client.get("/designers/1")

@@ -39,3 +39,14 @@ test("unknown or missing nationalities do not render a flag", () => {
     assert.equal(vanillaFlags(nationality), "");
   }
 });
+
+test("nationalities are normalized and supported compounds are composed", () => {
+  for (const value of ["american", " American "]) {
+    assert.equal(reactFlags(value), "🇺🇸");
+    assert.equal(vanillaFlags(value), "🇺🇸");
+  }
+  assert.equal(reactFlags("Nigerian-British"), "🇳🇬 🇬🇧");
+  assert.equal(vanillaFlags("Nigerian-British"), "🇳🇬 🇬🇧");
+  assert.equal(reactFlags("South Korean"), "🇰🇷");
+  assert.equal(vanillaFlags("South Korean"), "🇰🇷");
+});

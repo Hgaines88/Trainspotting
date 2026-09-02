@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
 import StatusMessage from "../components/StatusMessage";
+import { SUPPORTED_NATIONALITIES } from "../nationalityFlags";
 
 const designerFields = [
   ["full_name", "Full name"], ["nationality", "Nationality"],
@@ -95,7 +96,7 @@ export default function SubmissionForm() {
       {fieldDefinitions.map(([name, label, type = "text"]) => {
         if (name === "status") return null;
         const isRequired = required && requiredAdditionFields.has(name);
-        return <label key={name}>{label}{type === "textarea" ? <textarea name={name} rows="5" value={fields[name] || ""} onChange={updateField} required={isRequired} /> : <input name={name} type={type} value={fields[name] || ""} onChange={updateField} required={isRequired} />}</label>;
+        return <label key={name}>{label}{type === "textarea" ? <textarea name={name} rows="5" value={fields[name] || ""} onChange={updateField} required={isRequired} /> : <input name={name} type={type} list={name === "nationality" ? "supported-nationalities" : undefined} value={fields[name] || ""} onChange={updateField} required={isRequired} />}{name === "nationality" && <datalist id="supported-nationalities">{SUPPORTED_NATIONALITIES.map((nationality) => <option key={nationality} value={nationality} />)}</datalist>}</label>;
       })}
       {recordType === "collection" && <label>Status<select name="status" value={fields.status ?? (required ? "released" : "")} onChange={updateField} required={required}>{!required && <option value="">Keep unchanged</option>}<option value="concept">Concept</option><option value="in-production">In production</option><option value="released">Released</option><option value="archived">Archived</option></select></label>}
       <label>Why should the archive change?<textarea rows="5" value={explanation} onChange={(event) => setExplanation(event.target.value)} required /></label>

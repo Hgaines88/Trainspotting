@@ -70,6 +70,14 @@ def test_anonymous_users_cannot_create_submissions(client):
 
 def test_member_submission_records_sources_without_changing_archive(client):
     authenticate("user_member")
+    connection = database.connect()
+    try:
+        connection.execute(
+            "UPDATE users SET display_name = 'Archive Contributor' WHERE clerk_user_id = 'user_member'"
+        )
+        connection.commit()
+    finally:
+        connection.close()
     designers_before = count_rows("designers")
 
     response = client.post("/submissions", json=designer_submission())
@@ -78,6 +86,7 @@ def test_member_submission_records_sources_without_changing_archive(client):
     body = response.json()
     assert body["status"] == "submitted"
     assert body["submitter_clerk_user_id"] == "user_member"
+    assert body["submitter_display_name"] == "Archive Contributor"
     assert body["sources"][0]["url"] == SOURCE["url"]
     assert body["submitted_at"] is not None
     assert count_rows("designers") == designers_before

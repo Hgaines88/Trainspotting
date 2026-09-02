@@ -54,7 +54,8 @@ def json_text(value) -> str:
 def serialize_submission(connection: sqlite3.Connection, submission_id: int) -> dict:
     row = connection.execute(
         """
-        SELECT submissions.*, users.clerk_user_id AS submitter_clerk_user_id
+        SELECT submissions.*, users.clerk_user_id AS submitter_clerk_user_id,
+               users.display_name AS submitter_display_name
         FROM submissions
         JOIN users ON users.id = submissions.submitter_user_id
         WHERE submissions.id = ?

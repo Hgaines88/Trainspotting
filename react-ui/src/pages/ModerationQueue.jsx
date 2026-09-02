@@ -26,7 +26,7 @@ export default function ModerationQueue() {
     <StatusMessage error>{error}</StatusMessage>
     {!error && submissions.length === 0 && <StatusMessage>The queue is clear.</StatusMessage>}
     <div className="moderation-list">{submissions.map((item) => <article className="moderation-card" key={item.id}>
-      <p className="eyebrow">Submission #{item.id} · {item.submitter_clerk_user_id === appUser?.clerk_user_id ? "your proposal" : item.submitter_clerk_user_id}</p>
+      <p className="eyebrow">Submission #{item.id} · {item.submitter_clerk_user_id === appUser?.clerk_user_id ? "your proposal" : (item.submitter_display_name || "Trainspotting member")}</p>
       <h2>{item.record_type} {item.submission_type}</h2><p>{item.explanation}</p>
       <pre>{JSON.stringify(item.proposed_data, null, 2)}</pre>
       <ul>{item.sources.map((source) => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title || source.url} ↗</a></li>)}</ul>

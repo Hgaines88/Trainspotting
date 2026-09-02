@@ -4,7 +4,7 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import apply_migrations, connect
 from app.schemas import CollectionCreate, DesignerCreate
-from app.users import get_or_create_user
+from app.users import get_or_create_user, sync_clerk_user_profile
 from app.submissions import router as submissions_router
 from fastapi.staticfiles import StaticFiles
 
@@ -134,7 +134,7 @@ def authenticated_session(
 def current_user(
     identity: ClerkIdentity = Depends(require_authenticated_user),
 ):
-    return get_or_create_user(identity.user_id)
+    return sync_clerk_user_profile(identity.user_id)
 
 @app.get("/designers")
 def list_designers():
