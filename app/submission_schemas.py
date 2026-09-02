@@ -1,12 +1,16 @@
 from typing import Annotated, Literal
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, Field, TypeAdapter, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
 from app.schemas import CollectionStatus
 
 
 SubmissionKind = Literal["addition", "correction"]
+
+
+class SubmissionModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
 
 def normalize_optional_http_url(value: str | None, field_label: str) -> str | None:
@@ -21,7 +25,7 @@ def normalize_optional_http_url(value: str | None, field_label: str) -> str | No
     return cleaned_value
 
 
-class SubmissionSource(BaseModel):
+class SubmissionSource(SubmissionModel):
     url: str = Field(max_length=500)
     title: str | None = Field(default=None, max_length=200)
     notes: str | None = Field(default=None, max_length=1000)
@@ -36,7 +40,7 @@ class SubmissionSource(BaseModel):
         return cleaned_value
 
 
-class DesignerProposal(BaseModel):
+class DesignerProposal(SubmissionModel):
     full_name: str | None = Field(default=None, max_length=120)
     nationality: str | None = Field(default=None, max_length=120)
     birth_year: int | None = Field(default=None, ge=1800, le=2100)
@@ -59,7 +63,7 @@ class DesignerProposal(BaseModel):
         return normalize_optional_http_url(value, "Website URL")
 
 
-class CollectionProposal(BaseModel):
+class CollectionProposal(SubmissionModel):
     designer_id: int | None = Field(default=None, ge=1)
     label: str | None = Field(default=None, max_length=120)
     name: str | None = Field(default=None, max_length=120)
@@ -89,7 +93,7 @@ class CollectionProposal(BaseModel):
         return normalize_optional_http_url(value, "Source URL")
 
 
-class SubmissionDraftBase(BaseModel):
+class SubmissionDraftBase(SubmissionModel):
     submission_type: SubmissionKind
     target_id: int | None = Field(default=None, ge=1)
     explanation: str | None = Field(default=None, max_length=2000)
@@ -191,3 +195,28 @@ SubmissionForReview = Annotated[
     Field(discriminator="record_type"),
 ]
 submission_for_review_adapter = TypeAdapter(SubmissionForReview)
+
+
+class ReviewDecision(SubmissionModel):
+    decision: Literal["approve", "reject", "request_changes"]
+    notes: str | None = Field(default=None, max_length=2000)
+
+    @model_validator(mode="after")
+    def notes_required_for_non_approval(self):
+        if self.decision != "approve" and not (self.notes or "").strip():
+            raise ValueError("Review notes are required for this decision")
+        if self.notes is not None:
+            self.notes = self.notes.strip() or None
+        return self
+
+
+class RollbackRequest(SubmissionModel):
+    reason: str = Field(min_length=1, max_length=2000)
+
+    @field_validator("reason")
+    @classmethod
+    def reason_must_not_be_blank(cls, value: str) -> str:
+        cleaned_value = value.strip()
+        if not cleaned_value:
+            raise ValueError("Rollback reason must not be blank")
+        return cleaned_value

@@ -173,6 +173,7 @@ def test_migration_upgrades_legacy_data_and_preserves_user_records(
         "005_preserve_curated_archive.sql",
         "006_add_haider_ackermann_profile.sql",
         "007_create_users.sql",
+        "008_create_moderation_workflow.sql",
     ]
     assert second_run == []
     assert migration_count == 1

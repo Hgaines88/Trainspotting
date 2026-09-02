@@ -42,6 +42,11 @@ p { line-height:1.65; }
 .button.secondary { color:var(--paper); background:transparent; }
 .danger { border-color:#ff4b39; color:#ff4b39; background:transparent; }
 .actions { display:flex; flex-wrap:wrap; gap:.5rem; margin:3rem 0; }
+.submission-row { display:grid; gap:.45rem; padding:1rem 0; }
+.submission-row span,.submission-row small { color:var(--dim); text-transform:none; }
+.moderation-list { display:grid; gap:1rem; }
+.moderation-card { padding:1.5rem; border:1px solid var(--line); }
+.moderation-card pre { overflow:auto; padding:1rem; color:var(--paper); background:#111; }
 .profile-title { border-bottom:1px solid var(--paper); padding-bottom:2rem; }
 .profile-intro { display:grid; grid-template-columns:1fr 2fr; gap:4rem; margin:2rem 0; }
 .biography { max-width:75ch; margin:0; font-size:clamp(1rem,1.5vw,1.35rem); }

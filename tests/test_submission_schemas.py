@@ -147,3 +147,16 @@ def test_addition_cannot_target_an_existing_record():
             "explanation": "Add this documented designer.",
             "sources": [SOURCE],
         })
+
+
+def test_identity_and_role_fields_are_never_accepted_from_clients():
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        submission_for_review_adapter.validate_python({
+            "record_type": "designer",
+            "submission_type": "addition",
+            "proposed_data": {"full_name": "Example Designer"},
+            "explanation": "Add this documented designer.",
+            "sources": [SOURCE],
+            "submitter_user_id": 1,
+            "role": "admin",
+        })

@@ -5,6 +5,7 @@ from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import apply_migrations, connect
 from app.schemas import CollectionCreate, DesignerCreate
 from app.users import get_or_create_user
+from app.submissions import router as submissions_router
 from fastapi.staticfiles import StaticFiles
 
 
@@ -19,6 +20,7 @@ app = FastAPI(
     description="Structured fashion-history data for designers, labels, and collections.",
     lifespan=lifespan,
 )
+app.include_router(submissions_router)
 
 
 def require_archive_admin(

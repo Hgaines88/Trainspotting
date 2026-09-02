@@ -6,8 +6,10 @@ import {
 } from "@clerk/react";
 import { Link, Outlet } from "react-router-dom";
 import UserSync from "./UserSync";
+import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 export default function Layout() {
+  const { appUser } = useApplicationUser();
   return (
     <div className="app-shell">
       <header className="site-header">
@@ -31,6 +33,8 @@ export default function Layout() {
               </SignUpButton>
             </Show>
             <Show when="signed-in">
+              <Link className="auth-button secondary" to="/submissions/mine">Submissions</Link>
+              {["moderator", "admin"].includes(appUser?.role) && <Link className="auth-button secondary" to="/moderation">Review</Link>}
               <span className="account-label">Account</span>
               <UserButton />
             </Show>

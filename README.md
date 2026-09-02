@@ -40,6 +40,9 @@ the expanded ERD is implemented incrementally.
 - Browse designer profiles and their related collections.
 - View collection details, curated sources, and official runway videos.
 - Browse without an account while all archive mutations remain protected.
+- Submit sourced additions and corrections from an authenticated account.
+- Review proposals through a moderator queue without changing canonical data
+  until approval.
 - Use either the React client or the matching Vanilla JavaScript client.
 - Preserve canonical archive content in reviewable JSON.
 - Run locally or as a Docker Compose stack.
@@ -187,6 +190,20 @@ react-ui/src/pages/CollectionForm.jsx
     #CollectionForm retains the former create/edit implementation for reuse by a future authenticated admin interface, but no public React route exposes it.
 react-ui/src/api.js
     #Api.js centralizes communication between React and FastAPI. It prefixes API requests so Vite can proxy them to the backend, adds the JSON content header when a request has a body, parses successful JSON responses, handles empty deletion responses, and converts unsuccessful HTTP responses into JavaScript errors that page components can display.
+
+## Moderation workflow
+
+Authenticated members can create sourced additions and corrections from the
+React client. Proposals remain separate from canonical designers and
+collections while they are drafted or reviewed. Moderators may approve,
+reject, or request changes, but cannot review their own submissions.
+
+Approval validates the proposal again and promotes it in the same SQLite
+transaction as the decision, promotion snapshot, and audit event. Retrying a
+successful approval is idempotent. Administrators may perform a controlled
+rollback only when the canonical record has not changed since approval. See
+[`docs/SUBMISSION_FIELD_REQUIREMENTS.md`](docs/SUBMISSION_FIELD_REQUIREMENTS.md)
+for field rules and state transitions.
 
 # OnesToManys (ListDetails)
 

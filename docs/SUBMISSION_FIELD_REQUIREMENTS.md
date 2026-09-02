@@ -51,3 +51,29 @@ for moderator review. It does not change canonical archive records.
 Drafts may be incomplete, but basic type, length, range, and URL checks still
 apply to any values they contain. Promotion to the review queue applies all
 submission-level and record-level requirements above.
+
+## Status transitions
+
+Only these transitions are valid:
+
+```text
+draft ───────────────→ submitted
+                         ├──→ changes_requested ───→ submitted
+                         ├──→ rejected
+                         └──→ approved ────────────→ rolled_back
+```
+
+- The submitter owns and may edit only `draft` or `changes_requested` records.
+- Members can submit, but only moderators and administrators can review.
+- A reviewer cannot decide their own submission.
+- Rejection is final; a contributor creates a new submission if new evidence
+  later emerges.
+- Approval and its canonical write occur in one database transaction.
+- Each submission has at most one promotion record, so approval retries return
+  the existing result instead of creating duplicates.
+- Rollback is restricted to administrators and is refused if the promoted
+  canonical record has subsequently changed or acquired dependent records.
+
+Audit events and review decisions are append-only. The promotion record stores
+the canonical before/after snapshots, reviewer, timestamps, and any controlled
+rollback details.

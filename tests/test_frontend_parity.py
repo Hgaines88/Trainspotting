@@ -175,3 +175,22 @@ def test_react_archive_writes_use_fresh_clerk_tokens():
     assert forms.count("authorizedRequest(") == 2
     assert details.count("authorizedRequest(") == 2
     assert 'method: "DELETE"' in details
+
+
+def test_submission_and_moderation_routes_are_role_guarded():
+    app_source = (PROJECT_ROOT / "react-ui" / "src" / "App.jsx").read_text(
+        encoding="utf-8"
+    )
+    submission_source = (
+        PROJECT_ROOT / "react-ui" / "src" / "pages" / "SubmissionForm.jsx"
+    ).read_text(encoding="utf-8")
+    moderation_source = (
+        PROJECT_ROOT / "react-ui" / "src" / "pages" / "ModerationQueue.jsx"
+    ).read_text(encoding="utf-8")
+
+    assert '<RequireAuthenticated><SubmissionForm />' in app_source
+    assert '<RequireAuthenticated><MySubmissions />' in app_source
+    assert '<RequireModerator><ModerationQueue />' in app_source
+    assert 'authorizedRequest("/submissions"' in submission_source
+    assert "authorizedRequest(`/moderation/submissions/${id}/decisions`" in moderation_source
+    assert "appUser?.clerk_user_id" in moderation_source
