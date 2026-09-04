@@ -1,3 +1,5 @@
+name: trainspotting
+
 services:
   api:
     build:
@@ -31,5 +33,29 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  mysql:
+    image: mysql:8.4.11
+    environment:
+      MYSQL_DATABASE: trainspotting
+      MYSQL_USER: trainspotting
+      MYSQL_PASSWORD: trainspotting_dev_only
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --log-bin-trust-function-creators=1
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - trainspotting_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
 volumes:
   archive-data:
+  trainspotting_mysql_data:

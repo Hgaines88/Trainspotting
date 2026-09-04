@@ -263,7 +263,7 @@ submission_audit = Table(
     Column("event_type", String(32), nullable=False),
     Column("from_status", String(32)),
     Column("to_status", String(32), nullable=False),
-    Column("event_data", Text, nullable=False, server_default="{}"),
+    Column("event_data", Text, nullable=False),
     Column("created_at", DateTime, nullable=False, server_default=func.current_timestamp()),
     CheckConstraint(
         "event_type IN ('created', 'draft_updated', 'submitted', "

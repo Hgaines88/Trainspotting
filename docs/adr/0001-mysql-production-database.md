@@ -47,6 +47,12 @@ keys, unique constraints, and indexes equivalent to the verified SQLite
 schema. Existing identifiers and API representations will remain stable during
 the storage migration.
 
+The selected MySQL host must permit the migration role to create triggers. If
+binary logging is enabled and the role is not a superuser, the host must enable
+`log_bin_trust_function_creators`; the application role itself will never be
+granted superuser privileges. This is required for database-enforced
+append-only decisions and audit history.
+
 ## Implementation sequence
 
 1. Introduce SQLAlchemy and Alembic while SQLite remains the default and every

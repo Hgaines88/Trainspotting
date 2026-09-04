@@ -30,8 +30,8 @@ def test_alembic_upgrade_creates_schema_and_append_only_guards(tmp_path):
                 (submitter_user_id, record_type, submission_type, proposed_data)
                 VALUES (:user_id, 'designer', 'addition', '{}') RETURNING id"""), {"user_id": user_id}).scalar_one()
             connection.execute(text("""INSERT INTO submission_audit
-                (submission_id, actor_user_id, event_type, to_status)
-                VALUES (:submission_id, :user_id, 'created', 'draft')"""), {"submission_id": submission_id, "user_id": user_id})
+                (submission_id, actor_user_id, event_type, to_status, event_data)
+                VALUES (:submission_id, :user_id, 'created', 'draft', '{}')"""), {"submission_id": submission_id, "user_id": user_id})
         with pytest.raises(Exception, match="append-only"):
             with engine.begin() as connection:
                 connection.execute(text("UPDATE submission_audit SET to_status = 'submitted'"))

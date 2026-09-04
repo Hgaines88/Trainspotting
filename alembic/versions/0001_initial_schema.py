@@ -126,7 +126,7 @@ def upgrade():
         sa.Column("submission_id", sa.Integer(), sa.ForeignKey("submissions.id", ondelete="RESTRICT"), nullable=False),
         sa.Column("actor_user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="RESTRICT"), nullable=False),
         sa.Column("event_type", sa.String(32), nullable=False), sa.Column("from_status", sa.String(32)),
-        sa.Column("to_status", sa.String(32), nullable=False), sa.Column("event_data", sa.Text(), server_default="{}", nullable=False),
+        sa.Column("to_status", sa.String(32), nullable=False), sa.Column("event_data", sa.Text(), nullable=False),
         sa.Column("created_at", sa.DateTime(), server_default=sa.func.current_timestamp(), nullable=False),
         sa.CheckConstraint("event_type IN ('created', 'draft_updated', 'submitted', 'changes_requested', 'rejected', 'approved', 'rolled_back')", name="ck_submission_audit_valid_event_type"),
         sa.CheckConstraint("json_valid(event_data)", name="ck_submission_audit_event_data_json"), mysql_engine="InnoDB", mysql_charset="utf8mb4",
