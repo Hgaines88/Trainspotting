@@ -6,6 +6,8 @@ react-ui/playwright-report/
 react-ui/test-results/
 backups/
 data/*.db
+data/*.db-*
+data/*.sqlite*
 .DS_Store
 .env
 .env.*

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+import scripts.archive_backup as archive_backup
 from scripts.archive_backup import (
     create_backup,
     create_snapshot,
@@ -188,3 +189,60 @@ def test_verify_rejects_a_backup_with_a_mismatched_checksum(tmp_path):
 
     with pytest.raises(ValueError, match="checksum"):
         verify_backup(backup)
+
+
+def test_failed_snapshot_validation_preserves_existing_canonical_json(
+    tmp_path, monkeypatch
+):
+    database = tmp_path / "archive.db"
+    canonical = tmp_path / "archive.json"
+    backup = tmp_path / "private-backup.db"
+    original_canonical = '{"known": "good"}\n'
+    canonical.write_text(original_canonical, encoding="utf-8")
+    create_operational_database(database)
+
+    digest_calls = iter(("source", "verified-backup", "unexpected-export"))
+    monkeypatch.setattr(
+        archive_backup,
+        "archive_digest",
+        lambda _payload: next(digest_calls),
+    )
+
+    with pytest.raises(RuntimeError, match="does not match"):
+        create_snapshot(database, canonical, backup)
+
+    assert canonical.read_text(encoding="utf-8") == original_canonical
+
+
+def test_snapshot_and_restore_include_committed_records_from_active_wal(tmp_path):
+    database = tmp_path / "archive.db"
+    canonical = tmp_path / "archive.json"
+    backup = tmp_path / "private-backup.db"
+    restored = tmp_path / "restored.db"
+    create_operational_database(database)
+
+    writer = sqlite3.connect(database)
+    try:
+        assert writer.execute("PRAGMA journal_mode = WAL").fetchone()[0] == "wal"
+        writer.execute(
+            "INSERT INTO designers (full_name, nationality) VALUES (?, ?)",
+            ("Committed WAL Designer", "American"),
+        )
+        writer.commit()
+        assert database.with_name(f"{database.name}-wal").is_file()
+
+        create_snapshot(database, canonical, backup)
+    finally:
+        writer.close()
+
+    restore_backup(backup, restored)
+    connection = sqlite3.connect(restored)
+    try:
+        recovered = connection.execute(
+            "SELECT nationality FROM designers WHERE full_name = ?",
+            ("Committed WAL Designer",),
+        ).fetchone()
+    finally:
+        connection.close()
+
+    assert recovered == ("American",)

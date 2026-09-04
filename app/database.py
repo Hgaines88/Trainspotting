@@ -5,12 +5,31 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATABASE_PATH = PROJECT_ROOT / "data" / "archive.db"
 MIGRATIONS_PATH = PROJECT_ROOT / "sql" / "migrations"
+SQLITE_BUSY_TIMEOUT_MS = 5_000
+
+
+def configure_connection(connection: sqlite3.Connection) -> None:
+    """Apply and verify the temporary SQLite safety settings."""
+    try:
+        connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.execute(f"PRAGMA busy_timeout = {SQLITE_BUSY_TIMEOUT_MS}")
+        journal_mode = connection.execute("PRAGMA journal_mode = WAL").fetchone()[0]
+        if journal_mode.lower() != "wal":
+            raise RuntimeError(
+                f"SQLite WAL mode unavailable; received {journal_mode!r}."
+            )
+    except Exception:
+        connection.close()
+        raise
 
 
 def connect() -> sqlite3.Connection:
-    connection = sqlite3.connect(DATABASE_PATH)
-    connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA foreign_keys = ON")
+    connection = sqlite3.connect(
+        DATABASE_PATH,
+        timeout=SQLITE_BUSY_TIMEOUT_MS / 1_000,
+    )
+    configure_connection(connection)
     return connection
 
 

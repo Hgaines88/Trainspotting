@@ -86,10 +86,17 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "member");
   await page.goto("/submissions/mine");
-  await expect(page.getByText("changes requested · version 1")).toBeVisible();
-  await page.getByRole("link", { name: "Edit and resubmit" }).click();
+  const memberSubmission = page
+    .getByText(new RegExp(`^#${submissionId} · designer addition$`))
+    .locator("..");
+  await expect(memberSubmission.getByText("changes requested · version 1")).toBeVisible();
+  await memberSubmission.getByRole("link", { name: "Edit and resubmit" }).click();
+  await expect(page.getByLabel("Source URL")).toHaveValue(
+    "https://example.test/primary-source",
+  );
   await page.getByRole("button", { name: "Add another source" }).click();
   const sourceUrls = page.getByLabel("Source URL");
+  await expect(sourceUrls).toHaveCount(2);
   await sourceUrls.nth(1).fill("https://example.test/independent-source");
   const sourceTitles = page.getByLabel("Source title");
   await sourceTitles.nth(1).fill("Independent documented source");
