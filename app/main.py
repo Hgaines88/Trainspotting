@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, Response, status
 from app.auth import ClerkIdentity, require_authenticated_user
@@ -5,6 +6,7 @@ from app.database import (
     DATABASE_INTEGRITY_ERRORS,
     apply_migrations,
     connect,
+    database_readiness,
     is_unique_violation,
 )
 from app.schemas import CollectionCreate, DesignerCreate
@@ -15,7 +17,13 @@ from fastapi.staticfiles import StaticFiles
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    apply_migrations()
+    if os.getenv("AUTO_MIGRATE_DATABASE", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        apply_migrations()
     yield
 
 
@@ -122,6 +130,18 @@ def sync_collection_media(
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    try:
+        details = database_readiness()
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database is not ready.",
+        ) from error
+    return {"status": "ready", **details}
 
 
 @app.get("/auth/session")

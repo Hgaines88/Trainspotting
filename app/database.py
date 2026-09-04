@@ -6,9 +6,10 @@ from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import text
-from sqlalchemy.exc import IntegrityError as SQLAlchemyIntegrityError
 from sqlalchemy.engine import make_url
+from sqlalchemy.exc import IntegrityError as SQLAlchemyIntegrityError
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -16,6 +17,15 @@ DATABASE_PATH = PROJECT_ROOT / "data" / "archive.db"
 MIGRATIONS_PATH = PROJECT_ROOT / "sql" / "migrations"
 SQLITE_BUSY_TIMEOUT_MS = 5_000
 DATABASE_INTEGRITY_ERRORS = (sqlite3.IntegrityError, SQLAlchemyIntegrityError)
+
+
+@lru_cache(maxsize=1)
+def expected_alembic_revision() -> str:
+    configuration = Config(PROJECT_ROOT / "alembic.ini")
+    revision = ScriptDirectory.from_config(configuration).get_current_head()
+    if revision is None:
+        raise RuntimeError("Alembic has no current head revision")
+    return revision
 
 
 def is_unique_violation(error: Exception) -> bool:
@@ -158,6 +168,32 @@ def connect():
     )
     configure_connection(connection)
     return connection
+
+
+def database_readiness() -> dict[str, str]:
+    """Verify connectivity and the schema ledger without changing database state."""
+    database_url = os.getenv("DATABASE_URL")
+    backend = make_url(database_url).get_backend_name() if database_url else "sqlite"
+    connection = connect()
+    try:
+        connection.execute("SELECT 1").fetchone()
+        if backend == "mysql":
+            revision = connection.execute(
+                "SELECT version_num FROM alembic_version"
+            ).fetchone()
+            if revision is None or revision[0] != expected_alembic_revision():
+                raise RuntimeError("Database schema revision is not ready")
+            return {"database": "mysql", "revision": revision[0]}
+
+        archive_table = connection.execute(
+            "SELECT name FROM sqlite_master "
+            "WHERE type = 'table' AND name = 'designers'"
+        ).fetchone()
+        if archive_table is None:
+            raise RuntimeError("SQLite archive schema is not ready")
+        return {"database": "sqlite", "revision": "legacy-current"}
+    finally:
+        connection.close()
 
 
 def apply_migrations() -> list[str]:
