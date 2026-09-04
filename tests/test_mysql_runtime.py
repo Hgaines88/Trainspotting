@@ -38,6 +38,7 @@ def test_mysql_submission_approval_audit_and_rollback(monkeypatch):
 
     try:
         with TestClient(app) as client:
+            initial_version = client.get("/archive-version").json()["version"]
             app.dependency_overrides.pop(require_authenticated_user, None)
             response = client.post(
                 "/designers", json={"full_name": f"Anonymous MySQL {tag}"}
@@ -105,5 +106,8 @@ def test_mysql_submission_approval_audit_and_rollback(monkeypatch):
                 "approved",
                 "rolled_back",
             ]
+            assert client.get("/archive-version").json()["version"] == (
+                initial_version + 4
+            )
     finally:
         app.dependency_overrides.pop(require_authenticated_user, None)

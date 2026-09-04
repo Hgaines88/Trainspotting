@@ -80,6 +80,27 @@ COLLECTION_PAYLOAD = {
 }
 
 
+def archive_version(client):
+    response = client.get("/archive-version")
+    assert response.status_code == 200
+    return response.json()["version"]
+
+
+def test_canonical_admin_writes_increment_archive_version_transactionally(client):
+    initial = archive_version(client)
+    response = client.post("/designers", json={"full_name": "Versioned Designer"})
+    assert response.status_code == 201
+    designer_id = response.json()["id"]
+    assert archive_version(client) == initial + 1
+
+    duplicate = client.post("/designers", json={"full_name": "Versioned Designer"})
+    assert duplicate.status_code == 409
+    assert archive_version(client) == initial + 1
+
+    assert client.delete(f"/designers/{designer_id}").status_code == 204
+    assert archive_version(client) == initial + 2
+
+
 @pytest.mark.parametrize(
     ("method", "path", "payload"),
     [

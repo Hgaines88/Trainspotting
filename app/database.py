@@ -40,6 +40,29 @@ def select_for_update(connection, sql: str, parameters=()):
     return connection.execute(sql, parameters)
 
 
+def current_archive_version(connection=None) -> int:
+    owns_connection = connection is None
+    connection = connection or connect()
+    try:
+        row = connection.execute(
+            "SELECT version FROM archive_state WHERE id = 1"
+        ).fetchone()
+        if row is None:
+            raise RuntimeError("Archive version ledger is missing")
+        return row[0]
+    finally:
+        if owns_connection:
+            connection.close()
+
+
+def bump_archive_version(connection) -> int:
+    connection.execute(
+        "UPDATE archive_state SET version = version + 1, "
+        "updated_at = CURRENT_TIMESTAMP WHERE id = 1"
+    )
+    return current_archive_version(connection)
+
+
 class PortableRow(Mapping):
     """Mapping row that retains sqlite3.Row's integer-index behavior."""
 

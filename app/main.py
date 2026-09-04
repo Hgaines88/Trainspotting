@@ -5,7 +5,9 @@ from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import (
     DATABASE_INTEGRITY_ERRORS,
     apply_migrations,
+    bump_archive_version,
     connect,
+    current_archive_version,
     database_readiness,
     is_unique_violation,
 )
@@ -142,6 +144,11 @@ def ready():
             detail="Database is not ready.",
         ) from error
     return {"status": "ready", **details}
+
+
+@app.get("/archive-version")
+def archive_version():
+    return {"version": current_archive_version()}
 
 
 @app.get("/auth/session")
@@ -311,6 +318,7 @@ def create_designer(payload: DesignerCreate):
             ),
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         row = connection.execute(
@@ -385,6 +393,7 @@ def update_designer(designer_id: int, payload: DesignerCreate):
             ),
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         updated_designer = connection.execute(
@@ -447,6 +456,7 @@ def delete_designer(designer_id: int):
             (designer_id,),
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         return Response(
@@ -511,6 +521,7 @@ def create_collection(payload: CollectionCreate):
             payload,
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         return fetch_collection(connection, cursor.lastrowid)
@@ -606,6 +617,7 @@ def update_collection(
             payload,
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         return fetch_collection(connection, collection_id)
@@ -659,6 +671,7 @@ def delete_collection(collection_id: int):
             (collection_id,),
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         return Response(

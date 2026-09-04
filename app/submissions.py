@@ -5,7 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 
 from app.auth import ClerkIdentity, require_authenticated_user
-from app.database import DATABASE_INTEGRITY_ERRORS, connect, select_for_update
+from app.database import (
+    DATABASE_INTEGRITY_ERRORS,
+    bump_archive_version,
+    connect,
+    select_for_update,
+)
 from app.schemas import CollectionCreate, DesignerCreate
 from app.submission_schemas import (
     ReviewDecision,
@@ -402,6 +407,7 @@ def promote_submission(connection, row, reviewer):
     values = proposed if before is None else {**before, **proposed}
     record_id = writer(connection, row["target_id"], values)
     after = snapshot(connection, record_id)
+    bump_archive_version(connection)
     connection.execute(
         """INSERT INTO submission_promotions
            (submission_id, canonical_record_type, canonical_record_id, before_snapshot,
@@ -520,6 +526,7 @@ def rollback_submission(
             connection.execute(f"DELETE FROM {table} WHERE id = ?", (record_id,))
         else:
             writer(connection, record_id, before)
+        bump_archive_version(connection)
         connection.execute(
             """UPDATE submission_promotions SET rolled_back_by_user_id = ?,
                rolled_back_at = CURRENT_TIMESTAMP, rollback_reason = ? WHERE submission_id = ?""",
