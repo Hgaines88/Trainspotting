@@ -83,9 +83,11 @@ Create a protected GitHub environment named `staging` and require manual
 approval. Store only these environment secrets:
 
 - `RAILWAY_TOKEN`: a Railway project token scoped to the staging environment;
-- `STAGING_BASE_URL`: the public HTTPS origin of the web service;
 - `STAGING_SMOKE_BEARER_TOKEN`: a short-lived token for a non-admin staging test
   user when authenticated smoke checks run.
+
+Set `STAGING_BASE_URL`, the public HTTPS origin of the web service, as an
+environment variable. It is intentionally not secret.
 
 Rotate the smoke token after each rehearsal. Never store an interactive user
 password, Clerk secret key, or MySQL credentials in GitHub for deployment.
