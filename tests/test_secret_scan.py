@@ -50,3 +50,27 @@ def test_secret_scan_rejects_database_backup_artifacts(
     assert [(finding.path, finding.rule) for finding in findings] == [
         (artifact_path, "sensitive filename")
     ]
+
+
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "archive.db-wal",
+        "archive.db-shm",
+        "archive.sqlite-wal",
+        "archive.sqlite-shm",
+        "archive.sqlite3-wal",
+        "archive.sqlite3-shm",
+    ],
+)
+def test_secret_scan_rejects_sqlite_wal_and_shared_memory_sidecars(
+    tmp_path: Path, filename: str
+):
+    sidecar_path = tmp_path / filename
+    sidecar_path.write_bytes(b"sqlite sidecar data")
+
+    findings = scan_paths([sidecar_path])
+
+    assert [(finding.path, finding.rule) for finding in findings] == [
+        (sidecar_path, "sensitive filename")
+    ]

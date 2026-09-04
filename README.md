@@ -172,7 +172,9 @@ python3 -m scripts.archive_backup snapshot backups/archive-YYYYMMDD.db
 The `backups/` directory and SQLite files are ignored by Git. Never commit or
 share a database backup: it can contain account information and moderation
 history. See [`docs/BACKUP_AND_RESTORE.md`](docs/BACKUP_AND_RESTORE.md) for the
-verification, restore-drill, and release procedure.
+verification, restore-drill, and release procedure. The temporary safeguards
+used before the MySQL migration are documented in
+[`docs/SQLITE_MIGRATION_SAFETY.md`](docs/SQLITE_MIGRATION_SAFETY.md).
 
 Designer and collection keys in canonical JSON are stable text identifiers;
 generated SQLite IDs are deliberately not exported. Tests verify deterministic
