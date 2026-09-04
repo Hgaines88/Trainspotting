@@ -30,7 +30,9 @@ def stable_key(value: str) -> str:
 
 
 def database_archive(database_path: Path) -> dict:
-    connection = sqlite3.connect(database_path)
+    if not database_path.is_file():
+        raise FileNotFoundError(f"Database does not exist: {database_path}")
+    connection = sqlite3.connect(f"file:{database_path}?mode=ro", uri=True)
     connection.row_factory = sqlite3.Row
 
     try:
