@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import sqlite3
+import tempfile
 import unicodedata
 from pathlib import Path
 
@@ -26,8 +29,10 @@ def stable_key(value: str) -> str:
     )
 
 
-def export_archive(database_path: Path, archive_path: Path) -> dict:
-    connection = sqlite3.connect(database_path)
+def database_archive(database_path: Path) -> dict:
+    if not database_path.is_file():
+        raise FileNotFoundError(f"Database does not exist: {database_path}")
+    connection = sqlite3.connect(f"file:{database_path}?mode=ro", uri=True)
     connection.row_factory = sqlite3.Row
 
     try:
@@ -92,17 +97,47 @@ def export_archive(database_path: Path, archive_path: Path) -> dict:
         seen_collection_keys.add(key)
         collections.append({"key": key, "designer_key": designer_key, **record})
 
-    payload = {
+    return {
         "format_version": 1,
         "designers": designers,
         "collections": collections,
     }
-    archive_path.parent.mkdir(parents=True, exist_ok=True)
-    archive_path.write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
+
+
+def archive_text(payload: dict) -> str:
+    return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
+
+
+def archive_digest(payload: dict) -> str:
+    return hashlib.sha256(archive_text(payload).encode("utf-8")).hexdigest()
+
+
+def write_text_atomically(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
     )
+    temporary_path = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as temporary_file:
+            temporary_file.write(content)
+            temporary_file.flush()
+            os.fsync(temporary_file.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+
+
+def export_archive(database_path: Path, archive_path: Path) -> dict:
+    payload = database_archive(database_path)
+    write_text_atomically(archive_path, archive_text(payload))
     return payload
+
+
+def archive_has_drift(database_path: Path, archive_path: Path) -> bool:
+    database_payload = database_archive(database_path)
+    file_payload = json.loads(archive_path.read_text(encoding="utf-8"))
+    return database_payload != file_payload
 
 
 def import_archive(
@@ -217,7 +252,7 @@ def import_archive(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("export", "import"))
+    parser.add_argument("command", choices=("check", "export", "import"))
     parser.add_argument("--database", type=Path, default=DEFAULT_DATABASE)
     parser.add_argument("--archive", type=Path, default=DEFAULT_ARCHIVE)
     parser.add_argument(
@@ -227,7 +262,15 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    if args.command == "export":
+    if args.command == "check":
+        if archive_has_drift(args.database, args.archive):
+            print(
+                "Canonical archive drift detected: SQLite and JSON differ. "
+                "Review approved changes before exporting."
+            )
+            raise SystemExit(1)
+        print("Canonical archive is synchronized with SQLite.")
+    elif args.command == "export":
         payload = export_archive(args.database, args.archive)
         print(
             f"Exported {len(payload['designers'])} designers and "

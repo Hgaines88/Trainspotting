@@ -151,28 +151,37 @@ idempotent for that user and refuses to replace an existing administrator.
 
 ## Preserve and restore archive content
 
-SQLite is the local runtime database and remains ignored by Git. The canonical,
-reviewable content record is `data/archive.json`. After making an approved
-administrative content change, refresh that snapshot with:
+Trainspotting deliberately preserves two different layers. The versioned,
+reviewable `data/archive.json` snapshot contains public designers, collections,
+and media. A private SQLite backup contains that canonical content plus users,
+submissions, sources, decisions, promotions, and audit history.
+
+Before a release, verify that the runtime database and canonical JSON agree:
 
 ```bash
-python3 -m scripts.archive_data export
+python3 -m scripts.archive_data check
 ```
 
-Restore it into a new database, or merge it into an existing database, with:
+After an approved canonical change, create a private operational backup and
+refresh the public JSON from that exact backup image:
 
 ```bash
-python3 -m scripts.archive_data import --database data/restored.db --replace
+python3 -m scripts.archive_backup snapshot backups/archive-YYYYMMDD.db
 ```
 
-Designer and collection keys in the JSON are stable text identifiers; generated
-SQLite IDs are deliberately not exported. Tests verify that export → import →
-export produces identical content and that repeated merge imports are idempotent.
+The `backups/` directory and SQLite files are ignored by Git. Never commit or
+share a database backup: it can contain account information and moderation
+history. See [`docs/BACKUP_AND_RESTORE.md`](docs/BACKUP_AND_RESTORE.md) for the
+verification, restore-drill, and release procedure.
+
+Designer and collection keys in canonical JSON are stable text identifiers;
+generated SQLite IDs are deliberately not exported. Tests verify deterministic
+round trips, drift detection, backup integrity, and complete recovery of an
+approved submission with its sources and audit trail.
 
 Historically, records added through either client were stored in the same live
 database and appeared in both interfaces. The public clients are now read-only;
-future authenticated admin tools will preserve the same canonical-data
-workflow. SQL files
+authenticated admin tools preserve the same canonical-data workflow. SQL files
 under `sql/migrations/` contain deliberate database upgrades. FastAPI applies
 each migration once at startup and records it in `schema_migrations`; migrations
 never recreate the database from seed data.

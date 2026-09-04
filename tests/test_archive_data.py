@@ -2,7 +2,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from scripts.archive_data import export_archive, import_archive
+from scripts.archive_data import archive_has_drift, export_archive, import_archive
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -44,6 +44,29 @@ def test_merge_import_is_idempotent(tmp_path):
     import_archive(database, archive)
 
     assert archive_counts(database) == initial_counts
+
+
+def test_drift_check_detects_and_export_resolves_canonical_changes(tmp_path):
+    database = tmp_path / "archive.db"
+    archive = tmp_path / "archive.json"
+    archive.write_text(ARCHIVE.read_text(encoding="utf-8"), encoding="utf-8")
+    import_archive(database, archive, replace=True)
+
+    assert archive_has_drift(database, archive) is False
+
+    connection = sqlite3.connect(database)
+    try:
+        connection.execute(
+            "INSERT INTO designers (full_name, nationality) VALUES (?, ?)",
+            ("Approved Snapshot Designer", "American"),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    assert archive_has_drift(database, archive) is True
+    export_archive(database, archive)
+    assert archive_has_drift(database, archive) is False
 
 
 def test_new_designer_profiles_have_expected_career_records():

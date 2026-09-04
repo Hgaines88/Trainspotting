@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 react-ui/playwright-report/
 react-ui/test-results/
+backups/
 data/*.db
 .DS_Store
 .env
