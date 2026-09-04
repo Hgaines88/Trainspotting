@@ -1,0 +1,33 @@
+from pathlib import Path
+
+from scripts.check_secrets import scan_paths
+
+
+def test_repository_tracked_files_pass_secret_scan():
+    from scripts.check_secrets import tracked_paths
+
+    assert scan_paths(tracked_paths()) == []
+
+
+def test_secret_scan_reports_content_without_exposing_value(tmp_path: Path):
+    secret_path = tmp_path / "settings.txt"
+    fake_secret = "sk_test_" + "abcdefghijklmnopqrstuvwxyz"
+    secret_path.write_text("CLERK_SECRET_KEY=" + fake_secret)
+
+    findings = scan_paths([secret_path])
+
+    assert [(finding.path, finding.rule) for finding in findings] == [
+        (secret_path, "Clerk or Stripe secret key")
+    ]
+    assert fake_secret not in repr(findings)
+
+
+def test_secret_scan_rejects_local_environment_filename(tmp_path: Path):
+    environment_path = tmp_path / ".env.local"
+    environment_path.write_text("SAFE_PLACEHOLDER=true")
+
+    findings = scan_paths([environment_path])
+
+    assert [(finding.path, finding.rule) for finding in findings] == [
+        (environment_path, "sensitive filename")
+    ]

@@ -14,6 +14,7 @@ def test_fresh_initialization_uses_canonical_archive(tmp_path, monkeypatch):
     monkeypatch.setattr(init_db, "DATABASE_PATH", database_path)
     monkeypatch.setattr(database, "DATABASE_PATH", database_path)
 
+    assert not database_path.exists()
     assert init_db.initialize_database() is True
     assert init_db.initialize_database() is False
     assert database.apply_migrations() == []
@@ -24,6 +25,20 @@ def test_fresh_initialization_uses_canonical_archive(tmp_path, monkeypatch):
             connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
             for table in ("designers", "collections", "users")
         )
+        tables = {
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+        }
+        recorded_migrations = {
+            row[0]
+            for row in connection.execute(
+                "SELECT filename FROM schema_migrations"
+            ).fetchall()
+        }
+        integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
+        foreign_key_errors = connection.execute("PRAGMA foreign_key_check").fetchall()
     finally:
         connection.close()
 
@@ -35,3 +50,20 @@ def test_fresh_initialization_uses_canonical_archive(tmp_path, monkeypatch):
         len(payload["collections"]),
         0,
     )
+    assert {
+        "designers",
+        "collections",
+        "collection_media",
+        "users",
+        "submissions",
+        "submission_sources",
+        "submission_decisions",
+        "submission_promotions",
+        "submission_audit",
+        "schema_migrations",
+    } <= tables
+    assert recorded_migrations == {
+        path.name for path in (PROJECT_ROOT / "sql" / "migrations").glob("*.sql")
+    }
+    assert integrity == "ok"
+    assert foreign_key_errors == []

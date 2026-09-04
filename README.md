@@ -123,6 +123,11 @@ Synthetic backend authentication refuses to start unless the test runner sets
 `TRAINSPOTTING_E2E_TEST=1`; normal development and production builds continue
 to use Clerk.
 
+Pull requests and updates to `main` run the same backend tests, clean-database
+verification, React tests, lint, production build, isolated browser workflow,
+and a tracked-file secret scan in GitHub Actions. The single required job is
+named **Full application verification**.
+
 To print the designers currently stored in the archive from the project root,
 run the utility script as a Python module:
 
