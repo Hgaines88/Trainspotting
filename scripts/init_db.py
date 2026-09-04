@@ -8,19 +8,20 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATABASE_PATH = PROJECT_ROOT / "data" / "archive.db"
 
 
-def initialize_database() -> bool:
+def initialize_database(database_path: Path | None = None) -> bool:
     """Create and seed the archive database only when it does not exist."""
-    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    database_path = database_path or DATABASE_PATH
+    database_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if DATABASE_PATH.exists():
+    if database_path.exists():
         return False
 
-    import_archive(DATABASE_PATH, DEFAULT_ARCHIVE, replace=True)
+    import_archive(database_path, DEFAULT_ARCHIVE, replace=True)
 
     # A canonical restore is already at the latest content baseline. Recording
     # existing migrations prevents legacy data migrations from replaying over it
     # when FastAPI starts for the first time.
-    connection = sqlite3.connect(DATABASE_PATH)
+    connection = sqlite3.connect(database_path)
     try:
         connection.execute(
             """
