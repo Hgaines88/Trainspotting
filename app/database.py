@@ -8,6 +8,7 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError as SQLAlchemyIntegrityError
+from sqlalchemy.engine import make_url
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -138,8 +139,18 @@ def configure_connection(connection: sqlite3.Connection) -> None:
 
 def connect():
     database_url = os.getenv("DATABASE_URL")
-    if database_url and database_url.startswith("mysql+"):
-        return PortableConnection(runtime_engine(database_url).connect())
+    if database_url:
+        parsed_url = make_url(database_url)
+        backend = parsed_url.get_backend_name()
+        if backend == "mysql":
+            return PortableConnection(runtime_engine(database_url).connect())
+        if backend == "sqlite" and parsed_url.database:
+            connection = sqlite3.connect(
+                parsed_url.database,
+                timeout=SQLITE_BUSY_TIMEOUT_MS / 1_000,
+            )
+            configure_connection(connection)
+            return connection
 
     connection = sqlite3.connect(
         DATABASE_PATH,

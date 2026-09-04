@@ -44,6 +44,23 @@ def test_connection_closes_if_wal_cannot_be_enabled(tmp_path, monkeypatch):
     assert close_calls == 1
 
 
+def test_connection_honors_sqlite_database_url_override(tmp_path, monkeypatch):
+    override_path = tmp_path / "override.db"
+    ignored_default_path = tmp_path / "ignored-default.db"
+    monkeypatch.setenv("DATABASE_URL", f"sqlite+pysqlite:///{override_path}")
+    monkeypatch.setattr(database, "DATABASE_PATH", ignored_default_path)
+
+    connection = database.connect()
+    try:
+        connection.execute("CREATE TABLE IF NOT EXISTS check_override (id INTEGER)")
+        connection.commit()
+    finally:
+        connection.close()
+
+    assert override_path.exists()
+    assert not ignored_default_path.exists()
+
+
 def test_public_read_succeeds_during_representative_moderation_write(
     tmp_path, monkeypatch
 ):
