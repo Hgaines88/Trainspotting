@@ -29,12 +29,18 @@ CONTENT_RULES = {
 }
 SENSITIVE_SUFFIXES = {
     ".db",
+    ".db-shm",
+    ".db-wal",
     ".key",
     ".p12",
     ".pfx",
     ".pem",
     ".sqlite",
+    ".sqlite-shm",
+    ".sqlite-wal",
     ".sqlite3",
+    ".sqlite3-shm",
+    ".sqlite3-wal",
 }
 SENSITIVE_NAMES = {"credentials.json", "id_rsa", "id_ed25519", "secrets.json"}
 
