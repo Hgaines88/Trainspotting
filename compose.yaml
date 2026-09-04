@@ -28,6 +28,10 @@ services:
   web:
     build:
       context: ./react-ui
+      args:
+        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-pk_test_placeholder}
+    environment:
+      API_UPSTREAM: api:8000
     ports:
       - "5173:80"
     depends_on:
