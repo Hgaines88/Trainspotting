@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from scripts.check_secrets import scan_paths
 
 
@@ -30,4 +32,21 @@ def test_secret_scan_rejects_local_environment_filename(tmp_path: Path):
 
     assert [(finding.path, finding.rule) for finding in findings] == [
         (environment_path, "sensitive filename")
+    ]
+
+
+@pytest.mark.parametrize(
+    "filename",
+    ["archive.db", "archive.sqlite", "archive.sqlite3", "archive.db.manifest.json"],
+)
+def test_secret_scan_rejects_database_backup_artifacts(
+    tmp_path: Path, filename: str
+):
+    artifact_path = tmp_path / filename
+    artifact_path.write_text("SAFE_PLACEHOLDER=true")
+
+    findings = scan_paths([artifact_path])
+
+    assert [(finding.path, finding.rule) for finding in findings] == [
+        (artifact_path, "sensitive filename")
     ]

@@ -27,7 +27,15 @@ CONTENT_RULES = {
     "AWS access key": re.compile(rb"\b(?:AKIA|ASIA)[A-Z0-9]{16}\b"),
     "Google API key": re.compile(rb"\bAIza[A-Za-z0-9_-]{30,}\b"),
 }
-SENSITIVE_SUFFIXES = {".key", ".p12", ".pfx", ".pem"}
+SENSITIVE_SUFFIXES = {
+    ".db",
+    ".key",
+    ".p12",
+    ".pfx",
+    ".pem",
+    ".sqlite",
+    ".sqlite3",
+}
 SENSITIVE_NAMES = {"credentials.json", "id_rsa", "id_ed25519", "secrets.json"}
 
 
@@ -36,6 +44,8 @@ def has_sensitive_name(path: Path) -> bool:
     if name == ".env":
         return True
     if name.startswith(".env.") and not name.endswith(".example"):
+        return True
+    if name.endswith(".db.manifest.json"):
         return True
     return name in SENSITIVE_NAMES or path.suffix.lower() in SENSITIVE_SUFFIXES
 

@@ -67,3 +67,30 @@ def test_fresh_initialization_uses_canonical_archive(tmp_path, monkeypatch):
     }
     assert integrity == "ok"
     assert foreign_key_errors == []
+
+
+def test_initialization_never_replaces_a_newer_existing_database(
+    tmp_path, monkeypatch
+):
+    database_path = tmp_path / "archive.db"
+    init_db.import_archive(database_path, init_db.DEFAULT_ARCHIVE, replace=True)
+    connection = sqlite3.connect(database_path)
+    try:
+        connection.execute(
+            "INSERT INTO designers (full_name) VALUES ('Approved Runtime Record')"
+        )
+        connection.commit()
+    finally:
+        connection.close()
+    monkeypatch.setattr(init_db, "DATABASE_PATH", database_path)
+
+    assert init_db.initialize_database() is False
+
+    connection = sqlite3.connect(database_path)
+    try:
+        preserved = connection.execute(
+            "SELECT 1 FROM designers WHERE full_name = 'Approved Runtime Record'"
+        ).fetchone()
+    finally:
+        connection.close()
+    assert preserved == (1,)

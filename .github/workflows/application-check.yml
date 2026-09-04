@@ -56,6 +56,11 @@ jobs:
       - name: Run backend and clean-database tests
         run: .venv/bin/python -m pytest -q
 
+      - name: Verify canonical archive round trip
+        run: |
+          .venv/bin/python -m scripts.init_db
+          .venv/bin/python -m scripts.archive_data check
+
       - name: Run frontend unit tests
         working-directory: react-ui
         run: npm test
