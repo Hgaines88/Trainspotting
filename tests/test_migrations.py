@@ -162,6 +162,9 @@ def test_migration_upgrades_legacy_data_and_preserves_user_records(
               AND collection_media.media_type = 'source'
             """
         ).fetchone()[0]
+        archive_state = connection.execute(
+            "SELECT id, version FROM archive_state"
+        ).fetchone()
     finally:
         connection.close()
 
@@ -174,8 +177,10 @@ def test_migration_upgrades_legacy_data_and_preserves_user_records(
         "006_add_haider_ackermann_profile.sql",
         "007_create_users.sql",
         "008_create_moderation_workflow.sql",
+        "009_add_archive_version.sql",
     ]
     assert second_run == []
+    assert tuple(archive_state) == (1, 1)
     assert migration_count == 1
     assert "Hussein Chalayan" not in names
     assert {"Junya Watanabe", "Rick Owens", "Telfar Clemens"} <= names

@@ -6,6 +6,7 @@ from app.schema import metadata
 
 
 EXPECTED_TABLES = {
+    "archive_state",
     "collection_media",
     "collections",
     "designers",
@@ -33,6 +34,14 @@ def test_portable_metadata_creates_all_tables_constraints_and_indexes(tmp_path):
             foreign_key["referred_table"]
             for foreign_key in inspector.get_foreign_keys("submission_promotions")
         } == {"submissions", "users"}
+        constraints = {
+            constraint["name"]
+            for constraint in inspector.get_check_constraints("archive_state")
+        }
+        assert constraints == {
+            "ck_archive_state_singleton",
+            "ck_archive_state_version_positive",
+        }
     finally:
         engine.dispose()
 
@@ -47,6 +56,10 @@ def test_every_table_compiles_for_mysql_8():
 
     assert len(statements) == len(EXPECTED_TABLES)
     assert all("CREATE TABLE" in statement for statement in statements)
-    assert all("AUTO_INCREMENT" in statement for statement in statements)
+    assert all(
+        "AUTO_INCREMENT" in statement
+        for statement in statements
+        if "archive_state" not in statement
+    )
     assert all("ENGINE=InnoDB" in statement for statement in statements)
     assert all("CHARSET=utf8mb4" in statement for statement in statements)

@@ -23,6 +23,9 @@ def test_alembic_upgrade_creates_schema_and_append_only_guards(tmp_path):
     try:
         assert set(inspect(engine).get_table_names()) == EXPECTED_TABLES | {"alembic_version"}
         with engine.begin() as connection:
+            assert connection.execute(
+                text("SELECT id, version FROM archive_state")
+            ).one() == (1, 1)
             user_id = connection.execute(
                 text("INSERT INTO users (clerk_user_id) VALUES ('user_alembic') RETURNING id")
             ).scalar_one()

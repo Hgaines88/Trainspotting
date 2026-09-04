@@ -4,6 +4,8 @@ import uuid
 import pytest
 from sqlalchemy import create_engine, text
 
+from app.database import expected_alembic_revision
+
 
 MYSQL_TEST_DATABASE_URL = os.getenv("MYSQL_TEST_DATABASE_URL")
 
@@ -20,14 +22,14 @@ def test_mysql_schema_and_append_only_audit_guards():
         with engine.begin() as connection:
             assert connection.execute(
                 text("SELECT version_num FROM alembic_version")
-            ).scalar_one() == "0001"
+            ).scalar_one() == expected_alembic_revision()
             assert connection.execute(
                 text(
                     "SELECT COUNT(*) FROM information_schema.tables "
                     "WHERE table_schema = DATABASE() "
                     "AND table_name <> 'alembic_version'"
                 )
-            ).scalar_one() == 9
+            ).scalar_one() == 10
             assert connection.execute(
                 text(
                     "SELECT COUNT(*) FROM information_schema.triggers "
