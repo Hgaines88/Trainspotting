@@ -86,6 +86,26 @@ def archive_version(client):
     return response.json()["version"]
 
 
+def test_only_anonymous_public_reads_are_shared_cacheable(public_client):
+    version = archive_version(public_client)
+    public_response = public_client.get(f"/designers?archive_version={version}")
+    unversioned_response = public_client.get("/designers")
+    stale_response = public_client.get(f"/designers?archive_version={version + 1}")
+    authenticated_response = public_client.get(
+        f"/designers?archive_version={version}",
+        headers={"Authorization": "Bearer untrusted"},
+    )
+    version_response = public_client.get("/archive-version")
+
+    assert public_response.headers["cache-control"] == (
+        "public, max-age=0, s-maxage=30, stale-while-revalidate=60"
+    )
+    assert authenticated_response.headers["cache-control"] == "private, no-store"
+    assert unversioned_response.headers["cache-control"] == "private, no-store"
+    assert stale_response.headers["cache-control"] == "private, no-store"
+    assert version_response.headers["cache-control"] == "private, no-store"
+
+
 def test_canonical_admin_writes_increment_archive_version_transactionally(client):
     initial = archive_version(client)
     response = client.post("/designers", json={"full_name": "Versioned Designer"})

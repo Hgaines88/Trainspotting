@@ -37,6 +37,56 @@ app = FastAPI(
 app.include_router(submissions_router)
 
 
+def is_public_archive_path(path: str) -> bool:
+    return path == "/designers" or path.startswith("/designers/") or path.startswith(
+        "/collections/"
+    )
+
+
+@app.middleware("http")
+async def cache_policy(request, call_next):
+    requested_version = request.query_params.get("archive_version")
+    eligible_request = (
+        request.method == "GET"
+        and is_public_archive_path(request.url.path)
+        and "authorization" not in request.headers
+        and requested_version is not None
+        and requested_version.isdigit()
+    )
+    version_matches_before = False
+    if eligible_request:
+        try:
+            version_matches_before = (
+                int(requested_version) == current_archive_version()
+            )
+        except Exception:
+            version_matches_before = False
+
+    response = await call_next(request)
+    version_matches_after = False
+    if version_matches_before and response.status_code == 200:
+        try:
+            version_matches_after = (
+                int(requested_version) == current_archive_version()
+            )
+        except Exception:
+            version_matches_after = False
+
+    anonymous_public_read = (
+        eligible_request
+        and response.status_code == 200
+        and version_matches_before
+        and version_matches_after
+    )
+    if anonymous_public_read:
+        response.headers["Cache-Control"] = (
+            "public, max-age=0, s-maxage=30, stale-while-revalidate=60"
+        )
+    else:
+        response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+
 def require_archive_admin(
     identity: ClerkIdentity = Depends(require_authenticated_user),
 ) -> dict:

@@ -1,5 +1,26 @@
 const API_ROOT = "/api";
 
+function isPublicArchiveRead(path, options) {
+  const method = String(options.method || "GET").toUpperCase();
+  return (
+    method === "GET" &&
+    (path === "/designers" ||
+      path.startsWith("/designers/") ||
+      path.startsWith("/collections/"))
+  );
+}
+
+async function versionedPath(path) {
+  const response = await fetch(`${API_ROOT}/archive-version`, { cache: "no-store" });
+  if (!response.ok) throw new Error("The archive version is unavailable.");
+  const payload = await response.json();
+  if (!Number.isInteger(payload.version) || payload.version < 1) {
+    throw new Error("The archive version is invalid.");
+  }
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}archive_version=${payload.version}`;
+}
+
 function describeApiError(detail, fallback) {
   if (typeof detail === "string" && detail) return detail;
 
@@ -14,7 +35,10 @@ function describeApiError(detail, fallback) {
 }
 
 export async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_ROOT}${path}`, {
+  const requestPath = isPublicArchiveRead(path, options)
+    ? await versionedPath(path)
+    : path;
+  const response = await fetch(`${API_ROOT}${requestPath}`, {
     ...options,
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
