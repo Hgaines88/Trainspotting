@@ -1,12 +1,11 @@
 import json
-import sqlite3
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 
 from app.auth import ClerkIdentity, require_authenticated_user
-from app.database import connect
+from app.database import DATABASE_INTEGRITY_ERRORS, connect, select_for_update
 from app.schemas import CollectionCreate, DesignerCreate
 from app.submission_schemas import (
     ReviewDecision,
@@ -51,7 +50,7 @@ def json_text(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
-def serialize_submission(connection: sqlite3.Connection, submission_id: int) -> dict:
+def serialize_submission(connection, submission_id: int) -> dict:
     row = connection.execute(
         """
         SELECT submissions.*, users.clerk_user_id AS submitter_clerk_user_id,
@@ -196,7 +195,8 @@ def update_draft(
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
-        row = connection.execute(
+        row = select_for_update(
+            connection,
             "SELECT * FROM submissions WHERE id = ?", (submission_id,)
         ).fetchone()
         if row is None:
@@ -252,7 +252,8 @@ def submit_draft(submission_id: int, user: dict = Depends(authenticated_app_user
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
-        row = connection.execute(
+        row = select_for_update(
+            connection,
             "SELECT * FROM submissions WHERE id = ?", (submission_id,)
         ).fetchone()
         if row is None:
@@ -419,7 +420,9 @@ def decide_submission(
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
-        row = connection.execute("SELECT * FROM submissions WHERE id = ?", (submission_id,)).fetchone()
+        row = select_for_update(
+            connection, "SELECT * FROM submissions WHERE id = ?", (submission_id,)
+        ).fetchone()
         if row is None:
             raise HTTPException(status_code=404, detail="Submission not found")
         if row["submitter_user_id"] == reviewer["id"]:
@@ -445,7 +448,7 @@ def decide_submission(
         append_audit(connection, submission_id, reviewer["id"], target_status, row["status"], target_status, {"notes": payload.notes})
         connection.commit()
         return serialize_submission(connection, submission_id)
-    except sqlite3.IntegrityError as error:
+    except DATABASE_INTEGRITY_ERRORS as error:
         connection.rollback()
         raise HTTPException(status_code=409, detail="Approval conflicts with canonical archive data") from error
     except Exception:
@@ -489,8 +492,14 @@ def rollback_submission(
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
-        row = connection.execute("SELECT * FROM submissions WHERE id = ?", (submission_id,)).fetchone()
-        promotion = connection.execute("SELECT * FROM submission_promotions WHERE submission_id = ?", (submission_id,)).fetchone()
+        row = select_for_update(
+            connection, "SELECT * FROM submissions WHERE id = ?", (submission_id,)
+        ).fetchone()
+        promotion = select_for_update(
+            connection,
+            "SELECT * FROM submission_promotions WHERE submission_id = ?",
+            (submission_id,),
+        ).fetchone()
         if row is None or promotion is None:
             raise HTTPException(status_code=404, detail="Approved submission not found")
         if row["status"] != "approved" or promotion["rolled_back_at"] is not None:

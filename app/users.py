@@ -2,21 +2,26 @@ import os
 
 from clerk_backend_api import Clerk
 
-from app.database import connect
+from app.database import DATABASE_INTEGRITY_ERRORS, connect
 
 
 def get_or_create_user(clerk_user_id: str) -> dict:
     connection = connect()
 
     try:
-        connection.execute(
-            """
-            INSERT OR IGNORE INTO users (clerk_user_id)
-            VALUES (?)
-            """,
-            (clerk_user_id,),
-        )
-        connection.commit()
+        existing = connection.execute(
+            "SELECT id FROM users WHERE clerk_user_id = ?", (clerk_user_id,)
+        ).fetchone()
+        if existing is None:
+            try:
+                connection.execute(
+                    "INSERT INTO users (clerk_user_id) VALUES (?)",
+                    (clerk_user_id,),
+                )
+                connection.commit()
+            except DATABASE_INTEGRITY_ERRORS:
+                # A concurrent first request may have created the same identity.
+                connection.rollback()
 
         user = connection.execute(
             """
