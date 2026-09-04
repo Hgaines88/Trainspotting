@@ -60,13 +60,23 @@ def scan_paths(paths: list[Path]) -> list[SecretFinding]:
 
 
 def tracked_paths(project_root: Path = PROJECT_ROOT) -> list[Path]:
-    result = subprocess.run(
-        ["git", "ls-files", "-z"],
-        cwd=project_root,
-        capture_output=True,
-        check=True,
-        timeout=10,
-    )
+    try:
+        result = subprocess.run(
+            ["git", "ls-files", "-z"],
+            cwd=project_root,
+            capture_output=True,
+            check=True,
+            timeout=10,
+        )
+    except FileNotFoundError as exc:
+        raise SystemExit("Secret scan requires `git` to be installed and on PATH.") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise SystemExit("Secret scan timed out while enumerating tracked files.") from exc
+    except subprocess.CalledProcessError as exc:
+        raise SystemExit(
+            "Secret scan requires a Git worktree; `git ls-files` failed."
+        ) from exc
+
     return [
         project_root / Path(raw_path.decode("utf-8"))
         for raw_path in result.stdout.split(b"\0")
