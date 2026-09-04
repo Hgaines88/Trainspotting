@@ -1,3 +1,5 @@
+name: trainspotting
+
 services:
   api:
     build:
@@ -5,6 +7,7 @@ services:
     environment:
       CLERK_SECRET_KEY: ${CLERK_SECRET_KEY:-}
       CLERK_AUTHORIZED_PARTIES: ${CLERK_AUTHORIZED_PARTIES:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000}
+      DATABASE_URL: ${DATABASE_URL:-sqlite+pysqlite:////app/data/archive.db}
     ports:
       - "8000:8000"
     volumes:
@@ -31,5 +34,29 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  mysql:
+    image: mysql:8.4.11
+    environment:
+      MYSQL_DATABASE: trainspotting
+      MYSQL_USER: trainspotting
+      MYSQL_PASSWORD: trainspotting_dev_only
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --log-bin-trust-function-creators=1
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - trainspotting_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
 volumes:
   archive-data:
+  trainspotting_mysql_data:
