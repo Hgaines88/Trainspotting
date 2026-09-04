@@ -156,9 +156,19 @@ def verify_backup(backup_path: Path) -> dict:
 
 def create_snapshot(database_path: Path, archive_path: Path, backup_path: Path) -> dict:
     payload = create_backup(database_path, backup_path)
-    exported = export_archive(backup_path, archive_path)
-    if archive_digest(exported) != payload["canonical_digest"]:
-        raise RuntimeError("Canonical export does not match the operational backup.")
+    archive_path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{archive_path.name}.", suffix=".tmp", dir=archive_path.parent
+    )
+    os.close(descriptor)
+    temporary_archive = Path(temporary_name)
+    try:
+        exported = export_archive(backup_path, temporary_archive)
+        if archive_digest(exported) != payload["canonical_digest"]:
+            raise RuntimeError("Canonical export does not match the operational backup.")
+        os.replace(temporary_archive, archive_path)
+    finally:
+        temporary_archive.unlink(missing_ok=True)
     return payload
 
 
