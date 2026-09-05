@@ -254,6 +254,8 @@ The active September 24 Demo Day plan is maintained as an ordered Kanban in
 [`docs/DEMO_DAY_KANBAN.md`](docs/DEMO_DAY_KANBAN.md). The original full product
 roadmap remains preserved in
 [`docs/TRAINSPOTTING_KANBAN.md`](docs/TRAINSPOTTING_KANBAN.md) for post-demo work.
+The exact credential-free presentation path and fallback are documented in
+[`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md).
 
 # OnesToManys (ListDetails)
 

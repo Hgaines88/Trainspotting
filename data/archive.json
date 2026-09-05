@@ -1006,7 +1006,21 @@
       "piece_count": null,
       "description": "Guest-designed with Kim Jones in Venice Beach, the collection joined Dior savoir-faire to Linnetz’s waves, skate culture, quilting, and California memory.",
       "source_url": "https://www.vogue.com/fashion-shows/spring-2023-menswear/dior-men",
-      "youtube_video_id": null
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "designer_key": "eli-russell-linnetz",
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Guest designer for the Spring 2023 Dior Men collection."
+        },
+        {
+          "designer_key": "kim-jones",
+          "role": "collaborator",
+          "position": 2,
+          "attribution_note": "Dior Men artistic director for the collaboration."
+        }
+      ]
     },
     {
       "key": "eli-russell-linnetz-erl-spring-summer-menswear-2025",
@@ -3137,8 +3151,22 @@
       "status": "archived",
       "piece_count": null,
       "description": "Prada Spring/Summer 2024 womenswear, jointly designed by co-creative directors Miuccia Prada and Raf Simons. The collection explored freedom of the body through lightweight dresses, reworked menswear silhouettes, and reinterpreted archival designs.",
-      "source_url": null,
-      "youtube_video_id": "z0IYqovHDJY"
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2024-ready-to-wear/prada",
+      "youtube_video_id": "z0IYqovHDJY",
+      "credits": [
+        {
+          "designer_key": "miuccia-prada",
+          "role": "co-designer",
+          "position": 1,
+          "attribution_note": "Prada co-creative director."
+        },
+        {
+          "designer_key": "raf-simons",
+          "role": "co-designer",
+          "position": 2,
+          "attribution_note": "Prada co-creative director."
+        }
+      ]
     },
     {
       "key": "raul-lopez-luar-fall-winter-2019",
