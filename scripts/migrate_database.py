@@ -48,7 +48,7 @@ def migrate(database_url: str | None = None) -> None:
                 # so the revision ledger survives after the pre-deploy process
                 # closes its connection.
                 connection.commit()
-            except BaseException:
+            except Exception:
                 connection.rollback()
                 raise
             finally:
