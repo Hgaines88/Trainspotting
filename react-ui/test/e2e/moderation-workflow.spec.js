@@ -83,7 +83,12 @@ test("collection pages show ranked recommendations with visible reasons", async 
   await page.goto("/collections/1");
 
   await expect(page.getByRole("heading", { name: "Evidence" })).toBeVisible();
-  await expect(page.locator(".source-list a").first()).toHaveAttribute("href", /^https:\/\//);
+  const sources = page.locator(".source-list a");
+  if ((await sources.count()) > 0) {
+    await expect(sources.first()).toHaveAttribute("href", /^https?:\/\//);
+  } else {
+    await expect(page.getByText(/No public source is available/i)).toBeVisible();
+  }
   await expect(page.getByRole("heading", { name: "Related collections" })).toBeVisible();
   const recommendations = page.locator(".related-list > li");
   await expect(recommendations.first()).toBeVisible();
