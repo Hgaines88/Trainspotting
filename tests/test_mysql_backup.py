@@ -1,4 +1,6 @@
 import hashlib
+import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -121,3 +123,40 @@ def test_restore_refuses_nonempty_target_before_import(monkeypatch, tmp_path):
             key,
             backup,
         )
+
+
+def test_backup_health_accepts_recent_verified_artifact(tmp_path, monkeypatch):
+    now = datetime(2026, 9, 5, 12, tzinfo=timezone.utc)
+    monkeypatch.setattr(
+        mysql_backup, "dump_database", lambda _url: b"CREATE TABLE `users` (`id` int);"
+    )
+    key = Fernet.generate_key().decode("ascii")
+    backup = tmp_path / "trainspotting.sql.enc"
+    mysql_backup.create_backup("mysql://unused", key, backup)
+    manifest_path = backup.with_suffix(backup.suffix + ".json")
+    manifest = json.loads(manifest_path.read_text())
+    manifest["created_at"] = (now - timedelta(hours=2)).isoformat()
+    manifest_path.write_text(json.dumps(manifest))
+
+    result = mysql_backup.backup_health(key, tmp_path, 26, now=now)
+    assert result["status"] == "healthy"
+    assert result["age_hours"] == 2
+
+
+def test_backup_health_fails_for_missing_or_stale_backup(tmp_path, monkeypatch):
+    key = Fernet.generate_key().decode("ascii")
+    with pytest.raises(FileNotFoundError, match="No encrypted"):
+        mysql_backup.backup_health(key, tmp_path, 26)
+
+    now = datetime(2026, 9, 5, 12, tzinfo=timezone.utc)
+    monkeypatch.setattr(
+        mysql_backup, "dump_database", lambda _url: b"CREATE TABLE `users` (`id` int);"
+    )
+    backup = tmp_path / "stale.sql.enc"
+    mysql_backup.create_backup("mysql://unused", key, backup)
+    manifest_path = backup.with_suffix(backup.suffix + ".json")
+    manifest = json.loads(manifest_path.read_text())
+    manifest["created_at"] = (now - timedelta(hours=27)).isoformat()
+    manifest_path.write_text(json.dumps(manifest))
+    with pytest.raises(RuntimeError, match="stale"):
+        mysql_backup.backup_health(key, tmp_path, 26, now=now)

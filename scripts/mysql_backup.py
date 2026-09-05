@@ -179,6 +179,38 @@ def restore_backup(database_url: str, encryption_key: str, backup: Path) -> dict
     return {**manifest, "restored_table_count": len(restored)}
 
 
+def backup_health(
+    encryption_key: str,
+    directory: Path,
+    max_age_hours: float,
+    *,
+    now: datetime | None = None,
+) -> dict:
+    manifests = sorted(directory.glob("*.sql.enc.json"), key=lambda path: path.stat().st_mtime)
+    if not manifests:
+        raise FileNotFoundError("No encrypted MySQL backup manifest found")
+    manifest_path = manifests[-1]
+    backup = manifest_path.with_suffix("")
+    manifest = verify_backup(encryption_key, backup)
+    created_at = datetime.fromisoformat(manifest["created_at"])
+    if created_at.tzinfo is None:
+        raise ValueError("Backup manifest timestamp must include a timezone")
+    current = now or datetime.now(timezone.utc)
+    age_hours = (current - created_at).total_seconds() / 3600
+    if age_hours < 0:
+        raise ValueError("Backup manifest timestamp is in the future")
+    if age_hours > max_age_hours:
+        raise RuntimeError(
+            f"Newest encrypted MySQL backup is stale ({age_hours:.1f} hours old)"
+        )
+    return {
+        "status": "healthy",
+        "backup": backup.name,
+        "age_hours": round(age_hours, 2),
+        "max_age_hours": max_age_hours,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -193,6 +225,9 @@ def main() -> None:
         action="store_true",
         help="Required acknowledgement that the empty target will be populated.",
     )
+    health = subparsers.add_parser("health")
+    health.add_argument("directory", type=Path)
+    health.add_argument("--max-age-hours", type=float, default=26)
     args = parser.parse_args()
     key = os.getenv("MYSQL_BACKUP_ENCRYPTION_KEY")
     if not key:
@@ -207,8 +242,10 @@ def main() -> None:
         if not args.apply:
             parser.error("--apply is required; no data was changed")
         result = restore_backup(database_url, key, args.backup)
-    else:
+    elif args.command == "verify":
         result = verify_backup(key, args.backup)
+    else:
+        result = backup_health(key, args.directory, args.max_age_hours)
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
