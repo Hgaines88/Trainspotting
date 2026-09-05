@@ -12,6 +12,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.exc import IntegrityError as SQLAlchemyIntegrityError
 
 from app.database_url import normalize_database_url
+from app.observability import monotonic_time, service_metrics
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -104,8 +105,32 @@ class PortableResult:
 class PortableConnection:
     """Small DB-API compatibility facade over a SQLAlchemy connection."""
 
-    def __init__(self, connection):
+    def __init__(self, connection, engine, backend: str):
         self._connection = connection
+        self._engine = engine
+        self._backend = backend
+        self._transaction_started_at = None
+
+    @staticmethod
+    def _operation(sql: str) -> str:
+        operation = sql.lstrip().split(None, 1)[0].upper() if sql.strip() else "OTHER"
+        allowed = {"SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "ALTER", "DROP"}
+        return operation if operation in allowed else "OTHER"
+
+    def _observe_pool(self) -> None:
+        pool = self._engine.pool
+
+        def pool_value(name: str) -> int:
+            value = getattr(pool, name, -1)
+            value = value() if callable(value) else value
+            return value if isinstance(value, int) else -1
+
+        service_metrics.set_connection_pool(
+            backend=self._backend,
+            size=pool_value("size"),
+            checked_out=pool_value("checkedout"),
+            overflow=pool_value("overflow"),
+        )
 
     @staticmethod
     def _statement(sql: str, parameters):
@@ -124,29 +149,105 @@ class PortableConnection:
     def execute(self, sql: str, parameters=()):
         if sql.strip().upper() == "BEGIN IMMEDIATE":
             self._connection.begin()
+            self._transaction_started_at = monotonic_time()
             return None
-        statement, bindings = self._statement(sql, parameters)
-        return PortableResult(self._connection.execute(text(statement), bindings))
+        operation = self._operation(sql)
+        started_at = monotonic_time()
+        if operation in {"INSERT", "UPDATE", "DELETE", "CREATE", "ALTER", "DROP"}:
+            self._transaction_started_at = self._transaction_started_at or started_at
+        try:
+            statement, bindings = self._statement(sql, parameters)
+            result = self._connection.execute(text(statement), bindings)
+        except Exception:
+            service_metrics.observe_database_operation(
+                self._backend,
+                operation,
+                "error",
+                (monotonic_time() - started_at) * 1_000,
+            )
+            raise
+        service_metrics.observe_database_operation(
+            self._backend,
+            operation,
+            "success",
+            (monotonic_time() - started_at) * 1_000,
+        )
+        return PortableResult(result)
 
     def executemany(self, sql: str, parameter_rows):
         rows = list(parameter_rows)
         if not rows:
             return None
-        statement, _ = self._statement(sql, rows[0])
-        bindings = [
-            {f"p{index}": value for index, value in enumerate(row)}
-            for row in rows
-        ]
-        return PortableResult(self._connection.execute(text(statement), bindings))
+        operation = self._operation(sql)
+        started_at = monotonic_time()
+        if operation in {"INSERT", "UPDATE", "DELETE"}:
+            self._transaction_started_at = self._transaction_started_at or started_at
+        try:
+            statement, _ = self._statement(sql, rows[0])
+            bindings = [
+                {f"p{index}": value for index, value in enumerate(row)}
+                for row in rows
+            ]
+            result = self._connection.execute(text(statement), bindings)
+        except Exception:
+            service_metrics.observe_database_operation(
+                self._backend,
+                operation,
+                "error",
+                (monotonic_time() - started_at) * 1_000,
+            )
+            raise
+        service_metrics.observe_database_operation(
+            self._backend,
+            operation,
+            "success",
+            (monotonic_time() - started_at) * 1_000,
+        )
+        return PortableResult(result)
 
     def commit(self):
-        self._connection.commit()
+        self._finish_transaction("committed", self._connection.commit)
 
     def rollback(self):
-        self._connection.rollback()
+        self._finish_transaction("rolled_back", self._connection.rollback)
+
+    def _finish_transaction(self, outcome, action):
+        operation = "COMMIT" if outcome == "committed" else "ROLLBACK"
+        started_at = monotonic_time()
+        try:
+            action()
+        except Exception:
+            service_metrics.observe_database_operation(
+                self._backend,
+                operation,
+                "error",
+                (monotonic_time() - started_at) * 1_000,
+            )
+            if self._transaction_started_at is not None:
+                service_metrics.observe_transaction(
+                    self._backend,
+                    "failed",
+                    (monotonic_time() - self._transaction_started_at) * 1_000,
+                )
+            self._transaction_started_at = None
+            raise
+        service_metrics.observe_database_operation(
+            self._backend,
+            operation,
+            "success",
+            (monotonic_time() - started_at) * 1_000,
+        )
+        if self._transaction_started_at is not None:
+            service_metrics.observe_transaction(
+                self._backend,
+                outcome,
+                (monotonic_time() - self._transaction_started_at) * 1_000,
+            )
+        self._transaction_started_at = None
 
     def close(self):
         self._connection.close()
+        self._observe_pool()
 
 
 @lru_cache(maxsize=4)
@@ -179,7 +280,27 @@ def connect():
         parsed_url = make_url(database_url)
         backend = parsed_url.get_backend_name()
         if backend == "mysql":
-            return PortableConnection(runtime_engine(database_url).connect())
+            engine = runtime_engine(database_url)
+            started_at = monotonic_time()
+            try:
+                connection = engine.connect()
+            except Exception:
+                service_metrics.observe_database_operation(
+                    backend,
+                    "CONNECT",
+                    "error",
+                    (monotonic_time() - started_at) * 1_000,
+                )
+                raise
+            service_metrics.observe_database_operation(
+                backend,
+                "CONNECT",
+                "success",
+                (monotonic_time() - started_at) * 1_000,
+            )
+            portable = PortableConnection(connection, engine, backend)
+            portable._observe_pool()
+            return portable
         if backend == "sqlite" and parsed_url.database:
             connection = sqlite3.connect(
                 parsed_url.database,

@@ -4,8 +4,11 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.pool import QueuePool
 
 from app import database
+from app.database import PortableConnection
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.main import app
 from app.observability import logger, request_id, service_metrics
@@ -137,4 +140,78 @@ def test_metrics_endpoint_returns_aggregates_to_an_administrator(
         app.dependency_overrides.pop(require_authenticated_user, None)
 
     assert response.status_code == 200
-    assert set(response.json()) == {"requests", "request_latency_ms"}
+    assert set(response.json()) == {
+        "requests",
+        "request_latency_ms",
+        "database_operations",
+        "database_latency_ms",
+        "transactions",
+        "transaction_duration_ms",
+        "connection_pool",
+    }
+
+
+def test_portable_connection_records_bounded_database_metrics():
+    engine = create_engine("sqlite+pysqlite:///:memory:", poolclass=QueuePool)
+    connection = PortableConnection(engine.connect(), engine, "mysql")
+    try:
+        connection.execute("BEGIN IMMEDIATE")
+        connection.execute("CREATE TABLE example (id INTEGER PRIMARY KEY)")
+        connection.execute("INSERT INTO example (id) VALUES (?)", (1,))
+        connection.commit()
+        assert connection.execute(
+            "SELECT id FROM example WHERE id = ?",
+            (1,),
+        ).fetchone()[0] == 1
+    finally:
+        connection.close()
+        engine.dispose()
+
+    snapshot = service_metrics.snapshot()
+    operations = {
+        (item["operation"], item["outcome"]): item["count"]
+        for item in snapshot["database_operations"]
+    }
+    assert operations[("CREATE", "success")] == 1
+    assert operations[("INSERT", "success")] == 1
+    assert operations[("COMMIT", "success")] == 1
+    assert operations[("SELECT", "success")] == 1
+    assert snapshot["transactions"] == [
+        {"backend": "mysql", "outcome": "committed", "count": 1}
+    ]
+    assert snapshot["connection_pool"]["checked_out"] == 0
+    assert "example" not in str(snapshot)
+
+
+def test_database_errors_are_counted_without_sql_text():
+    engine = create_engine("sqlite+pysqlite:///:memory:", poolclass=QueuePool)
+    connection = PortableConnection(engine.connect(), engine, "mysql")
+    try:
+        with pytest.raises(Exception):
+            connection.execute("SELECT private_value FROM secret_table")
+    finally:
+        connection.close()
+        engine.dispose()
+
+    snapshot = service_metrics.snapshot()
+    assert {
+        (item["operation"], item["outcome"], item["count"])
+        for item in snapshot["database_operations"]
+    } == {("SELECT", "error", 1)}
+    assert "private_value" not in str(snapshot)
+    assert "secret_table" not in str(snapshot)
+
+
+def test_implicit_write_transaction_is_timed():
+    engine = create_engine("sqlite+pysqlite:///:memory:", poolclass=QueuePool)
+    connection = PortableConnection(engine.connect(), engine, "mysql")
+    try:
+        connection.execute("CREATE TABLE account (id INTEGER PRIMARY KEY)")
+        connection.commit()
+    finally:
+        connection.close()
+        engine.dispose()
+
+    assert service_metrics.snapshot()["transactions"] == [
+        {"backend": "mysql", "outcome": "committed", "count": 1}
+    ]
