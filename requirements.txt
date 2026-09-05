@@ -6,3 +6,5 @@ clerk-backend-api==7.0.0
 SQLAlchemy==2.0.52
 alembic==1.19.2
 PyMySQL==1.2.0
+cryptography==50.0.1
+boto3==1.43.88

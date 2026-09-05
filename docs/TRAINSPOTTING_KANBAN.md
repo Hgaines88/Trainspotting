@@ -122,6 +122,9 @@ client-controlled path can alter roles or canonical data.
 - Perform and record a restore drill.
 - Create alerts that do not expose tokens or personal data.
 
+Implementation and response thresholds are recorded in
+[`operations-runbook.md`](operations-runbook.md).
+
 **Done when:** a failed approval and unavailable database are detectable, and a
 tested recovery point objective is documented.
 

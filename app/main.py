@@ -1,6 +1,6 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI, HTTPException, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import (
     DATABASE_INTEGRITY_ERRORS,
@@ -17,6 +17,13 @@ from app.rate_limits import (
     ACCOUNT_SYNC_LIMIT,
     ADMIN_WRITE_LIMIT,
     enforce_identity_rate_limit,
+)
+from app.observability import (
+    log_request,
+    monotonic_time,
+    request_id,
+    route_template,
+    service_metrics,
 )
 from app.users import get_or_create_user, sync_clerk_user_profile
 from app.submissions import router as submissions_router
@@ -52,6 +59,34 @@ def is_public_archive_path(path: str) -> bool:
         or path == "/collections"
         or path.startswith("/collections/")
     )
+
+
+@app.middleware("http")
+async def observe_requests(request: Request, call_next):
+    safe_request_id = request_id(request.headers.get("x-request-id"))
+    started_at = monotonic_time()
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        response.headers["X-Request-ID"] = safe_request_id
+        return response
+    finally:
+        duration_ms = (monotonic_time() - started_at) * 1_000
+        template = route_template(request.scope)
+        service_metrics.observe_request(
+            request.method,
+            template,
+            status_code,
+            duration_ms,
+        )
+        log_request(
+            request_id_value=safe_request_id,
+            method=request.method,
+            route=template,
+            status_code=status_code,
+            duration_ms=duration_ms,
+        )
 
 
 @app.middleware("http")
@@ -115,6 +150,18 @@ def require_archive_admin(
         user["clerk_user_id"],
         limit=ADMIN_WRITE_LIMIT,
     )
+    return user
+
+
+def require_operations_admin(
+    identity: ClerkIdentity = Depends(require_authenticated_user),
+) -> dict:
+    user = get_or_create_user(identity.user_id)
+    if user["role"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator access required.",
+        )
     return user
 
 
@@ -212,6 +259,11 @@ def ready():
             detail="Database is not ready.",
         ) from error
     return {"status": "ready", **details}
+
+
+@app.get("/operations/metrics", dependencies=[Depends(require_operations_admin)])
+def operations_metrics():
+    return service_metrics.snapshot()
 
 
 @app.get("/archive-version")
