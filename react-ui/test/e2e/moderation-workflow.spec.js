@@ -83,6 +83,19 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   await expect(page.getByRole("button", { name: /submitted 1 submission/i })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("table", { name: "Proposed archive record" })).toContainText(DESIGNER_NAME);
   await expect(page.getByLabel(new RegExp(`Audit history for submission ${submissionId}`))).toContainText("Submitted");
+  await page.route("**/api/moderation/submissions?queue_status=approved*", async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ detail: "Temporary queue failure." }),
+    });
+  });
+  await page.getByRole("button", { name: /^approved /i }).click();
+  await expect(page.getByText("Temporary queue failure.")).toBeVisible();
+  await expect(page.locator(".moderation-card")).toHaveCount(0);
+  await page.unroute("**/api/moderation/submissions?queue_status=approved*");
+  await page.getByRole("button", { name: /^submitted /i }).click();
+  await expect(page.getByText(new RegExp(`^Submission #${submissionId} · E2E Member$`))).toBeVisible();
   await page.getByRole("button", { name: "Request changes" }).click();
   const changesDialog = page.getByRole("dialog", { name: "Request changes" });
   await expect(changesDialog).toBeVisible();
@@ -94,6 +107,17 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   await expect(changesDialog).toBeHidden();
   await page.getByRole("button", { name: "Request changes" }).click();
   await requiredChanges.fill("Please add a second independent source.");
+  await page.route(`**/api/moderation/submissions/${submissionId}/decisions`, async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ detail: "Temporary decision failure." }),
+    });
+  });
+  await changesDialog.getByRole("button", { name: "Send change request" }).click();
+  await expect(changesDialog.getByRole("alert")).toHaveText("Temporary decision failure.");
+  await expect(page.locator(".moderation-card")).toHaveCount(1);
+  await page.unroute(`**/api/moderation/submissions/${submissionId}/decisions`);
   await changesDialog.getByRole("button", { name: "Send change request" }).click();
   await expect(page.getByText("The queue is clear.")).toBeVisible();
 
