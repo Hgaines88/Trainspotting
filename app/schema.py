@@ -154,12 +154,15 @@ collection_credits = Table(
     CheckConstraint(
         "credit_role IN ('lead', 'co-designer', 'guest', 'collaborator', "
         "'attribution-note')",
-        name="valid_role",
+        name="ck_collection_credits_valid_role",
     ),
-    CheckConstraint("credit_order > 0", name="order_positive"),
+    CheckConstraint(
+        "credit_order > 0",
+        name="ck_collection_credits_order_positive",
+    ),
     CheckConstraint(
         "attribution_note IS NULL OR length(trim(attribution_note)) > 0",
-        name="attribution_note_not_blank",
+        name="ck_collection_credits_attribution_note_not_blank",
     ),
     UniqueConstraint(
         "collection_id", "designer_id", name="uq_collection_credit_designer"
