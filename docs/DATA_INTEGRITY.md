@@ -42,6 +42,13 @@ mislabeling absence as false data.
 5. Review the before/after report before committing a batch of corrections.
 6. Keep correction batches small enough to attribute and reverse.
 
+Completed collections from past seasons use `archived`. `released` is reserved
+for a current collection whose release remains operationally relevant;
+`in-production` is reserved for a verified future collection; and `concept`
+must not describe a collection that has already been publicly presented.
+Borderline current-season records require editorial review rather than an
+automatic year-based rewrite.
+
 The audit is intentionally diagnostic. Automated rewriting is outside its
 scope because a syntactically consistent archive can still be historically
 wrong.

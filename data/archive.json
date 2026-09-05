@@ -521,10 +521,10 @@
       "name": "Free-form",
       "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2019,
-      "status": "concept",
+      "status": "archived",
       "piece_count": 52,
       "description": "The collection marked a transition toward structural asymmetry, splitting classical archetypes side-to-side rather than front-to-back [index:1.1.1]. Chitose Abe intentionally left edges raw and items looking spontaneous or \"undone\"",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-ready-to-wear/sacai",
       "youtube_video_id": "WFKlbKp5KX0"
     },
     {
@@ -814,29 +814,29 @@
       "youtube_video_id": null
     },
     {
-      "key": "demna-gvasalia-balenciaga-spring-summer-2023",
+      "key": "demna-gvasalia-balenciaga-spring-summer-ready-to-wear-2023",
       "designer_key": "demna-gvasalia",
       "label": "Balenciaga",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2023,
       "status": "archived",
       "piece_count": null,
       "description": "A Demna collection presented on a mud-covered runway in Paris.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2023-ready-to-wear/balenciaga",
       "youtube_video_id": "Yh_1K9s6UV0"
     },
     {
-      "key": "demna-gvasalia-balenciaga-fall-winter-2024",
+      "key": "demna-gvasalia-balenciaga-fall-winter-ready-to-wear-2024",
       "designer_key": "demna-gvasalia",
       "label": "Balenciaga",
       "name": "Winter 24",
-      "season": "Fall/Winter",
+      "season": "Fall/Winter Ready-to-Wear",
       "release_year": 2024,
       "status": "archived",
       "piece_count": null,
       "description": "A Winter 2024 collection pairing Cristóbal Balenciaga-inspired eveningwear with faux fur, coordinated puffers, biker-derived accessories, and a runway of physical screens.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2024-ready-to-wear/balenciaga",
       "youtube_video_id": "Us5MCN-jDpo"
     },
     {
@@ -1231,16 +1231,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "grace-wales-bonner-wales-bonner-spring-summer-2024",
+      "key": "grace-wales-bonner-wales-bonner-spring-summer-menswear-2024",
       "designer_key": "grace-wales-bonner",
       "label": "Wales Bonner",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Menswear",
       "release_year": 2024,
-      "status": "released",
+      "status": "archived",
       "piece_count": 34,
       "description": "The Spring/Summer 2024 menswear collection was titled Marathon.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2024-menswear/wales-bonner",
       "youtube_video_id": "akJxFSRW03U"
     },
     {
@@ -1725,16 +1725,16 @@
       "youtube_video_id": "Jdbw1WNkrq8"
     },
     {
-      "key": "jonathan-anderson-jw-anderson-spring-summer-2024",
+      "key": "jonathan-anderson-jw-anderson-spring-summer-ready-to-wear-2024",
       "designer_key": "jonathan-anderson",
       "label": "JW Anderson",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2024,
-      "status": "released",
+      "status": "archived",
       "piece_count": null,
       "description": "The collection reworked familiar wardrobe pieces with exaggerated proportions and unexpected materials.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2024-ready-to-wear/j-w-anderson",
       "youtube_video_id": "oYtZVDZWCes"
     },
     {

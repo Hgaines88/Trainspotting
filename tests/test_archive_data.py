@@ -80,6 +80,38 @@ def test_demo_collaborations_have_ordered_credits_and_sources():
     )
 
 
+def test_first_integrity_batch_has_verified_taxonomy_sources_and_statuses():
+    payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
+    collections = {collection["key"]: collection for collection in payload["collections"]}
+    expected = {
+        "chitose-abe-sacai-spring-summer-ready-to-wear-2019": (
+            "Spring/Summer Ready-to-Wear",
+            "https://www.vogue.com/fashion-shows/spring-2019-ready-to-wear/sacai",
+        ),
+        "demna-gvasalia-balenciaga-spring-summer-ready-to-wear-2023": (
+            "Spring/Summer Ready-to-Wear",
+            "https://www.vogue.com/fashion-shows/spring-2023-ready-to-wear/balenciaga",
+        ),
+        "demna-gvasalia-balenciaga-fall-winter-ready-to-wear-2024": (
+            "Fall/Winter Ready-to-Wear",
+            "https://www.vogue.com/fashion-shows/fall-2024-ready-to-wear/balenciaga",
+        ),
+        "grace-wales-bonner-wales-bonner-spring-summer-menswear-2024": (
+            "Spring/Summer Menswear",
+            "https://www.vogue.com/fashion-shows/spring-2024-menswear/wales-bonner",
+        ),
+        "jonathan-anderson-jw-anderson-spring-summer-ready-to-wear-2024": (
+            "Spring/Summer Ready-to-Wear",
+            "https://www.vogue.com/fashion-shows/spring-2024-ready-to-wear/j-w-anderson",
+        ),
+    }
+
+    for key, (season, source_url) in expected.items():
+        assert collections[key]["season"] == season
+        assert collections[key]["source_url"] == source_url
+        assert collections[key]["status"] == "archived"
+
+
 def test_export_import_preserves_non_default_collection_credits(tmp_path):
     source = tmp_path / "credits-source.db"
     restored = tmp_path / "credits-restored.db"
