@@ -29,6 +29,7 @@ from app.observability import (
 )
 from app.users import get_or_create_user, sync_clerk_user_profile
 from app.submissions import router as submissions_router
+from app.recommendations import meaningful_terms, rank_related_collections
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
@@ -637,6 +638,66 @@ def get_collection(collection_id: int):
 
     try:
         return fetch_collection(connection, collection_id)
+    finally:
+        connection.close()
+
+
+@app.get("/collections/{collection_id}/related")
+def related_collections(
+    collection_id: int,
+    limit: int = Query(default=4, ge=1, le=12),
+):
+    connection = connect()
+
+    try:
+        target = fetch_collection(connection, collection_id)
+        clauses = [
+            case_insensitive_equality(connection, "collections.label"),
+            case_insensitive_equality(connection, "collections.season"),
+            "collections.release_year BETWEEN ? AND ?",
+            """EXISTS (
+                SELECT 1
+                FROM collection_credits AS candidate_credit
+                JOIN collection_credits AS target_credit
+                    ON target_credit.designer_id = candidate_credit.designer_id
+                WHERE candidate_credit.collection_id = collections.id
+                  AND target_credit.collection_id = ?
+            )""",
+        ]
+        parameters = [
+            target["label"],
+            target["season"],
+            target["release_year"] - 2,
+            target["release_year"] + 2,
+            collection_id,
+        ]
+        for term in sorted(meaningful_terms(target))[:20]:
+            clauses.append(
+                "(LOWER(COALESCE(collections.name, '')) LIKE ? "
+                "OR LOWER(COALESCE(collections.description, '')) LIKE ?)"
+            )
+            parameters.extend((f"%{term}%", f"%{term}%"))
+        ranked = []
+        last_id = 0
+        batch_size = 200
+        while True:
+            rows = connection.execute(
+                COLLECTION_SELECT
+                + " WHERE collections.id != ? AND collections.id > ? AND ("
+                + " OR ".join(clauses)
+                + ") ORDER BY collections.id LIMIT ?",
+                (collection_id, last_id, *parameters, batch_size),
+            ).fetchall()
+            if not rows:
+                break
+            candidates = collection_payloads(connection, rows)
+            ranked = rank_related_collections(
+                target,
+                [*ranked, *candidates],
+                limit=limit,
+            )
+            last_id = rows[-1]["id"]
+        return ranked
     finally:
         connection.close()
 

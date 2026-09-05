@@ -125,6 +125,17 @@ def test_react_mutations_are_only_exposed_through_admin_guards():
     assert 'method: "DELETE"' not in vanilla_scripts
 
 
+def test_collection_page_exposes_explainable_related_collections():
+    source = (
+        PROJECT_ROOT / "react-ui" / "src" / "pages" / "CollectionDetail.jsx"
+    ).read_text(encoding="utf-8")
+
+    assert "Related collections" in source
+    assert "Explainable matches" in source
+    assert "item.reasons.map" in source
+    assert "item.score" in source
+
+
 def test_react_uses_clerk_without_exposing_the_secret_key():
     main_source = (
         PROJECT_ROOT / "react-ui" / "src" / "main.jsx"
