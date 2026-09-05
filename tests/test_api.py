@@ -911,6 +911,66 @@ def test_related_collections_endpoint_validates_collection_and_limit(client):
     assert client.get("/collections/1/related?limit=0").status_code == 422
 
 
+def test_related_collection_batches_do_not_discard_older_strong_matches(client):
+    target = client.get("/collections/1").json()
+    connection = database.connect()
+    try:
+        weak_designer_id = connection.execute(
+            "INSERT INTO designers (full_name) VALUES (?)",
+            ("Recommendation Batch Designer",),
+        ).lastrowid
+        for index in range(205):
+            weak_id = connection.execute(
+                """INSERT INTO collections
+                   (designer_id, label, season, release_year, status)
+                   VALUES (?, ?, ?, ?, ?)""",
+                (
+                    weak_designer_id,
+                    f"Recent Weak Match {index}",
+                    target["season"],
+                    2090,
+                    "archived",
+                ),
+            ).lastrowid
+            connection.execute(
+                """INSERT INTO collection_credits
+                   (collection_id, designer_id, credit_role, credit_order)
+                   VALUES (?, ?, 'lead', 1)""",
+                (weak_id, weak_designer_id),
+            )
+        strong_id = connection.execute(
+            """INSERT INTO collections
+               (designer_id, label, name, season, release_year, status, description)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                target["designer_id"],
+                target["label"],
+                target["name"],
+                target["season"],
+                1900,
+                "archived",
+                target["description"],
+            ),
+        ).lastrowid
+        connection.execute(
+            """INSERT INTO collection_credits
+               (collection_id, designer_id, credit_role, credit_order)
+               VALUES (?, ?, 'lead', 1)""",
+            (strong_id, target["designer_id"]),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    response = client.get("/collections/1/related?limit=1")
+
+    assert response.status_code == 200
+    assert response.json()[0]["id"] == strong_id
+    assert response.json()[0]["reasons"][0] == (
+        f"Shared contributor: {target['lead_designer']}"
+    )
+
+
 def test_collection_credits_are_ordered_queryable_and_compatibility_safe(client):
     guest = client.post(
         "/designers",

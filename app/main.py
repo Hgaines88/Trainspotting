@@ -677,15 +677,27 @@ def related_collections(
                 "OR LOWER(COALESCE(collections.description, '')) LIKE ?)"
             )
             parameters.extend((f"%{term}%", f"%{term}%"))
-        rows = connection.execute(
-            COLLECTION_SELECT
-            + " WHERE collections.id != ? AND ("
-            + " OR ".join(clauses)
-            + ") ORDER BY collections.release_year DESC, collections.id LIMIT ?",
-            (collection_id, *parameters, max(limit * 25, 200)),
-        ).fetchall()
-        candidates = collection_payloads(connection, rows)
-        return rank_related_collections(target, candidates, limit=limit)
+        ranked = []
+        last_id = 0
+        batch_size = 200
+        while True:
+            rows = connection.execute(
+                COLLECTION_SELECT
+                + " WHERE collections.id != ? AND collections.id > ? AND ("
+                + " OR ".join(clauses)
+                + ") ORDER BY collections.id LIMIT ?",
+                (collection_id, last_id, *parameters, batch_size),
+            ).fetchall()
+            if not rows:
+                break
+            candidates = collection_payloads(connection, rows)
+            ranked = rank_related_collections(
+                target,
+                [*ranked, *candidates],
+                limit=limit,
+            )
+            last_id = rows[-1]["id"]
+        return ranked
     finally:
         connection.close()
 
