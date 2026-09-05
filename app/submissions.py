@@ -86,6 +86,51 @@ def json_text(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
+def designer_snapshot(connection, designer_id):
+    row = connection.execute(
+        "SELECT full_name, nationality, birth_year, website, biography FROM designers WHERE id = ?",
+        (designer_id,),
+    ).fetchone()
+    return dict(row) if row else None
+
+
+def collection_snapshot(connection, collection_id):
+    row = connection.execute(
+        """SELECT designer_id, label, name, season, release_year, status,
+                  piece_count, description FROM collections WHERE id = ?""",
+        (collection_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    result = dict(row)
+    media = {
+        item["media_type"]: item["media_value"]
+        for item in connection.execute(
+            "SELECT media_type, media_value FROM collection_media WHERE collection_id = ?",
+            (collection_id,),
+        ).fetchall()
+    }
+    result["source_url"] = media.get("source")
+    result["youtube_video_id"] = media.get("youtube")
+    return result
+
+
+def serialize_audit(connection, submission_id: int) -> list[dict]:
+    rows = connection.execute(
+        """SELECT submission_audit.*, users.clerk_user_id AS actor_clerk_user_id,
+                  users.display_name AS actor_display_name
+           FROM submission_audit JOIN users ON users.id = submission_audit.actor_user_id
+           WHERE submission_id = ? ORDER BY submission_audit.id""",
+        (submission_id,),
+    ).fetchall()
+    result = []
+    for row in rows:
+        event = dict(row)
+        event["event_data"] = json.loads(event["event_data"])
+        result.append(event)
+    return result
+
+
 def serialize_submission(connection, submission_id: int) -> dict:
     row = connection.execute(
         """
@@ -114,7 +159,8 @@ def serialize_submission(connection, submission_id: int) -> dict:
         for decision in connection.execute(
             """SELECT submission_decisions.id, submission_decisions.decision,
                       submission_decisions.notes, submission_decisions.created_at,
-                      users.clerk_user_id AS reviewer_clerk_user_id
+                      users.clerk_user_id AS reviewer_clerk_user_id,
+                      users.display_name AS reviewer_display_name
                FROM submission_decisions
                JOIN users ON users.id = submission_decisions.reviewer_user_id
                WHERE submission_id = ? ORDER BY submission_decisions.id""",
@@ -122,12 +168,23 @@ def serialize_submission(connection, submission_id: int) -> dict:
         ).fetchall()
     ]
     promotion = connection.execute(
-        """SELECT canonical_record_type, canonical_record_id, promoted_at,
-                  rolled_back_at, rollback_reason
+        """SELECT canonical_record_type, canonical_record_id, before_snapshot,
+                  after_snapshot, promoted_at, rolled_back_at, rollback_reason
            FROM submission_promotions WHERE submission_id = ?""",
         (submission_id,),
     ).fetchone()
     result["promotion"] = dict(promotion) if promotion else None
+    if result["promotion"]:
+        for field_name in ("before_snapshot", "after_snapshot"):
+            value = result["promotion"][field_name]
+            result["promotion"][field_name] = json.loads(value) if value else None
+    snapshot = designer_snapshot if result["record_type"] == "designer" else collection_snapshot
+    result["current_data"] = (
+        snapshot(connection, result["target_id"])
+        if result["submission_type"] == "correction"
+        else None
+    )
+    result["audit"] = serialize_audit(connection, submission_id)
     return result
 
 
@@ -357,35 +414,6 @@ def moderation_queue(
         connection.close()
 
 
-def designer_snapshot(connection, designer_id):
-    row = connection.execute(
-        "SELECT full_name, nationality, birth_year, website, biography FROM designers WHERE id = ?",
-        (designer_id,),
-    ).fetchone()
-    return dict(row) if row else None
-
-
-def collection_snapshot(connection, collection_id):
-    row = connection.execute(
-        """SELECT designer_id, label, name, season, release_year, status,
-                  piece_count, description FROM collections WHERE id = ?""",
-        (collection_id,),
-    ).fetchone()
-    if row is None:
-        return None
-    result = dict(row)
-    media = {
-        item["media_type"]: item["media_value"]
-        for item in connection.execute(
-            "SELECT media_type, media_value FROM collection_media WHERE collection_id = ?",
-            (collection_id,),
-        ).fetchall()
-    }
-    result["source_url"] = media.get("source")
-    result["youtube_video_id"] = media.get("youtube")
-    return result
-
-
 def write_designer(connection, record_id, values):
     payload = DesignerCreate.model_validate(values)
     fields = payload.model_dump()
@@ -519,18 +547,7 @@ def submission_audit(submission_id: int, user: dict = Depends(authenticated_app_
             raise HTTPException(status_code=404, detail="Submission not found")
         if submission["submitter_user_id"] != user["id"] and user["role"] not in {"moderator", "admin"}:
             raise HTTPException(status_code=403, detail="Submission access denied.")
-        rows = connection.execute(
-            """SELECT submission_audit.*, users.clerk_user_id AS actor_clerk_user_id
-               FROM submission_audit JOIN users ON users.id = submission_audit.actor_user_id
-               WHERE submission_id = ? ORDER BY submission_audit.id""",
-            (submission_id,),
-        ).fetchall()
-        result = []
-        for row in rows:
-            event = dict(row)
-            event["event_data"] = json.loads(event["event_data"])
-            result.append(event)
-        return result
+        return serialize_audit(connection, submission_id)
     finally:
         connection.close()
 

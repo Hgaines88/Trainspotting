@@ -79,7 +79,9 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "moderator");
   await page.goto("/moderation");
-  await expect(page.getByText("E2E Member")).toBeVisible();
+  await expect(page.getByText(new RegExp(`^Submission #${submissionId} · E2E Member$`))).toBeVisible();
+  await expect(page.getByRole("table", { name: "Proposed archive record" })).toContainText(DESIGNER_NAME);
+  await expect(page.getByLabel(new RegExp(`Audit history for submission ${submissionId}`))).toContainText("Submitted");
   await page.getByRole("button", { name: "Request changes" }).click();
   const changesDialog = page.getByRole("dialog", { name: "Request changes" });
   await expect(changesDialog).toBeVisible();

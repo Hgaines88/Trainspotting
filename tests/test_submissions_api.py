@@ -161,6 +161,8 @@ def test_member_submission_records_sources_without_changing_archive(client):
     assert body["status"] == "submitted"
     assert body["submitter_clerk_user_id"] == "user_member"
     assert body["submitter_display_name"] == "Archive Contributor"
+    assert body["current_data"] is None
+    assert body["audit"][0]["actor_display_name"] == "Archive Contributor"
     assert body["sources"][0]["url"] == SOURCE["url"]
     assert body["submitted_at"] is not None
     assert count_rows("designers") == designers_before
@@ -217,6 +219,43 @@ def test_request_changes_edit_and_resubmit_transition(client):
     resubmitted = client.post(f"/submissions/{submission['id']}/submit")
     assert resubmitted.status_code == 200
     assert resubmitted.json()["status"] == "submitted"
+
+
+def test_moderation_queue_includes_canonical_comparison_and_human_audit_identity(client):
+    authenticate("user_comparison_submitter")
+    connection = database.connect()
+    try:
+        connection.execute(
+            "UPDATE users SET display_name = ? WHERE clerk_user_id = ?",
+            ("Named Contributor", "user_comparison_submitter"),
+        )
+        original = connection.execute(
+            "SELECT biography FROM designers WHERE id = 1"
+        ).fetchone()["biography"]
+        connection.commit()
+    finally:
+        connection.close()
+    submission = client.post(
+        "/submissions",
+        json={
+            "record_type": "designer",
+            "submission_type": "correction",
+            "target_id": 1,
+            "proposed_data": {"biography": "A sourced replacement biography."},
+            "explanation": "Correct the biography.",
+            "sources": [SOURCE],
+        },
+    ).json()
+
+    authenticate("user_comparison_moderator", "moderator")
+    queue = client.get("/moderation/submissions").json()
+    item = next(candidate for candidate in queue if candidate["id"] == submission["id"])
+
+    assert item["submitter_display_name"] == "Named Contributor"
+    assert item["current_data"]["biography"] == original
+    assert item["proposed_data"] == {"biography": "A sourced replacement biography."}
+    assert item["audit"][0]["event_type"] == "submitted"
+    assert item["audit"][0]["actor_display_name"] == "Named Contributor"
 
 
 def test_approval_is_transactional_and_idempotent(client):

@@ -46,7 +46,22 @@ p { line-height:1.65; }
 .submission-row span,.submission-row small { color:var(--dim); text-transform:none; }
 .moderation-list { display:grid; gap:1rem; }
 .moderation-card { padding:1.5rem; border:1px solid var(--line); }
-.moderation-card pre { overflow:auto; padding:1rem; color:var(--paper); background:#111; }
+.comparison-wrap { overflow-x:auto; margin:1.5rem 0; }
+.comparison-table { width:100%; border-collapse:collapse; background:#111; }
+.comparison-table caption { padding:.75rem 0; color:var(--signal); text-align:left; font-size:.7rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
+.comparison-table th,.comparison-table td { min-width:10rem; padding:.8rem; border:1px solid var(--line); text-align:left; vertical-align:top; overflow-wrap:anywhere; }
+.comparison-table thead th { color:var(--dim); font-size:.65rem; letter-spacing:.08em; text-transform:uppercase; }
+.comparison-table tbody th { width:18%; color:var(--paper); font-size:.7rem; text-transform:capitalize; }
+.comparison-table .proposed-value { border-left-color:var(--signal); }
+.empty-value { color:var(--dim); font-style:italic; }
+.audit-history { margin-top:2rem; padding-top:1rem; border-top:1px solid var(--line); }
+.audit-history h3 { color:var(--signal); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; }
+.audit-history ol { margin:1rem 0 0; padding:0; list-style:none; }
+.audit-history li { display:grid; grid-template-columns:minmax(12rem,1fr) auto; gap:.25rem 1rem; padding:.8rem 0 .8rem 1rem; border-left:2px solid var(--line); }
+.audit-history li:last-child { border-left-color:var(--signal); }
+.audit-history li div { display:flex; flex-wrap:wrap; gap:.5rem; }
+.audit-history li span,.audit-history time { color:var(--dim); font-size:.68rem; }
+.audit-history li p { grid-column:1/-1; margin:0; }
 .moderation-dialog { width:min(560px,calc(100% - 2rem)); padding:0; border:1px solid var(--paper); color:var(--paper); background:var(--ink); box-shadow:12px 12px 0 var(--signal); }
 .moderation-dialog::backdrop { background:rgb(0 0 0 / .82); }
 .moderation-dialog form { padding:1.5rem; }
