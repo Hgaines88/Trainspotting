@@ -681,8 +681,8 @@ def related_collections(
             COLLECTION_SELECT
             + " WHERE collections.id != ? AND ("
             + " OR ".join(clauses)
-            + ")",
-            (collection_id, *parameters),
+            + ") ORDER BY collections.release_year DESC, collections.id LIMIT ?",
+            (collection_id, *parameters, max(limit * 25, 200)),
         ).fetchall()
         candidates = collection_payloads(connection, rows)
         return rank_related_collections(target, candidates, limit=limit)
