@@ -112,6 +112,41 @@ def test_first_integrity_batch_has_verified_taxonomy_sources_and_statuses():
         assert collections[key]["status"] == "archived"
 
 
+def test_second_integrity_batch_has_verified_taxonomy_sources_and_statuses():
+    payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
+    collections = {
+        collection["key"]: collection
+        for collection in payload["collections"]
+    }
+    expected = {
+        "junya-watanabe-junya-watanabe-man-spring-summer-menswear-2025": (
+            "Spring/Summer Menswear",
+            "https://www.vogue.com/fashion-shows/spring-2025-menswear/junya-watanabe",
+        ),
+        "lee-alexander-mcqueen-alexander-mcqueen-spring-summer-ready-to-wear-1999": (
+            "Spring/Summer Ready-to-Wear",
+            "https://www.vogue.com/fashion-shows/spring-1999-ready-to-wear/alexander-mcqueen",
+        ),
+        "miuccia-prada-prada-spring-summer-ready-to-wear-2012": (
+            "Spring/Summer Ready-to-Wear",
+            "https://www.vogue.com/fashion-shows/spring-2012-ready-to-wear/prada",
+        ),
+        "rei-kawakubo-comme-des-garcons-spring-summer-ready-to-wear-1997": (
+            "Spring/Summer Ready-to-Wear",
+            "https://www.vogue.com/fashion-shows/spring-1997-ready-to-wear/comme-des-garcons",
+        ),
+        "rei-kawakubo-comme-des-garcons-fall-winter-ready-to-wear-2024": (
+            "Fall/Winter Ready-to-Wear",
+            "https://www.vogue.com/fashion-shows/fall-2024-ready-to-wear/comme-des-garcons",
+        ),
+    }
+
+    for key, (season, source_url) in expected.items():
+        assert collections[key]["season"] == season
+        assert collections[key]["source_url"] == source_url
+        assert collections[key]["status"] == "archived"
+
+
 def test_export_import_preserves_non_default_collection_credits(tmp_path):
     source = tmp_path / "credits-source.db"
     restored = tmp_path / "credits-restored.db"
