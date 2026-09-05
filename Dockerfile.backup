@@ -1,0 +1,17 @@
+FROM mysql@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+
+RUN microdnf install -y python3.11 python3.11-pip \
+    && microdnf clean all
+
+WORKDIR /app
+
+COPY requirements-backup.txt ./
+RUN python3.11 -m pip install --no-cache-dir -r requirements-backup.txt
+
+COPY scripts/mysql_backup.py ./scripts/mysql_backup.py
+COPY scripts/backup_storage.py ./scripts/backup_storage.py
+COPY scripts/run_mysql_backup.py ./scripts/run_mysql_backup.py
+
+USER mysql
+
+ENTRYPOINT ["python3.11", "-m", "scripts.run_mysql_backup"]
