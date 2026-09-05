@@ -1,7 +1,9 @@
 from sqlalchemy import text
+from sqlalchemy.engine import make_url
 
 from app.database import SQLITE_BUSY_TIMEOUT_MS
 from app.database_engine import build_engine, configured_database_url
+from app.database_url import normalize_database_url
 
 
 def test_database_url_defaults_to_the_requested_sqlite_path(tmp_path, monkeypatch):
@@ -18,6 +20,19 @@ def test_database_url_honors_environment_override(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", expected)
 
     assert configured_database_url(tmp_path / "ignored.db") == expected
+
+
+def test_generic_mysql_url_selects_the_installed_pymysql_driver(monkeypatch):
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "mysql://user:p%40ss@mysql.railway.internal:3306/trainspotting",
+    )
+
+    normalized = configured_database_url()
+
+    assert normalized.startswith("mysql+pymysql://")
+    assert make_url(normalized).password == "p@ss"
+    assert normalize_database_url(normalized) == normalized
 
 
 def test_sqlalchemy_sqlite_engine_preserves_safety_settings(tmp_path):

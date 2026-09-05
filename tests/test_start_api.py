@@ -20,6 +20,23 @@ def test_mysql_startup_leaves_database_preparation_to_alembic(monkeypatch):
     assert initialize_calls == []
 
 
+def test_generic_railway_mysql_url_is_supported_at_startup(monkeypatch):
+    initialize_calls = []
+    monkeypatch.setattr(
+        start_api,
+        "initialize_database",
+        lambda path: initialize_calls.append(path),
+    )
+
+    assert (
+        start_api.prepare_runtime_database(
+            "mysql://user:password@mysql.railway.internal/trainspotting"
+        )
+        is False
+    )
+    assert initialize_calls == []
+
+
 def test_sqlite_startup_initializes_the_configured_path(tmp_path, monkeypatch):
     database_path = tmp_path / "configured.db"
     initialize_calls = []

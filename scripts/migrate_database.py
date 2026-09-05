@@ -9,6 +9,7 @@ from sqlalchemy.engine import make_url
 
 from app.database import apply_migrations
 from app.database_engine import build_engine, configured_database_url
+from app.database_url import normalize_database_url
 
 
 LOCK_NAME = "trainspotting_alembic_migration"
@@ -27,7 +28,7 @@ def apply_to(database_url: str) -> None:
 
 
 def migrate(database_url: str | None = None) -> None:
-    target_url = database_url or configured_database_url()
+    target_url = normalize_database_url(database_url or configured_database_url())
     if make_url(target_url).get_backend_name() != "mysql":
         apply_to(target_url)
         return

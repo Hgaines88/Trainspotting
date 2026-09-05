@@ -8,12 +8,15 @@ from pathlib import Path
 from sqlalchemy.engine import make_url
 
 from app.database_engine import default_sqlite_url
+from app.database_url import normalize_database_url
 from scripts.init_db import initialize_database
 
 
 def prepare_runtime_database(database_url: str | None = None) -> bool:
     """Initialize a missing SQLite archive; MySQL is prepared by Alembic."""
-    parsed_url = make_url(database_url or default_sqlite_url())
+    parsed_url = make_url(
+        normalize_database_url(database_url or default_sqlite_url())
+    )
     backend = parsed_url.get_backend_name()
     if backend == "mysql":
         return False

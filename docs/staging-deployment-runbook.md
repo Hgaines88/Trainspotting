@@ -49,8 +49,9 @@ source of real values.
 
 On `api`:
 
-- `DATABASE_URL`: reference the MySQL service's private SQLAlchemy-compatible
-  URL and include the `pymysql` driver plus `utf8mb4` charset;
+- `DATABASE_URL`: use a Railway reference to the MySQL service's private
+  `MYSQL_URL`. Trainspotting normalizes Railway's generic `mysql://` scheme to
+  the installed `pymysql` driver at its configuration boundary;
 - `AUTO_MIGRATE_DATABASE=false`;
 - `CLERK_SECRET_KEY`: the Clerk staging instance secret key;
 - `CLERK_AUTHORIZED_PARTIES`: the exact public HTTPS origin of `web`, with no

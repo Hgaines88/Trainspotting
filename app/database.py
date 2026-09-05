@@ -11,6 +11,8 @@ from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import IntegrityError as SQLAlchemyIntegrityError
 
+from app.database_url import normalize_database_url
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATABASE_PATH = PROJECT_ROOT / "data" / "archive.db"
@@ -173,6 +175,7 @@ def configure_connection(connection: sqlite3.Connection) -> None:
 def connect():
     database_url = os.getenv("DATABASE_URL")
     if database_url:
+        database_url = normalize_database_url(database_url)
         parsed_url = make_url(database_url)
         backend = parsed_url.get_backend_name()
         if backend == "mysql":
@@ -196,6 +199,8 @@ def connect():
 def database_readiness() -> dict[str, str]:
     """Verify connectivity and the schema ledger without changing database state."""
     database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        database_url = normalize_database_url(database_url)
     backend = make_url(database_url).get_backend_name() if database_url else "sqlite"
     connection = connect()
     try:
@@ -222,7 +227,9 @@ def database_readiness() -> dict[str, str]:
 def apply_migrations() -> list[str]:
     """Apply each pending SQL migration exactly once."""
     database_url = os.getenv("DATABASE_URL")
-    if database_url and database_url.startswith("mysql+"):
+    if database_url:
+        database_url = normalize_database_url(database_url)
+    if database_url and make_url(database_url).get_backend_name() == "mysql":
         configuration = Config(PROJECT_ROOT / "alembic.ini")
         configuration.set_main_option("sqlalchemy.url", database_url)
         command.upgrade(configuration, "head")
