@@ -4,6 +4,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DOCKERFILE = PROJECT_ROOT / "react-ui" / "Dockerfile"
 NGINX_TEMPLATE = PROJECT_ROOT / "react-ui" / "nginx.conf.template"
+STAGING_ENV_EXAMPLE = PROJECT_ROOT / "deploy" / "staging.env.example"
 
 
 def test_nginx_uses_the_container_dns_resolver_dynamically():
@@ -18,8 +19,8 @@ def test_nginx_uses_the_container_dns_resolver_dynamically():
 
 
 def test_nginx_preserves_runtime_variables_and_api_path_rewriting():
-    dockerfile = DOCKERFILE.read_text()
-    template = NGINX_TEMPLATE.read_text()
+    dockerfile = DOCKERFILE.read_text(encoding="utf-8")
+    template = NGINX_TEMPLATE.read_text(encoding="utf-8")
 
     assert (
         "NGINX_ENVSUBST_FILTER=^(API_UPSTREAM|NGINX_LOCAL_RESOLVERS)$"
@@ -29,3 +30,9 @@ def test_nginx_preserves_runtime_variables_and_api_path_rewriting():
     assert "proxy_set_header Host $host;" in template
     assert "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;" in template
     assert "proxy_set_header X-Forwarded-Proto $scheme;" in template
+
+
+def test_staging_contract_exposes_the_nginx_listener_port():
+    staging_contract = STAGING_ENV_EXAMPLE.read_text(encoding="utf-8")
+
+    assert "PORT=80" in staging_contract.splitlines()
