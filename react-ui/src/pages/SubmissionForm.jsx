@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
 import { apiRequest } from "../api";
+import { collectionCreditLine } from "../collectionAttribution";
 import ArchiveRecordSelector from "../components/ArchiveRecordSelector";
 import CorrectionField from "../components/CorrectionField";
 import StatusMessage from "../components/StatusMessage";
@@ -36,7 +37,7 @@ const designerLabel = (designer) => [designer.full_name, designer.nationality]
 const collectionLabel = (collection) => {
   const title = collection.name ? `${collection.label}: ${collection.name}` : collection.label;
   const date = [collection.season, collection.release_year].filter(Boolean).join(" ");
-  return [collection.lead_designer, title, date].filter(Boolean).join(" — ");
+  return [collectionCreditLine(collection), title, date].filter(Boolean).join(" — ");
 };
 
 export default function SubmissionForm() {

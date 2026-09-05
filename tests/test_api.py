@@ -472,6 +472,15 @@ def test_archive_option_search_is_filtered_and_bounded(client):
     assert [item["full_name"] for item in designers.json()] == ["Grace Wales Bonner"]
     assert collections.status_code == 200
     assert [item["name"] for item in collections.json()] == ["No. 13"]
+    assert collections.json()[0]["credits"] == [
+        {
+            "designer_id": collections.json()[0]["designer_id"],
+            "designer_name": collections.json()[0]["lead_designer"],
+            "role": "lead",
+            "position": 1,
+            "attribution_note": None,
+        }
+    ]
     assert len(bounded.json()) == 3
     assert set(designers.json()[0]) == {"id", "full_name", "nationality"}
 

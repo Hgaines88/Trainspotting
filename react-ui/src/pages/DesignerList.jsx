@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiRequest } from "../api";
+import { collectionCreditLine } from "../collectionAttribution";
 import StatusMessage from "../components/StatusMessage";
 import { nationalityFlags } from "../nationalityFlags";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
@@ -108,7 +109,7 @@ export default function DesignerList() {
         {recentCollections.length > 0 && <div className="recent-collections">
           <p className="eyebrow">Recent archive arrivals</p>
           <ol className="collection-list">
-            {recentCollections.map((collection, index) => <li key={collection.id}><Link to={`/collections/${collection.id}`}><i>{String(index + 1).padStart(2, "0")}</i><strong>{collection.name || collection.label}</strong><span>{collection.lead_designer} · {collection.season} {collection.release_year}</span></Link></li>)}
+            {recentCollections.map((collection, index) => <li key={collection.id}><Link to={`/collections/${collection.id}`}><i>{String(index + 1).padStart(2, "0")}</i><strong>{collection.name || collection.label}</strong><span>{collectionCreditLine(collection)} · {collection.season} {collection.release_year}</span></Link></li>)}
           </ol>
           <p className="discovery-hint">Open a collection to follow its explainable related-collection trail.</p>
         </div>}

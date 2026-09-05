@@ -1284,7 +1284,7 @@ def collection_options(
                LIMIT ?""",
             (pattern, pattern, pattern, pattern, pattern, limit),
         ).fetchall()
-        return [dict(row) for row in rows]
+        return collection_payloads(connection, rows)
     finally:
         connection.close()
 

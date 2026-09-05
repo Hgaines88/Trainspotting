@@ -521,10 +521,10 @@
       "name": "Free-form",
       "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2019,
-      "status": "concept",
+      "status": "archived",
       "piece_count": 52,
       "description": "The collection marked a transition toward structural asymmetry, splitting classical archetypes side-to-side rather than front-to-back [index:1.1.1]. Chitose Abe intentionally left edges raw and items looking spontaneous or \"undone\"",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-ready-to-wear/sacai",
       "youtube_video_id": "WFKlbKp5KX0"
     },
     {
@@ -814,29 +814,29 @@
       "youtube_video_id": null
     },
     {
-      "key": "demna-gvasalia-balenciaga-spring-summer-2023",
+      "key": "demna-gvasalia-balenciaga-spring-summer-ready-to-wear-2023",
       "designer_key": "demna-gvasalia",
       "label": "Balenciaga",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2023,
       "status": "archived",
       "piece_count": null,
       "description": "A Demna collection presented on a mud-covered runway in Paris.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2023-ready-to-wear/balenciaga",
       "youtube_video_id": "Yh_1K9s6UV0"
     },
     {
-      "key": "demna-gvasalia-balenciaga-fall-winter-2024",
+      "key": "demna-gvasalia-balenciaga-fall-winter-ready-to-wear-2024",
       "designer_key": "demna-gvasalia",
       "label": "Balenciaga",
       "name": "Winter 24",
-      "season": "Fall/Winter",
+      "season": "Fall/Winter Ready-to-Wear",
       "release_year": 2024,
       "status": "archived",
       "piece_count": null,
       "description": "A Winter 2024 collection pairing Cristóbal Balenciaga-inspired eveningwear with faux fur, coordinated puffers, biker-derived accessories, and a runway of physical screens.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2024-ready-to-wear/balenciaga",
       "youtube_video_id": "Us5MCN-jDpo"
     },
     {
@@ -1231,16 +1231,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "grace-wales-bonner-wales-bonner-spring-summer-2024",
+      "key": "grace-wales-bonner-wales-bonner-spring-summer-menswear-2024",
       "designer_key": "grace-wales-bonner",
       "label": "Wales Bonner",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Menswear",
       "release_year": 2024,
-      "status": "released",
+      "status": "archived",
       "piece_count": 34,
       "description": "The Spring/Summer 2024 menswear collection was titled Marathon.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2024-menswear/wales-bonner",
       "youtube_video_id": "akJxFSRW03U"
     },
     {
@@ -1725,16 +1725,16 @@
       "youtube_video_id": "Jdbw1WNkrq8"
     },
     {
-      "key": "jonathan-anderson-jw-anderson-spring-summer-2024",
+      "key": "jonathan-anderson-jw-anderson-spring-summer-ready-to-wear-2024",
       "designer_key": "jonathan-anderson",
       "label": "JW Anderson",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2024,
-      "status": "released",
+      "status": "archived",
       "piece_count": null,
       "description": "The collection reworked familiar wardrobe pieces with exaggerated proportions and unexpected materials.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2024-ready-to-wear/j-w-anderson",
       "youtube_video_id": "oYtZVDZWCes"
     },
     {
@@ -1959,16 +1959,16 @@
       "youtube_video_id": "Kxpmpk8TLtE"
     },
     {
-      "key": "junya-watanabe-junya-watanabe-man-spring-summer-2025",
+      "key": "junya-watanabe-junya-watanabe-man-spring-summer-menswear-2025",
       "designer_key": "junya-watanabe",
       "label": "Junya Watanabe MAN",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Menswear",
       "release_year": 2025,
       "status": "archived",
       "piece_count": null,
       "description": "A menswear collection combining formalwear with a punk sensibility.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2025-menswear/junya-watanabe",
       "youtube_video_id": "vQCKQaweG3M"
     },
     {
@@ -2102,16 +2102,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "lee-alexander-mcqueen-alexander-mcqueen-spring-summer-1999",
+      "key": "lee-alexander-mcqueen-alexander-mcqueen-spring-summer-ready-to-wear-1999",
       "designer_key": "lee-alexander-mcqueen",
       "label": "Alexander McQueen",
       "name": "No. 13",
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 1999,
       "status": "archived",
       "piece_count": null,
       "description": "A landmark Lee Alexander McQueen collection known for its theatrical runway presentation.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1999-ready-to-wear/alexander-mcqueen",
       "youtube_video_id": "Qv8Hx3cWB74"
     },
     {
@@ -2752,16 +2752,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "miuccia-prada-prada-spring-summer-2012",
+      "key": "miuccia-prada-prada-spring-summer-ready-to-wear-2012",
       "designer_key": "miuccia-prada",
       "label": "Prada",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2012,
       "status": "archived",
       "piece_count": null,
       "description": "A Miuccia Prada collection drawing on 1950s automobile imagery.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2012-ready-to-wear/prada",
       "youtube_video_id": "JgaGXv1XnrA"
     },
     {
@@ -3312,16 +3312,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "rei-kawakubo-comme-des-garcons-spring-summer-1997",
+      "key": "rei-kawakubo-comme-des-garcons-spring-summer-ready-to-wear-1997",
       "designer_key": "rei-kawakubo",
       "label": "Comme des Garçons",
       "name": "Body Meets Dress, Dress Meets Body",
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 1997,
       "status": "archived",
       "piece_count": null,
       "description": "Rei Kawakubo challenged conventional silhouettes using asymmetrical padded forms.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1997-ready-to-wear/comme-des-garcons",
       "youtube_video_id": null
     },
     {
@@ -3442,16 +3442,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "rei-kawakubo-comme-des-garcons-fall-winter-2024",
+      "key": "rei-kawakubo-comme-des-garcons-fall-winter-ready-to-wear-2024",
       "designer_key": "rei-kawakubo",
       "label": "Comme des Garçons",
       "name": "Anger",
-      "season": "Fall/Winter",
+      "season": "Fall/Winter Ready-to-Wear",
       "release_year": 2024,
       "status": "archived",
       "piece_count": null,
       "description": "Rei Kawakubo described the collection as an expression of anger at the state of the world and at herself.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2024-ready-to-wear/comme-des-garcons",
       "youtube_video_id": "A8appJ3QQhU"
     },
     {
@@ -3507,16 +3507,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "rick-owens-rick-owens-spring-summer-2014",
+      "key": "rick-owens-rick-owens-spring-summer-ready-to-wear-2014",
       "designer_key": "rick-owens",
       "label": "Rick Owens",
       "name": "Vicious",
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2014,
       "status": "archived",
       "piece_count": 40,
       "description": "A presentation performed by four step teams that challenged conventional runway casting and beauty standards.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2014-ready-to-wear/rick-owens",
       "youtube_video_id": "TirA415R7o4"
     },
     {
@@ -3728,29 +3728,29 @@
       "youtube_video_id": null
     },
     {
-      "key": "sarah-burton-alexander-mcqueen-spring-summer-2024",
+      "key": "sarah-burton-alexander-mcqueen-spring-summer-ready-to-wear-2024",
       "designer_key": "sarah-burton",
       "label": "Alexander McQueen",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2024,
       "status": "archived",
       "piece_count": null,
       "description": "Sarah Burton's final collection as creative director of Alexander McQueen.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2024-ready-to-wear/alexander-mcqueen",
       "youtube_video_id": "EASTZ800WHA"
     },
     {
-      "key": "sarah-burton-givenchy-fall-winter-2025",
+      "key": "sarah-burton-givenchy-fall-winter-ready-to-wear-2025",
       "designer_key": "sarah-burton",
       "label": "Givenchy",
       "name": null,
-      "season": "Fall/Winter",
+      "season": "Fall/Winter Ready-to-Wear",
       "release_year": 2025,
-      "status": "released",
+      "status": "archived",
       "piece_count": 52,
       "description": "The collection focused on cut, proportion, and tailoring.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2025-ready-to-wear/givenchy",
       "youtube_video_id": "6K37zIVNpJI"
     },
     {
@@ -4651,16 +4651,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "virgil-abloh-louis-vuitton-spring-summer-2019",
+      "key": "virgil-abloh-louis-vuitton-spring-summer-menswear-2019",
       "designer_key": "virgil-abloh",
       "label": "Louis Vuitton",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Menswear",
       "release_year": 2019,
       "status": "archived",
       "piece_count": null,
       "description": "Virgil Abloh's debut menswear collection for Louis Vuitton.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-menswear/louis-vuitton",
       "youtube_video_id": "I1AqjvdiubA"
     },
     {
@@ -5041,16 +5041,16 @@
       "youtube_video_id": "1Ph6qxV06AA"
     },
     {
-      "key": "ye-kanye-west-yeezy-spring-summer-2017",
+      "key": "ye-kanye-west-yeezy-spring-summer-ready-to-wear-2017",
       "designer_key": "ye-kanye-west",
       "label": "Yeezy",
       "name": "Yeezy Season 4",
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2017,
       "status": "archived",
       "piece_count": null,
       "description": "A presentation staged at Franklin D. Roosevelt Four Freedoms Park on Roosevelt Island, continuing Yeezy’s exploration of monochromatic casting, body-conscious foundations, oversized outerwear, and utilitarian footwear.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2017-ready-to-wear/kanye-west-adidas-originals",
       "youtube_video_id": "C0XfvDTao88"
     },
     {
