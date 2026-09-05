@@ -1,9 +1,9 @@
 from typing import Annotated, Literal
-from urllib.parse import urlparse
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
 from app.schemas import CollectionStatus
+from app.url_safety import normalize_public_http_url
 
 
 SubmissionKind = Literal["addition", "correction"]
@@ -14,15 +14,7 @@ class SubmissionModel(BaseModel):
 
 
 def normalize_optional_http_url(value: str | None, field_label: str) -> str | None:
-    if value is None:
-        return None
-    cleaned_value = value.strip()
-    if not cleaned_value:
-        return None
-    parsed = urlparse(cleaned_value)
-    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise ValueError(f"{field_label} must begin with http:// or https://")
-    return cleaned_value
+    return normalize_public_http_url(value, field_label)
 
 
 class SubmissionSource(SubmissionModel):
@@ -33,11 +25,10 @@ class SubmissionSource(SubmissionModel):
     @field_validator("url")
     @classmethod
     def source_url_must_be_http(cls, value: str) -> str:
-        cleaned_value = value.strip()
-        parsed = urlparse(cleaned_value)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            raise ValueError("Source URL must begin with http:// or https://")
-        return cleaned_value
+        normalized = normalize_public_http_url(value, "Source URL")
+        if normalized is None:
+            raise ValueError("Source URL must not be blank")
+        return normalized
 
 
 class DesignerProposal(SubmissionModel):

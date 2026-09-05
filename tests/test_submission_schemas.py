@@ -122,6 +122,25 @@ def test_source_must_use_http_or_https():
 
 
 @pytest.mark.parametrize(
+    "url",
+    [
+        "https://user:password@example.com/source",
+        "https://localhost/source",
+        "https://192.168.1.2/source",
+    ],
+)
+def test_submission_sources_must_be_safe_public_links(url):
+    with pytest.raises(ValidationError):
+        submission_for_review_adapter.validate_python({
+            "record_type": "designer",
+            "submission_type": "addition",
+            "proposed_data": {"full_name": "Example Designer"},
+            "explanation": "Add this documented designer.",
+            "sources": [{"url": url}],
+        })
+
+
+@pytest.mark.parametrize(
     ("record_type", "proposed_data"),
     [
         ("designer", {"website": "not-a-url"}),
