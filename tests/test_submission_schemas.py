@@ -160,3 +160,15 @@ def test_identity_and_role_fields_are_never_accepted_from_clients():
             "submitter_user_id": 1,
             "role": "admin",
         })
+
+
+@pytest.mark.parametrize("field_name", ["biography", "description"])
+def test_unbounded_narrative_fields_are_rejected(field_name):
+    record_type = "designer" if field_name == "biography" else "collection"
+
+    with pytest.raises(ValidationError, match="at most 10000 characters"):
+        submission_draft_adapter.validate_python({
+            "record_type": record_type,
+            "submission_type": "correction",
+            "proposed_data": {field_name: "x" * 10_001},
+        })

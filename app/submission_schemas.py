@@ -45,7 +45,7 @@ class DesignerProposal(SubmissionModel):
     nationality: str | None = Field(default=None, max_length=120)
     birth_year: int | None = Field(default=None, ge=1800, le=2100)
     website: str | None = Field(default=None, max_length=500)
-    biography: str | None = None
+    biography: str | None = Field(default=None, max_length=10_000)
 
     @field_validator("full_name")
     @classmethod
@@ -71,7 +71,7 @@ class CollectionProposal(SubmissionModel):
     release_year: int | None = Field(default=None, ge=1900, le=2100)
     status: CollectionStatus | None = None
     piece_count: int | None = Field(default=None, ge=0)
-    description: str | None = None
+    description: str | None = Field(default=None, max_length=10_000)
     source_url: str | None = Field(default=None, max_length=500)
     youtube_video_id: str | None = Field(default=None, max_length=200)
 

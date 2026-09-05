@@ -8,6 +8,7 @@ from app import database
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import current_archive_version
 from app.main import app, require_archive_admin
+from app.request_limits import MAX_MUTATION_BODY_BYTES
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -129,6 +130,46 @@ def test_public_cache_version_reads_run_outside_the_event_loop(
 
     assert response.status_code == 200
     assert calls == [current_archive_version, current_archive_version]
+
+
+def test_declared_oversized_mutation_is_rejected_before_authentication(public_client):
+    response = public_client.post(
+        "/submissions",
+        content=b"{}",
+        headers={"Content-Length": str(MAX_MUTATION_BODY_BYTES + 1)},
+    )
+
+    assert response.status_code == 413
+    assert response.json() == {"detail": "Request body too large."}
+    assert response.headers["cache-control"] == "private, no-store"
+
+
+def test_streamed_oversized_mutation_is_rejected(public_client):
+    def oversized_body():
+        yield b"x" * (MAX_MUTATION_BODY_BYTES // 2)
+        yield b"x" * (MAX_MUTATION_BODY_BYTES // 2 + 1)
+
+    response = public_client.post("/submissions", content=oversized_body())
+
+    assert response.status_code == 413
+    assert response.json() == {"detail": "Request body too large."}
+
+
+def test_small_mutation_continues_to_authentication(public_client):
+    response = public_client.post("/submissions", json={})
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Authentication required."}
+
+
+def test_large_get_is_not_subject_to_mutation_body_limit(public_client):
+    response = public_client.request(
+        "GET",
+        "/designers",
+        content=b"x" * (MAX_MUTATION_BODY_BYTES + 1),
+    )
+
+    assert response.status_code == 200
 
 
 def test_canonical_admin_writes_increment_archive_version_transactionally(client):

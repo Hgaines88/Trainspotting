@@ -18,10 +18,10 @@ HOSTNAME_PATTERN = re.compile(
 
 class DesignerCreate(BaseModel):
     full_name: str = Field(min_length=1, max_length=120)
-    nationality: str | None = None
+    nationality: str | None = Field(default=None, max_length=120)
     birth_year: int | None = Field(default=None, ge=1800, le=2100)
     website: str | None = Field(default=None, max_length=500)
-    biography: str | None = None
+    biography: str | None = Field(default=None, max_length=10_000)
 
     @field_validator("full_name")
     @classmethod
@@ -67,7 +67,7 @@ class CollectionCreate(BaseModel):
     release_year: int = Field(ge=1900, le=2100)
     status: CollectionStatus
     piece_count: int | None = Field(default=None, ge=0)
-    description: str | None = None
+    description: str | None = Field(default=None, max_length=10_000)
     source_url: str | None = Field(default=None, max_length=500)
     youtube_video_id: str | None = Field(default=None, max_length=200)
 

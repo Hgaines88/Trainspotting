@@ -12,6 +12,7 @@ from app.database import (
     is_unique_violation,
 )
 from app.schemas import CollectionCreate, DesignerCreate
+from app.request_limits import RequestSizeLimitMiddleware
 from app.users import get_or_create_user, sync_clerk_user_profile
 from app.submissions import router as submissions_router
 from fastapi.staticfiles import StaticFiles
@@ -35,6 +36,7 @@ app = FastAPI(
     description="Structured fashion-history data for designers, labels, and collections.",
     lifespan=lifespan,
 )
+app.add_middleware(RequestSizeLimitMiddleware)
 app.include_router(submissions_router)
 
 
