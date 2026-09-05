@@ -48,7 +48,6 @@ jobs:
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       STAGING_BASE_URL: ${{ vars.STAGING_BASE_URL }}
-      STAGING_SMOKE_BEARER_TOKEN: ${{ secrets.STAGING_SMOKE_BEARER_TOKEN }}
     steps:
       - name: Check out tagged release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -65,10 +64,6 @@ jobs:
           fi
           if [ -z "$STAGING_BASE_URL" ]; then
             echo "::error::STAGING_BASE_URL is missing"
-            exit 1
-          fi
-          if [ -z "$STAGING_SMOKE_BEARER_TOKEN" ]; then
-            echo "::error::STAGING_SMOKE_BEARER_TOKEN is missing"
             exit 1
           fi
 
@@ -91,7 +86,7 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in {1..12}; do
-            if python -m scripts.smoke_staging --require-token; then
+            if python -m scripts.smoke_staging; then
               exit 0
             fi
             if [ "$attempt" -eq 12 ]; then

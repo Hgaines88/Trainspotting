@@ -80,18 +80,22 @@ production administrator account for routine smoke testing.
 
 ## 5. Configure the GitHub staging environment
 
-Create a protected GitHub environment named `staging` and require manual
-approval. Store only these environment secrets:
+Create a GitHub environment named `staging` and restrict its deployment policy
+to release tags matching `v*`. Store only this environment secret:
 
-- `RAILWAY_TOKEN`: a Railway project token scoped to the staging environment;
-- `STAGING_SMOKE_BEARER_TOKEN`: a short-lived token for a non-admin staging test
-  user when authenticated smoke checks run.
+- `RAILWAY_TOKEN`: a Railway project token scoped to the staging environment.
 
 Set `STAGING_BASE_URL`, the public HTTPS origin of the web service, as an
 environment variable. It is intentionally not secret.
 
-Rotate the smoke token after each rehearsal. Never store an interactive user
-password, Clerk secret key, or MySQL credentials in GitHub for deployment.
+Do not store a Clerk session token in GitHub: Clerk session tokens are
+short-lived and would normally expire before a later deployment runs. Never
+store an interactive user password, Clerk secret key, or MySQL credentials in
+GitHub for deployment.
+
+GitHub does not provide required-reviewer environment gates for a private
+personal repository on GitHub Pro. Treat annotated tag creation as the explicit
+human release action unless the repository plan or visibility changes.
 
 ## 6. Release and acceptance order
 
@@ -99,12 +103,27 @@ password, Clerk secret key, or MySQL credentials in GitHub for deployment.
    passes.
 2. Create a new annotated tag on that exact `main` commit. Never move or reuse a
    release tag.
-3. Approve the protected GitHub `staging` deployment.
-4. Deploy `api`; its pre-deploy migration must complete before readiness passes.
-5. Deploy `web` from the same tag.
-6. Run public, authenticated-member, authorization, moderation, and audit smoke
-   checks through the public web origin.
-7. Record the tag, commit SHA, Alembic revision, service deployment IDs, and
+3. Deploy `api`; its pre-deploy migration must complete before readiness passes.
+4. Deploy `web` from the same tag.
+5. Let the workflow run its automated public, readiness, cache, and anonymous
+   authorization smoke checks through the public web origin.
+6. Sign in as the non-admin staging smoke user, obtain a fresh Clerk session
+   token, and immediately run the authenticated checks locally:
+
+   ```bash
+   read -s -p "Clerk session token: " STAGING_SMOKE_BEARER_TOKEN; echo
+   STAGING_BASE_URL=https://trainspotting-staging.example.com \
+     STAGING_SMOKE_BEARER_TOKEN="$STAGING_SMOKE_BEARER_TOKEN" \
+     python -m scripts.smoke_staging --require-token
+   unset STAGING_SMOKE_BEARER_TOKEN
+   ```
+
+   Enter the token only in the current shell invocation. Do not save it in a
+   file, shell history, GitHub secret, issue, or workflow log. Confirm the
+   identity endpoint succeeds and canonical mutation is rejected with `403`.
+7. Complete the manual moderation and audit-history walkthrough while signed in
+   with the appropriate staging accounts.
+8. Record the tag, commit SHA, Alembic revision, service deployment IDs, and
    smoke result in the release notes.
 
 ## 7. Persistence and rollback rehearsal
