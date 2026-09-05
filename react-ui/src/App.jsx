@@ -4,6 +4,7 @@ import RequireAdmin from "./components/RequireAdmin";
 import RequireAuthenticated from "./components/RequireAuthenticated";
 import RequireModerator from "./components/RequireModerator";
 import CollectionDetail from "./pages/CollectionDetail";
+import CollectionList from "./pages/CollectionList";
 import CollectionForm from "./pages/CollectionForm";
 import DesignerDetail from "./pages/DesignerDetail";
 import DesignerForm from "./pages/DesignerForm";
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <BrowserRouter><Routes><Route element={<Layout />}>
       <Route path="/" element={<DesignerList />} />
+      <Route path="/collections" element={<CollectionList />} />
       <Route path="/designers/:designerId" element={<DesignerDetail />} />
       <Route path="/collections/:collectionId" element={<CollectionDetail />} />
       <Route path="/designers/new" element={<RequireAdmin><DesignerForm /></RequireAdmin>} />
