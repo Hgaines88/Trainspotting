@@ -242,10 +242,11 @@ rollback only when the canonical record has not changed since approval. See
 [`docs/SUBMISSION_FIELD_REQUIREMENTS.md`](docs/SUBMISSION_FIELD_REQUIREMENTS.md)
 for field rules and state transitions.
 
-The detailed product roadmap is maintained as an ordered Kanban in
-[GitHub Projects](https://github.com/users/Hgaines88/projects/11), with the
-planning rationale mirrored in
-[`docs/TRAINSPOTTING_KANBAN.md`](docs/TRAINSPOTTING_KANBAN.md).
+The active September 24 Demo Day plan is maintained as an ordered Kanban in
+[GitHub Projects](https://github.com/users/Hgaines88/projects/11) and mirrored in
+[`docs/DEMO_DAY_KANBAN.md`](docs/DEMO_DAY_KANBAN.md). The original full product
+roadmap remains preserved in
+[`docs/TRAINSPOTTING_KANBAN.md`](docs/TRAINSPOTTING_KANBAN.md) for post-demo work.
 
 # OnesToManys (ListDetails)
 
