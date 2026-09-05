@@ -13,7 +13,7 @@ Create one Railway project with a `staging` environment and these services:
 | --- | --- | --- | --- |
 | `web` | `react-ui/Dockerfile` | One generated HTTPS domain | None |
 | `api` | root `Dockerfile` | No public domain | None |
-| `mysql84` | Official `mysql:8.4` image | No TCP proxy | Attached volume |
+| `mysql84` | Official `mysql:8.4.11` image | No TCP proxy | Attached volume |
 
 Keep the API and database private. The browser should reach FastAPI only through
 the web service's `/api` proxy. Set a usage alert or limit before leaving the
