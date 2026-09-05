@@ -11,7 +11,7 @@ from app import database
 from app.database import PortableConnection
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.main import app
-from app.observability import logger, request_id, service_metrics
+from app.observability import log_request, logger, request_id, service_metrics
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +42,33 @@ def test_request_ids_accept_safe_values_and_replace_unsafe_values():
     generated = request_id("unsafe value with spaces")
     assert len(generated) == 32
     assert generated.isalnum()
+
+
+@pytest.mark.parametrize(
+    ("status_code", "duration_ms", "level", "alert"),
+    [
+        (200, 25, logging.INFO, None),
+        (429, 25, logging.WARNING, "rate_limited"),
+        (200, 1_000, logging.WARNING, "slow_request"),
+        (503, 25, logging.ERROR, "server_error"),
+    ],
+)
+def test_request_log_severity_supports_actionable_alerts(
+    caplog, status_code, duration_ms, level, alert
+):
+    caplog.set_level(logging.INFO, logger="trainspotting.operations")
+    log_request(
+        request_id_value="alert-test",
+        method="GET",
+        route="/ready",
+        status_code=status_code,
+        duration_ms=duration_ms,
+    )
+
+    record = caplog.records[-1]
+    payload = json.loads(record.message)
+    assert record.levelno == level
+    assert payload.get("alert") == alert
 
 
 def test_request_log_uses_route_template_without_query_or_identity(

@@ -13,6 +13,7 @@ from collections import Counter
 
 REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 LATENCY_BUCKETS_MS = (50, 100, 250, 500, 1_000, 2_500, 5_000)
+SLOW_REQUEST_THRESHOLD_MS = 1_000
 logger = logging.getLogger("trainspotting.operations")
 logger.setLevel(logging.INFO)
 
@@ -234,19 +235,30 @@ def log_request(
     # continuing to use the process handler rather than adding a duplicate one.
     logger.disabled = False
     logger.propagate = True
-    logger.info(
-        json.dumps(
-            {
-                "event": "http_request",
-                "request_id": request_id_value,
-                "method": method,
-                "route": route,
-                "status_code": status_code,
-                "duration_ms": round(duration_ms, 3),
-            },
-            separators=(",", ":"),
-            sort_keys=True,
-        )
+    level = logging.INFO
+    alert = None
+    if status_code >= 500:
+        level = logging.ERROR
+        alert = "server_error"
+    elif status_code == 429:
+        level = logging.WARNING
+        alert = "rate_limited"
+    elif duration_ms >= SLOW_REQUEST_THRESHOLD_MS:
+        level = logging.WARNING
+        alert = "slow_request"
+    payload = {
+        "event": "http_request",
+        "request_id": request_id_value,
+        "method": method,
+        "route": route,
+        "status_code": status_code,
+        "duration_ms": round(duration_ms, 3),
+    }
+    if alert:
+        payload["alert"] = alert
+    logger.log(
+        level,
+        json.dumps(payload, separators=(",", ":"), sort_keys=True),
     )
 
 
