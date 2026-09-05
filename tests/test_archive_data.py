@@ -69,7 +69,7 @@ assert [(credit["designer_key"], credit["role"], credit["position"]) for credit 
         ("eli-russell-linnetz", "lead"),
         ("kim-jones", "collaborator"),
     ]
-    assert dior["source_url"].startswith("https://")
+assert dior["source_url"] == "https://www.vogue.com/fashion-shows/spring-2023-menswear/dior-men"
 
 
 def test_export_import_preserves_non_default_collection_credits(tmp_path):
