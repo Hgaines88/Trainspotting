@@ -1,0 +1,101 @@
+name: Deploy staging release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: staging-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify-release:
+    name: Verify immutable main release tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      commit: ${{ steps.release.outputs.commit }}
+    steps:
+      - name: Check out complete history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Require an annotated tag on current main
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git cat-file -t "$GITHUB_REF_NAME")" = "tag"
+          release_commit="$(git rev-list -n 1 "$GITHUB_REF_NAME")"
+          git fetch --no-tags origin main
+          main_commit="$(git rev-parse origin/main)"
+          test "$release_commit" = "$main_commit"
+          echo "commit=$release_commit" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy and smoke-test staging
+    needs: verify-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_BASE_URL }}
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      STAGING_BASE_URL: ${{ vars.STAGING_BASE_URL }}
+      STAGING_SMOKE_BEARER_TOKEN: ${{ secrets.STAGING_SMOKE_BEARER_TOKEN }}
+    steps:
+      - name: Check out tagged release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.verify-release.outputs.commit }}
+
+      - name: Require complete staging configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::RAILWAY_TOKEN is missing"
+            exit 1
+          fi
+          if [ -z "$STAGING_BASE_URL" ]; then
+            echo "::error::STAGING_BASE_URL is missing"
+            exit 1
+          fi
+          if [ -z "$STAGING_SMOKE_BEARER_TOKEN" ]; then
+            echo "::error::STAGING_SMOKE_BEARER_TOKEN is missing"
+            exit 1
+          fi
+
+      - name: Set up Node.js for Railway CLI
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      - name: Install pinned Railway CLI
+        run: npm install --global @railway/cli@5.49.1
+
+      - name: Deploy API and run its pre-deploy migration
+        run: railway up --ci --service api --environment staging
+
+      - name: Deploy web from the same release commit
+        run: railway up --ci --service web --environment staging
+
+      - name: Wait for readiness and run smoke checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..12}; do
+            if python -m scripts.smoke_staging --require-token; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 12 ]; then
+              exit 1
+            fi
+            sleep 10
+          done

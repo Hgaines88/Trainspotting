@@ -28,19 +28,28 @@ def run_migrations_offline():
         context.run_migrations()
 
 
+def do_run_migrations(connection):
+    if connection.dialect.name == "sqlite":
+        connection.exec_driver_sql("PRAGMA foreign_keys = ON")
+        connection.commit()
+    context.configure(connection=connection, target_metadata=target_metadata)
+    with context.begin_transaction():
+        context.run_migrations()
+
+
 def run_migrations_online():
+    supplied_connection = config.attributes.get("connection")
+    if supplied_connection is not None:
+        do_run_migrations(supplied_connection)
+        return
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
     with connectable.connect() as connection:
-        if connection.dialect.name == "sqlite":
-            connection.exec_driver_sql("PRAGMA foreign_keys = ON")
-            connection.commit()
-        context.configure(connection=connection, target_metadata=target_metadata)
-        with context.begin_transaction():
-            context.run_migrations()
+        do_run_migrations(connection)
     connectable.dispose()
 
 

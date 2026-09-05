@@ -63,6 +63,41 @@ def count_rows(table):
         connection.close()
 
 
+def archive_version(client):
+    return client.get("/archive-version").json()["version"]
+
+
+def test_only_canonical_promotion_and_rollback_increment_archive_version(client):
+    authenticate("user_version_submitter")
+    initial = archive_version(client)
+    submission = client.post(
+        "/submissions", json=designer_submission("Version Workflow Designer")
+    ).json()
+    assert archive_version(client) == initial
+
+    authenticate("user_version_admin", "admin")
+    approved = client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "approve", "notes": "Version test."},
+    )
+    assert approved.status_code == 200
+    assert archive_version(client) == initial + 1
+
+    retry = client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "approve", "notes": "Retry."},
+    )
+    assert retry.status_code == 200
+    assert archive_version(client) == initial + 1
+
+    rolled_back = client.post(
+        f"/moderation/submissions/{submission['id']}/rollback",
+        json={"reason": "Version test complete."},
+    )
+    assert rolled_back.status_code == 200
+    assert archive_version(client) == initial + 2
+
+
 def test_anonymous_users_cannot_create_submissions(client):
     response = client.post("/submissions", json=designer_submission())
     assert response.status_code == 401

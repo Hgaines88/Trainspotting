@@ -10,6 +10,7 @@ from sqlalchemy import Engine, create_engine, event
 from sqlalchemy.engine import make_url
 
 from app.database import DATABASE_PATH, SQLITE_BUSY_TIMEOUT_MS
+from app.database_url import normalize_database_url
 
 
 def default_sqlite_url(database_path: Path = DATABASE_PATH) -> str:
@@ -17,11 +18,12 @@ def default_sqlite_url(database_path: Path = DATABASE_PATH) -> str:
 
 
 def configured_database_url(database_path: Path = DATABASE_PATH) -> str:
-    return os.getenv("DATABASE_URL") or default_sqlite_url(database_path)
+    configured = os.getenv("DATABASE_URL") or default_sqlite_url(database_path)
+    return normalize_database_url(configured)
 
 
 def build_engine(database_url: str | None = None) -> Engine:
-    url = make_url(database_url or configured_database_url())
+    url = make_url(normalize_database_url(database_url or configured_database_url()))
     options: dict = {"pool_pre_ping": True}
     if url.get_backend_name() == "sqlite":
         options["connect_args"] = {

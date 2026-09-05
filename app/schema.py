@@ -27,6 +27,17 @@ metadata = MetaData(
 )
 
 
+archive_state = Table(
+    "archive_state",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=False),
+    Column("version", Integer, nullable=False, server_default="1"),
+    Column("updated_at", DateTime, nullable=False, server_default=func.current_timestamp()),
+    CheckConstraint("id = 1", name="singleton"),
+    CheckConstraint("version > 0", name="version_positive"),
+)
+
+
 designers = Table(
     "designers",
     metadata,

@@ -1,21 +1,32 @@
+import os
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, Response, status
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import (
     DATABASE_INTEGRITY_ERRORS,
     apply_migrations,
+    bump_archive_version,
     connect,
+    current_archive_version,
+    database_readiness,
     is_unique_violation,
 )
 from app.schemas import CollectionCreate, DesignerCreate
 from app.users import get_or_create_user, sync_clerk_user_profile
 from app.submissions import router as submissions_router
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    apply_migrations()
+    if os.getenv("AUTO_MIGRATE_DATABASE", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        apply_migrations()
     yield
 
 
@@ -25,6 +36,61 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(submissions_router)
+
+
+def is_public_archive_path(path: str) -> bool:
+    return (
+        path == "/designers"
+        or path.startswith("/designers/")
+        or path == "/collections"
+        or path.startswith("/collections/")
+    )
+
+
+@app.middleware("http")
+async def cache_policy(request, call_next):
+    requested_version = request.query_params.get("archive_version")
+    eligible_request = (
+        request.method == "GET"
+        and is_public_archive_path(request.url.path)
+        and "authorization" not in request.headers
+        and requested_version is not None
+        and requested_version.isdigit()
+    )
+    version_matches_before = False
+    if eligible_request:
+        try:
+            version_matches_before = (
+                int(requested_version)
+                == await run_in_threadpool(current_archive_version)
+            )
+        except Exception:
+            version_matches_before = False
+
+    response = await call_next(request)
+    version_matches_after = False
+    if version_matches_before and response.status_code == 200:
+        try:
+            version_matches_after = (
+                int(requested_version)
+                == await run_in_threadpool(current_archive_version)
+            )
+        except Exception:
+            version_matches_after = False
+
+    anonymous_public_read = (
+        eligible_request
+        and response.status_code == 200
+        and version_matches_before
+        and version_matches_after
+    )
+    if anonymous_public_read:
+        response.headers["Cache-Control"] = (
+            "public, max-age=0, s-maxage=30, stale-while-revalidate=60"
+        )
+    else:
+        response.headers["Cache-Control"] = "private, no-store"
+    return response
 
 
 def require_archive_admin(
@@ -122,6 +188,23 @@ def sync_collection_media(
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    try:
+        details = database_readiness()
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database is not ready.",
+        ) from error
+    return {"status": "ready", **details}
+
+
+@app.get("/archive-version")
+def archive_version():
+    return {"version": current_archive_version()}
 
 
 @app.get("/auth/session")
@@ -291,6 +374,7 @@ def create_designer(payload: DesignerCreate):
             ),
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         row = connection.execute(
@@ -365,6 +449,7 @@ def update_designer(designer_id: int, payload: DesignerCreate):
             ),
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         updated_designer = connection.execute(
@@ -427,6 +512,7 @@ def delete_designer(designer_id: int):
             (designer_id,),
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         return Response(
@@ -491,6 +577,7 @@ def create_collection(payload: CollectionCreate):
             payload,
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         return fetch_collection(connection, cursor.lastrowid)
@@ -586,6 +673,7 @@ def update_collection(
             payload,
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         return fetch_collection(connection, collection_id)
@@ -639,6 +727,7 @@ def delete_collection(collection_id: int):
             (collection_id,),
         )
 
+        bump_archive_version(connection)
         connection.commit()
 
         return Response(
