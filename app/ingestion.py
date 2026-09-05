@@ -246,12 +246,13 @@ def ingest_collection_csv(
                 )
 
         counts = Counter(item["status"] for item in outcomes)
+        valid_count = counts["valid"] + counts["requiring_review"]
         summary = {
             "batch_id": batch_id,
             "dry_run": dry_run,
             "source_name": source_name,
             "total_rows": len(outcomes),
-            "valid_rows": counts["valid"],
+            "valid_rows": valid_count,
             "invalid_rows": counts["invalid"],
             "duplicate_rows": counts["duplicate"],
             "review_rows": counts["requiring_review"],
@@ -266,8 +267,12 @@ def ingest_collection_csv(
                        completed_at = CURRENT_TIMESTAMP
                    WHERE id = ?""",
                 (
-                    len(outcomes), counts["valid"], counts["invalid"],
-                    counts["duplicate"], counts["requiring_review"], batch_id,
+                    len(outcomes),
+                    valid_count,
+                    counts["invalid"],
+                    counts["duplicate"],
+                    counts["requiring_review"],
+                    batch_id,
                 ),
             )
             connection.commit()
