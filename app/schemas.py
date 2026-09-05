@@ -3,6 +3,8 @@ from typing import Literal
 from urllib.parse import parse_qs, urlparse
 import re
 
+from app.url_safety import normalize_public_http_url
+
 CollectionStatus = Literal[
     "concept",
     "in-production",
@@ -10,18 +12,12 @@ CollectionStatus = Literal[
     "archived",
 ]
 
-HOSTNAME_PATTERN = re.compile(
-    r"^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?"
-    r"(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*"
-    r"\.[A-Za-z]{2,}$"
-)
-
 class DesignerCreate(BaseModel):
     full_name: str = Field(min_length=1, max_length=120)
-    nationality: str | None = None
+    nationality: str | None = Field(default=None, max_length=120)
     birth_year: int | None = Field(default=None, ge=1800, le=2100)
     website: str | None = Field(default=None, max_length=500)
-    biography: str | None = None
+    biography: str | None = Field(default=None, max_length=10_000)
 
     @field_validator("full_name")
     @classmethod
@@ -39,25 +35,11 @@ class DesignerCreate(BaseModel):
         cls,
         value: str | None,
     ) -> str | None:
-        if value is None:
-            return None
-
-        cleaned_value = value.strip()
-        if not cleaned_value:
-            return None
-
-        parsed = urlparse(cleaned_value)
-        if not parsed.scheme:
-            cleaned_value = f"https://{cleaned_value}"
-            parsed = urlparse(cleaned_value)
-
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            raise ValueError("Website URL must use http:// or https://")
-
-        if not HOSTNAME_PATTERN.match(parsed.hostname or ""):
-            raise ValueError("Website URL must include a valid domain name")
-
-        return cleaned_value
+        return normalize_public_http_url(
+            value,
+            "Website URL",
+            add_https_if_missing=True,
+        )
 
 class CollectionCreate(BaseModel):
     designer_id: int = Field(ge=1)
@@ -67,7 +49,7 @@ class CollectionCreate(BaseModel):
     release_year: int = Field(ge=1900, le=2100)
     status: CollectionStatus
     piece_count: int | None = Field(default=None, ge=0)
-    description: str | None = None
+    description: str | None = Field(default=None, max_length=10_000)
     source_url: str | None = Field(default=None, max_length=500)
     youtube_video_id: str | None = Field(default=None, max_length=200)
 
@@ -105,18 +87,7 @@ class CollectionCreate(BaseModel):
         cls,
         value: str | None,
     ) -> str | None:
-        if value is None:
-            return None
-
-        cleaned_value = value.strip()
-        if not cleaned_value:
-            return None
-
-        parsed = urlparse(cleaned_value)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            raise ValueError("Source URL must begin with http:// or https://")
-
-        return cleaned_value
+        return normalize_public_http_url(value, "Source URL")
 
     @field_validator("youtube_video_id")
     @classmethod

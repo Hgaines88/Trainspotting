@@ -36,3 +36,15 @@ def test_staging_contract_exposes_the_nginx_listener_port():
     staging_contract = STAGING_ENV_EXAMPLE.read_text(encoding="utf-8")
 
     assert "PORT=80" in staging_contract.splitlines()
+
+
+def test_every_web_response_has_safe_browser_boundary_headers():
+    template = NGINX_TEMPLATE.read_text(encoding="utf-8")
+
+    assert template.count('add_header X-Frame-Options "DENY" always;') == 3
+    assert template.count(
+        'add_header Content-Security-Policy "frame-ancestors \'none\'" always;'
+    ) == 3
+    assert template.count(
+        'add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;'
+    ) == 3
