@@ -516,6 +516,15 @@ def test_collection_approval_promotes_media_in_same_transaction(client):
         "source": "https://example.com/collection-source",
         "youtube": "abcdefghijk",
     }
+    provenance = client.get(f"/collections/{record_id}").json()["provenance"]
+    assert [source["url"] for source in provenance["sources"]] == [
+        "https://example.com/collection-source",
+        SOURCE["url"],
+    ]
+    assert provenance["sources"][1]["title"] == SOURCE["title"]
+    assert provenance["sources"][1]["origin"] == "approved_submission"
+    assert provenance["sources"][1]["reviewed_at"]
+    assert provenance["last_reviewed_at"]
 
 
 def test_admin_can_rollback_an_approved_addition(client):
