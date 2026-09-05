@@ -117,5 +117,16 @@ mapping and accountable moderation. It stores no passwords or session tokens.
   USER-01. Until then, deletion is a documented administrator operation with a
   recovery point and verification query.
 
+After deleting or suspending the Clerk account, run the guarded local operation:
+
+```bash
+python -m scripts.retire_user <immutable-clerk-user-id> \
+  --confirm-retire <immutable-clerk-user-id>
+```
+
+The confirmation values must match. The operation refuses administrators,
+clears profile fields, removes moderator privilege, and preserves referenced
+audit history.
+
 Review these rules before adding profiles, public activity, ingestion workers,
 multiple API replicas, remote URL fetching, or additional personal data.
