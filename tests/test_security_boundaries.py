@@ -27,6 +27,8 @@ def test_user_content_renderers_do_not_use_raw_html_sinks():
 
 
 def test_external_links_opened_in_new_tabs_are_isolated():
+    import re
+
     react_sources = "\n".join(
         path.read_text(encoding="utf-8")
         for path in RENDERING_FILES
@@ -38,9 +40,13 @@ def test_external_links_opened_in_new_tabs_are_isolated():
         if path.suffix == ".js"
     )
 
-    assert react_sources.count('target="_blank"') == react_sources.count(
-        'rel="noreferrer"'
+    react_anchor_tags = re.findall(
+        r"<a\b[^>]*\btarget\s*=\s*['\"]_blank['\"][^>]*>",
+        react_sources,
     )
-    assert vanilla_sources.count('target = "_blank"') == vanilla_sources.count(
-        'rel = "noopener noreferrer"'
+    for tag in react_anchor_tags:
+        assert re.search(r"\brel\s*=\s*['\"][^'\"]*\bnoreferrer\b", tag)
+
+    assert len(re.findall(r"\.target\s*=\s*['\"]_blank['\"]", vanilla_sources)) == len(
+        re.findall(r"\.rel\s*=\s*['\"]noopener\s+noreferrer['\"]", vanilla_sources)
     )
