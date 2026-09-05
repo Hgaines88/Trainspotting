@@ -82,7 +82,7 @@ export default function CollectionDetail() {
 
       <section className="section provenance" aria-labelledby="provenance-heading">
         <div className="section-heading"><h2 id="provenance-heading">Evidence</h2><span>Public provenance</span></div>
-        {collection.provenance.sources.length > 0 ? <ul className="source-list">{collection.provenance.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a><span>{source.origin === "canonical" ? "Curated archive source" : "Approved community evidence"}{source.reviewed_at ? ` · reviewed ${new Date(source.reviewed_at).toLocaleDateString()}` : ""}</span></li>)}</ul> : <p className="meta">No public source is available for this record yet.</p>}
+        {collection.provenance.sources.length > 0 ? <ul className="source-list">{collection.provenance.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a><span>{source.origin === "canonical" ? "Curated archive source" : "Approved community evidence"}{source.reviewed_at ? ` · reviewed ${new Date(String(source.reviewed_at).replace(" ", "T")).toLocaleDateString()}` : ""}</span></li>)}</ul> : <p className="meta">No public source is available for this record yet.</p>}
       </section>
 
       <section className="section related-collections" aria-labelledby="related-collections-heading">
