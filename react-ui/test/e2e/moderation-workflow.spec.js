@@ -51,6 +51,50 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "member");
   await page.goto("/submissions/new");
+  await page.getByRole("button", { name: "Submit for review" }).click();
+  const validationSummary = page.getByRole("alert");
+  await expect(validationSummary).toBeFocused();
+  await expect(validationSummary).toContainText("Full name is required");
+  await expect(validationSummary).toContainText("Add at least one supporting source");
+  await page.getByRole("button", { name: "Remove source" }).click();
+  await expect(page.getByText("No sources added yet.")).toBeVisible();
+  await page.getByRole("button", { name: "Add another source" }).click();
+  await page.getByLabel("Proposal type").selectOption("correction");
+  await page.getByLabel("Search Existing designer").fill("Sarah Burton");
+  const existingDesigner = page.getByLabel("Existing designer", { exact: true });
+  const sarahId = await existingDesigner.locator("option").filter({ hasText: "Sarah Burton" }).getAttribute("value");
+  await existingDesigner.selectOption(sarahId);
+  await expect(existingDesigner).not.toHaveValue("");
+  await expect(page.getByLabel("Existing record ID")).toHaveCount(0);
+  await page.getByLabel("Change action for Biography").selectOption("clear");
+  await expect(page.getByText("This field will be cleared if the proposal is approved.")).toBeVisible();
+  await expect(page.getByLabel("Change action for Full name").locator("option[value=clear]")).toHaveCount(0);
+  await page.getByLabel("Change action for Full name").selectOption("replace");
+  await expect(page.getByLabel("Full name", { exact: true })).toBeVisible();
+
+  await page.getByLabel("Record type").selectOption("collection");
+  const existingCollection = page.getByLabel("Existing collection", { exact: true });
+  await expect(existingCollection).toHaveValue("");
+  await page.getByLabel("Search Existing collection").fill("No. 13");
+  const collectionId = await existingCollection.locator("option").filter({ hasText: "No. 13" }).getAttribute("value");
+  await existingCollection.selectOption(collectionId);
+  await expect(existingCollection).not.toHaveValue("");
+
+  await page.getByLabel("Proposal type").selectOption("addition");
+  await page.getByLabel("Search Designer or creative lead").fill("Grace Wales Bonner");
+  const collectionDesigner = page.getByLabel("Designer or creative lead", { exact: true });
+  const graceId = await collectionDesigner.locator("option").filter({ hasText: "Grace Wales Bonner" }).getAttribute("value");
+  await collectionDesigner.selectOption(graceId);
+  await expect(collectionDesigner).not.toHaveValue("");
+
+  await page.getByLabel("Record type").selectOption("designer");
+  await expect(page.getByLabel("Designer or creative lead", { exact: true })).toHaveCount(0);
+  await page.getByLabel("Biography").fill("Notes preserved from an incomplete draft.");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page).toHaveURL(/\/submissions\/\d+\/edit$/);
+  await expect(page.getByText("Draft saved.")).toBeVisible();
+  const submissionId = Number(page.url().match(/\/submissions\/(\d+)\/edit$/)[1]);
+  await expect(page.getByLabel("Biography")).toHaveValue("Notes preserved from an incomplete draft.");
   await page.getByLabel("Full name").fill(DESIGNER_NAME);
   await page.getByLabel("Nationality").fill("American");
   await page.getByLabel("Why should the archive change?").fill(
@@ -58,11 +102,11 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   );
   await page.getByLabel("Source URL").fill("https://example.test/primary-source");
   await page.getByLabel("Source title").fill("Primary documented source");
-  await page.getByRole("button", { name: "Submit for review" }).click();
+  await page.getByRole("button", { name: "Save and resubmit" }).click();
   await expect(page).toHaveURL(/\/submissions\/mine$/);
   const submissionLabel = page.getByText(/#\d+ · designer addition/).first();
   await expect(submissionLabel).toBeVisible();
-  const submissionId = Number((await submissionLabel.textContent()).match(/#(\d+)/)[1]);
+  await expect(submissionLabel).toContainText(`#${submissionId}`);
 
   await page.goto("/moderation");
   await expect(page).toHaveURL(/\/$/);
@@ -126,8 +170,13 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   const memberSubmission = page
     .getByText(new RegExp(`^#${submissionId} · designer addition$`))
     .locator("..");
-  await expect(memberSubmission.getByText("changes requested · version 1")).toBeVisible();
-  await memberSubmission.getByRole("link", { name: "Edit and resubmit" }).click();
+  await expect(memberSubmission.getByText("changes requested · version 2")).toBeVisible();
+  await memberSubmission.getByRole("link", { name: "View details" }).click();
+  await expect(page.getByRole("heading", { name: "Changes requested", exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Reviewer feedback" })).toBeVisible();
+  await expect(page.locator(".review-decisions").getByText("Please add a second independent source.")).toBeVisible();
+  await expect(page.getByLabel(new RegExp(`Audit history for submission ${submissionId}`))).toContainText("Changes requested");
+  await page.getByRole("link", { name: "Revise and resubmit" }).click();
   await expect(page.getByLabel("Source URL")).toHaveValue(
     "https://example.test/primary-source",
   );
@@ -137,8 +186,11 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   await sourceUrls.nth(1).fill("https://example.test/independent-source");
   const sourceTitles = page.getByLabel("Source title");
   await sourceTitles.nth(1).fill("Independent documented source");
+  await page.locator(".source-fields").nth(1).getByRole("button", { name: "Move up" }).click();
+  await expect(sourceUrls.nth(0)).toHaveValue("https://example.test/independent-source");
+  await expect(sourceUrls.nth(1)).toHaveValue("https://example.test/primary-source");
   await page.getByRole("button", { name: "Save and resubmit" }).click();
-  await expect(page.getByText("submitted · version 2")).toBeVisible();
+  await expect(page.getByText("submitted · version 3")).toBeVisible();
 
   await useIdentity(page, "moderator");
   await page.goto("/moderation");
@@ -180,6 +232,8 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   });
   expect(audit.status).toBe(200);
   expect(audit.body.map((event) => event.event_type)).toEqual([
+    "created",
+    "draft_updated",
     "submitted",
     "changes_requested",
     "draft_updated",

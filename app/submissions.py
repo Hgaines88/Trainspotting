@@ -396,6 +396,25 @@ def list_my_submissions(user: dict = Depends(authenticated_app_user)):
         connection.close()
 
 
+@router.get("/submissions/{submission_id}")
+def get_submission(
+    submission_id: int,
+    user: dict = Depends(authenticated_app_user),
+):
+    connection = connect()
+    try:
+        submission = connection.execute(
+            "SELECT submitter_user_id FROM submissions WHERE id = ?", (submission_id,)
+        ).fetchone()
+        if submission is None:
+            raise HTTPException(status_code=404, detail="Submission not found")
+        if submission["submitter_user_id"] != user["id"] and user["role"] not in {"moderator", "admin"}:
+            raise HTTPException(status_code=403, detail="Submission access denied.")
+        return serialize_submission(connection, submission_id)
+    finally:
+        connection.close()
+
+
 @router.get("/moderation/submissions")
 def moderation_queue(
     queue_status: str = "submitted",
