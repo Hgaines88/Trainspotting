@@ -13,6 +13,11 @@ from app.database import (
 )
 from app.schemas import CollectionCreate, DesignerCreate
 from app.request_limits import RequestSizeLimitMiddleware
+from app.rate_limits import (
+    ACCOUNT_SYNC_LIMIT,
+    ADMIN_WRITE_LIMIT,
+    enforce_identity_rate_limit,
+)
 from app.users import get_or_create_user, sync_clerk_user_profile
 from app.submissions import router as submissions_router
 from fastapi.staticfiles import StaticFiles
@@ -105,6 +110,11 @@ def require_archive_admin(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Administrator access required.",
         )
+    enforce_identity_rate_limit(
+        "canonical-admin-write",
+        user["clerk_user_id"],
+        limit=ADMIN_WRITE_LIMIT,
+    )
     return user
 
 
@@ -223,6 +233,11 @@ def authenticated_session(
 def current_user(
     identity: ClerkIdentity = Depends(require_authenticated_user),
 ):
+    enforce_identity_rate_limit(
+        "account-sync",
+        identity.user_id,
+        limit=ACCOUNT_SYNC_LIMIT,
+    )
     return sync_clerk_user_profile(identity.user_id)
 
 @app.get("/designers")

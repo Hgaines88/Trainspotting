@@ -12,6 +12,12 @@ from app.database import (
     select_for_update,
 )
 from app.schemas import CollectionCreate, DesignerCreate
+from app.rate_limits import (
+    ADMIN_WRITE_LIMIT,
+    MODERATION_WRITE_LIMIT,
+    SUBMISSION_WRITE_LIMIT,
+    enforce_identity_rate_limit,
+)
 from app.submission_schemas import (
     ReviewDecision,
     RollbackRequest,
@@ -31,6 +37,30 @@ VALID_TRANSITIONS = {
     "rejected": set(),
     "rolled_back": set(),
 }
+
+
+def limit_submission_write(user: dict) -> None:
+    enforce_identity_rate_limit(
+        "submission-write",
+        user["clerk_user_id"],
+        limit=SUBMISSION_WRITE_LIMIT,
+    )
+
+
+def limit_moderation_write(user: dict) -> None:
+    enforce_identity_rate_limit(
+        "moderation-write",
+        user["clerk_user_id"],
+        limit=MODERATION_WRITE_LIMIT,
+    )
+
+
+def limit_moderation_rollback(user: dict) -> None:
+    enforce_identity_rate_limit(
+        "moderation-rollback",
+        user["clerk_user_id"],
+        limit=ADMIN_WRITE_LIMIT,
+    )
 
 
 def authenticated_app_user(
@@ -159,6 +189,7 @@ def create_draft(
     payload: SubmissionDraft,
     user: dict = Depends(authenticated_app_user),
 ):
+    limit_submission_write(user)
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
@@ -177,6 +208,7 @@ def create_ready_submission(
     payload: SubmissionForReview,
     user: dict = Depends(authenticated_app_user),
 ):
+    limit_submission_write(user)
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
@@ -197,6 +229,7 @@ def update_draft(
     payload: SubmissionDraft,
     user: dict = Depends(authenticated_app_user),
 ):
+    limit_submission_write(user)
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
@@ -254,6 +287,7 @@ def review_payload_from_row(connection, row):
 
 @router.post("/submissions/{submission_id}/submit")
 def submit_draft(submission_id: int, user: dict = Depends(authenticated_app_user)):
+    limit_submission_write(user)
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
@@ -423,6 +457,7 @@ def decide_submission(
     payload: ReviewDecision,
     reviewer: dict = Depends(require_moderator),
 ):
+    limit_moderation_write(reviewer)
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
@@ -495,6 +530,7 @@ def rollback_submission(
     payload: RollbackRequest,
     admin: dict = Depends(require_admin),
 ):
+    limit_moderation_rollback(admin)
     connection = connect()
     try:
         connection.execute("BEGIN IMMEDIATE")
