@@ -3,8 +3,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
 import { apiRequest } from "../api";
 import ArchiveRecordSelector from "../components/ArchiveRecordSelector";
+import CorrectionField from "../components/CorrectionField";
 import StatusMessage from "../components/StatusMessage";
 import { SUPPORTED_NATIONALITIES } from "../nationalityFlags";
+import { buildProposedData } from "../submissionProposal";
 
 const designerFields = [
   ["full_name", "Full name"], ["nationality", "Nationality"],
@@ -12,12 +14,19 @@ const designerFields = [
   ["biography", "Biography", "textarea"],
 ];
 const collectionFields = [
-  ["label", "Label or fashion house"],
+  ["designer_id", "Designer or creative lead"], ["label", "Label or fashion house"],
   ["name", "Collection name"], ["season", "Season"],
   ["release_year", "Release year", "number"],
   ["piece_count", "Piece count", "number"], ["description", "Description", "textarea"],
   ["source_url", "Curated source URL", "url"], ["youtube_video_id", "YouTube URL or video ID"],
 ];
+const requiredCanonicalFields = {
+  designer: new Set(["full_name"]),
+  collection: new Set(["designer_id", "label", "season", "release_year", "status"]),
+};
+const fieldLabels = Object.fromEntries([
+  ...designerFields, ...collectionFields, ["status", "Status"],
+].map(([name, label]) => [name, label]));
 
 const designerLabel = (designer) => [designer.full_name, designer.nationality]
   .filter(Boolean)
@@ -38,6 +47,7 @@ export default function SubmissionForm() {
   const [submissionType, setSubmissionType] = useState("addition");
   const [targetId, setTargetId] = useState("");
   const [fields, setFields] = useState({});
+  const [fieldActions, setFieldActions] = useState({});
   const [explanation, setExplanation] = useState("");
   const [sources, setSources] = useState([{ url: "", title: "", notes: "" }]);
   const [status, setStatus] = useState("");
@@ -82,6 +92,9 @@ export default function SubmissionForm() {
         setFields(Object.fromEntries(
           Object.entries(submission.proposed_data).map(([key, value]) => [key, value ?? ""]),
         ));
+        setFieldActions(Object.fromEntries(
+          Object.entries(submission.proposed_data).map(([key, value]) => [key, value === null ? "clear" : "replace"]),
+        ));
         setExplanation(submission.explanation || "");
         setSources(submission.sources.length
           ? submission.sources.map((source) => ({ url: source.url, title: source.title || "", notes: source.notes || "" }))
@@ -98,6 +111,7 @@ export default function SubmissionForm() {
     const nextRecordType = event.target.value;
     setRecordType(nextRecordType);
     setTargetId("");
+    setFieldActions({});
     setFields(nextRecordType === "collection" && submissionType === "addition" ? { status: "released" } : {});
   }
 
@@ -105,11 +119,17 @@ export default function SubmissionForm() {
     const nextSubmissionType = event.target.value;
     setSubmissionType(nextSubmissionType);
     setTargetId("");
+    setFieldActions({});
     setFields({ ...fields, status: recordType === "collection" && nextSubmissionType === "addition" ? "released" : "" });
   }
 
   function updateField(event) {
     setFields({ ...fields, [event.target.name]: event.target.value });
+  }
+
+  function updateFieldAction(name, action) {
+    setFieldActions({ ...fieldActions, [name]: action });
+    if (action !== "replace") setFields({ ...fields, [name]: "" });
   }
 
   function updateSource(index, field, value) {
@@ -119,12 +139,9 @@ export default function SubmissionForm() {
   }
 
   function requestBody() {
-    const numericFields = new Set(["birth_year", "designer_id", "release_year", "piece_count"]);
-    const proposedData = Object.fromEntries(
-      Object.entries(fields)
-        .filter(([, value]) => value !== "")
-        .map(([key, value]) => [key, numericFields.has(key) ? Number(value) : value]),
-    );
+    const proposedData = buildProposedData({
+      fields, fieldActions, submissionType, fieldLabels,
+    });
     if (recordType === "collection" && submissionType === "addition" && !proposedData.status) {
       proposedData.status = "released";
     }
@@ -205,6 +222,22 @@ export default function SubmissionForm() {
       : ["designer_id", "label", "season", "release_year", "status"],
   );
 
+  function renderValueInput(name, label, type = "text", isRequired = false) {
+    if (name === "designer_id") return <ArchiveRecordSelector
+      id="collection-designer"
+      label="Designer or creative lead"
+      records={designers}
+      value={fields.designer_id || ""}
+      onChange={(designerId) => setFields({ ...fields, designer_id: designerId })}
+      getLabel={designerLabel}
+      loading={archiveLoading}
+      error={archiveError}
+      required={isRequired}
+    />;
+    if (name === "status") return <label>Status<select name="status" value={fields.status ?? (isRequired ? "released" : "")} onChange={updateField} required={isRequired}><option value="">Choose status</option><option value="concept">Concept</option><option value="in-production">In production</option><option value="released">Released</option><option value="archived">Archived</option></select></label>;
+    return <label>{label}{type === "textarea" ? <textarea name={name} rows="5" value={fields[name] || ""} onChange={updateField} required={isRequired} /> : <input name={name} type={type} list={name === "nationality" ? "supported-nationalities" : undefined} value={fields[name] || ""} onChange={updateField} required={isRequired} />}{name === "nationality" && <datalist id="supported-nationalities">{SUPPORTED_NATIONALITIES.map((nationality) => <option key={nationality} value={nationality} />)}</datalist>}</label>;
+  }
+
   return <>
     <p className="eyebrow">Community research</p><h1>{editing ? "Revise your proposal" : "Propose an archive update"}</h1>
     <p>Your proposal enters moderation and never changes the public archive directly.</p>
@@ -222,23 +255,25 @@ export default function SubmissionForm() {
         error={archiveError}
         required
       />}
-      {recordType === "collection" && <ArchiveRecordSelector
-        id="collection-designer"
-        label="Designer or creative lead"
-        records={designers}
-        value={fields.designer_id || ""}
-        onChange={(designerId) => setFields({ ...fields, designer_id: designerId })}
-        getLabel={designerLabel}
-        loading={archiveLoading}
-        error={archiveError}
-        required={required}
-      />}
       {fieldDefinitions.map(([name, label, type = "text"]) => {
-        if (name === "status") return null;
         const isRequired = required && requiredAdditionFields.has(name);
-        return <label key={name}>{label}{type === "textarea" ? <textarea name={name} rows="5" value={fields[name] || ""} onChange={updateField} required={isRequired} /> : <input name={name} type={type} list={name === "nationality" ? "supported-nationalities" : undefined} value={fields[name] || ""} onChange={updateField} required={isRequired} />}{name === "nationality" && <datalist id="supported-nationalities">{SUPPORTED_NATIONALITIES.map((nationality) => <option key={nationality} value={nationality} />)}</datalist>}</label>;
+        const input = renderValueInput(name, label, type, isRequired);
+        if (submissionType === "addition") return <div key={name}>{input}</div>;
+        return <CorrectionField
+          key={name}
+          label={label}
+          action={fieldActions[name] || "unchanged"}
+          onActionChange={(action) => updateFieldAction(name, action)}
+          canClear={!requiredCanonicalFields[recordType].has(name)}
+        >{input}</CorrectionField>;
       })}
-      {recordType === "collection" && <label>Status<select name="status" value={fields.status ?? (required ? "released" : "")} onChange={updateField} required={required}>{!required && <option value="">Keep unchanged</option>}<option value="concept">Concept</option><option value="in-production">In production</option><option value="released">Released</option><option value="archived">Archived</option></select></label>}
+      {recordType === "collection" && submissionType === "correction" && <CorrectionField
+        label="Status"
+        action={fieldActions.status || "unchanged"}
+        onActionChange={(action) => updateFieldAction("status", action)}
+        canClear={false}
+      >{renderValueInput("status", "Status")}</CorrectionField>}
+      {recordType === "collection" && submissionType === "addition" && renderValueInput("status", "Status", "text", true)}
       <label>Why should the archive change?<textarea rows="5" value={explanation} onChange={(event) => setExplanation(event.target.value)} required /></label>
       <fieldset><legend>Supporting sources</legend><small>Sources are required for review, but a draft may be saved before sources are added.</small>{sources.map((source, index) => <div className="source-fields" key={index}><label>Source URL<input type="url" value={source.url} onChange={(event) => updateSource(index, "url", event.target.value)} required /></label><label>Source title<input value={source.title} onChange={(event) => updateSource(index, "title", event.target.value)} /></label><label>Source notes<textarea rows="3" value={source.notes} onChange={(event) => updateSource(index, "notes", event.target.value)} /></label>{sources.length > 1 && <button className="danger" type="button" onClick={() => setSources(sources.filter((_, sourceIndex) => sourceIndex !== index))}>Remove source</button>}</div>)}<button className="button secondary" type="button" onClick={() => setSources([...sources, { url: "", title: "", notes: "" }])}>Add another source</button></fieldset>
       <div className="actions"><button className="button secondary" type="button" disabled={busy} onClick={saveDraft}>Save draft</button><button className="button" type="submit" disabled={busy}>{editing ? "Save and resubmit" : "Submit for review"}</button></div>

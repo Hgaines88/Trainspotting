@@ -58,6 +58,11 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   await existingDesigner.selectOption(sarahId);
   await expect(existingDesigner).not.toHaveValue("");
   await expect(page.getByLabel("Existing record ID")).toHaveCount(0);
+  await page.getByLabel("Change action for Biography").selectOption("clear");
+  await expect(page.getByText("This field will be cleared if the proposal is approved.")).toBeVisible();
+  await expect(page.getByLabel("Change action for Full name").locator("option[value=clear]")).toHaveCount(0);
+  await page.getByLabel("Change action for Full name").selectOption("replace");
+  await expect(page.getByLabel("Full name", { exact: true })).toBeVisible();
 
   await page.getByLabel("Record type").selectOption("collection");
   const existingCollection = page.getByLabel("Existing collection", { exact: true });
