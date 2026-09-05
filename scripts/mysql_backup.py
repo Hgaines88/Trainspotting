@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import tempfile
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -16,6 +17,19 @@ from cryptography.fernet import Fernet, InvalidToken
 
 
 FORMAT_VERSION = 1
+REQUIRED_TABLES = {
+    "alembic_version",
+    "archive_state",
+    "collection_media",
+    "collections",
+    "designers",
+    "submission_audit",
+    "submission_decisions",
+    "submission_promotions",
+    "submission_sources",
+    "submissions",
+    "users",
+}
 
 
 def database_config(database_url: str) -> dict[str, object]:
@@ -33,6 +47,7 @@ def database_config(database_url: str) -> dict[str, object]:
     }
 
 
+@contextmanager
 def option_file(config: dict[str, object]):
     handle = tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False)
     try:
@@ -52,9 +67,7 @@ def option_file(config: dict[str, object]):
 
 def dump_database(database_url: str) -> bytes:
     config = database_config(database_url)
-    generator = option_file(config)
-    credentials = next(generator)
-    try:
+    with option_file(config) as credentials:
         result = subprocess.run(
             [
                 "mysqldump",
@@ -74,11 +87,6 @@ def dump_database(database_url: str) -> bytes:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-    finally:
-        try:
-            next(generator)
-        except StopIteration:
-            pass
     if b"CREATE TABLE" not in result.stdout:
         raise RuntimeError("MySQL dump contains no table definitions")
     return result.stdout
@@ -104,7 +112,7 @@ def create_backup(database_url: str, encryption_key: str, destination: Path) -> 
     return manifest
 
 
-def verify_backup(encryption_key: str, backup: Path) -> dict:
+def decrypt_backup(encryption_key: str, backup: Path) -> tuple[dict, bytes]:
     encrypted = backup.read_bytes()
     manifest = json.loads(backup.with_suffix(backup.suffix + ".json").read_text())
     if manifest.get("format_version") != FORMAT_VERSION:
@@ -117,7 +125,58 @@ def verify_backup(encryption_key: str, backup: Path) -> dict:
         raise ValueError("Backup decryption or authentication failed") from error
     if b"CREATE TABLE" not in plaintext:
         raise ValueError("Decrypted backup contains no table definitions")
+    return manifest, plaintext
+
+
+def verify_backup(encryption_key: str, backup: Path) -> dict:
+    manifest, _plaintext = decrypt_backup(encryption_key, backup)
     return manifest
+
+
+def mysql_command(config: dict[str, object], credentials: Path) -> list[str]:
+    return [
+        "mysql",
+        f"--defaults-extra-file={credentials}",
+        "--batch",
+        "--skip-column-names",
+        "--default-character-set=utf8mb4",
+        str(config["database"]),
+    ]
+
+
+def database_tables(config: dict[str, object], credentials: Path) -> set[str]:
+    result = subprocess.run(
+        [*mysql_command(config, credentials), "--execute=SHOW TABLES"],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+
+
+def restore_backup(database_url: str, encryption_key: str, backup: Path) -> dict:
+    """Restore into an existing empty database and verify its required tables."""
+    manifest, plaintext = decrypt_backup(encryption_key, backup)
+    config = database_config(database_url)
+    with option_file(config) as credentials:
+        existing = database_tables(config, credentials)
+        if existing:
+            raise ValueError("Restore target must be an empty database")
+        subprocess.run(
+            mysql_command(config, credentials),
+            check=True,
+            input=plaintext,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        restored = database_tables(config, credentials)
+    missing = REQUIRED_TABLES - restored
+    if missing:
+        raise RuntimeError(
+            "Restored database is incomplete; missing: " + ", ".join(sorted(missing))
+        )
+    return {**manifest, "restored_table_count": len(restored)}
 
 
 def main() -> None:
@@ -127,15 +186,27 @@ def main() -> None:
     create.add_argument("backup", type=Path)
     verify = subparsers.add_parser("verify")
     verify.add_argument("backup", type=Path)
+    restore = subparsers.add_parser("restore")
+    restore.add_argument("backup", type=Path)
+    restore.add_argument(
+        "--apply",
+        action="store_true",
+        help="Required acknowledgement that the empty target will be populated.",
+    )
     args = parser.parse_args()
     key = os.getenv("MYSQL_BACKUP_ENCRYPTION_KEY")
     if not key:
         parser.error("MYSQL_BACKUP_ENCRYPTION_KEY is required")
-    if args.command == "create":
+    if args.command in {"create", "restore"}:
         database_url = os.getenv("DATABASE_URL")
         if not database_url:
             parser.error("DATABASE_URL is required")
+    if args.command == "create":
         result = create_backup(database_url, key, args.backup)
+    elif args.command == "restore":
+        if not args.apply:
+            parser.error("--apply is required; no data was changed")
+        result = restore_backup(database_url, key, args.backup)
     else:
         result = verify_backup(key, args.backup)
     print(json.dumps(result, indent=2, sort_keys=True))

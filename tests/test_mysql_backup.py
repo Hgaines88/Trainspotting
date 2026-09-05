@@ -72,3 +72,52 @@ def test_dump_uses_owner_only_option_file_and_never_places_password_in_argv(
     assert observed["mode"] == 0o600
     assert "highly-secret" not in " ".join(observed["command"])
     assert "password=highly-secret" in observed["options"]
+
+
+def test_restore_requires_empty_target_and_streams_plaintext(monkeypatch, tmp_path):
+    dump = b"CREATE TABLE `users` (`id` int);"
+    key = Fernet.generate_key().decode("ascii")
+    backup = tmp_path / "restore.sql.enc"
+    monkeypatch.setattr(mysql_backup, "dump_database", lambda _url: dump)
+    mysql_backup.create_backup("mysql://unused", key, backup)
+    table_results = iter([set(), mysql_backup.REQUIRED_TABLES])
+    monkeypatch.setattr(
+        mysql_backup, "database_tables", lambda _config, _credentials: next(table_results)
+    )
+    observed = {}
+
+    def fake_run(command, **kwargs):
+        observed["command"] = command
+        observed["input"] = kwargs["input"]
+        return type("Result", (), {"stdout": b""})()
+
+    monkeypatch.setattr(mysql_backup.subprocess, "run", fake_run)
+    result = mysql_backup.restore_backup(
+        "mysql+pymysql://archive:secret@mysql.internal/trainspotting_restore",
+        key,
+        backup,
+    )
+
+    assert result["restored_table_count"] == len(mysql_backup.REQUIRED_TABLES)
+    assert observed["input"] == dump
+    assert "secret" not in " ".join(observed["command"])
+
+
+def test_restore_refuses_nonempty_target_before_import(monkeypatch, tmp_path):
+    dump = b"CREATE TABLE `users` (`id` int);"
+    key = Fernet.generate_key().decode("ascii")
+    backup = tmp_path / "restore.sql.enc"
+    monkeypatch.setattr(mysql_backup, "dump_database", lambda _url: dump)
+    mysql_backup.create_backup("mysql://unused", key, backup)
+    monkeypatch.setattr(
+        mysql_backup,
+        "database_tables",
+        lambda _config, _credentials: {"existing_table"},
+    )
+
+    with pytest.raises(ValueError, match="empty database"):
+        mysql_backup.restore_backup(
+            "mysql+pymysql://archive:secret@mysql.internal/trainspotting_restore",
+            key,
+            backup,
+        )
