@@ -56,9 +56,9 @@ def test_demo_collaborations_have_ordered_credits_and_sources():
     collections = {collection["key"]: collection for collection in payload["collections"]}
 
     prada = collections["raf-simons-prada-spring-summer-2024"]
-    assert [(credit["designer_key"], credit["role"]) for credit in prada["credits"]] == [
-        ("miuccia-prada", "co-designer"),
-        ("raf-simons", "co-designer"),
+assert [(credit["designer_key"], credit["role"], credit["position"]) for credit in prada["credits"]] == [
+        ("miuccia-prada", "co-designer", 1),
+        ("raf-simons", "co-designer", 2),
     ]
     assert prada["source_url"] == (
         "https://www.vogue.com/fashion-shows/spring-2024-ready-to-wear/prada"
