@@ -11,17 +11,23 @@ from botocore.config import Config
 
 
 def storage_client():
+    endpoint_url = os.getenv("BACKUP_S3_ENDPOINT")
+    access_key_id = os.getenv("BACKUP_S3_ACCESS_KEY_ID")
+    secret_access_key = os.getenv("BACKUP_S3_SECRET_ACCESS_KEY")
+
     required = {
-        "endpoint_url": os.getenv("BACKUP_S3_ENDPOINT"),
-        "aws_access_key_id": os.getenv("BACKUP_S3_ACCESS_KEY_ID"),
-        "aws_secret_access_key": os.getenv("BACKUP_S3_SECRET_ACCESS_KEY"),
+        "BACKUP_S3_ENDPOINT": endpoint_url,
+        "BACKUP_S3_ACCESS_KEY_ID": access_key_id,
+        "BACKUP_S3_SECRET_ACCESS_KEY": secret_access_key,
     }
     missing = [name for name, value in required.items() if not value]
     if missing:
         raise ValueError("Missing backup storage configuration: " + ", ".join(missing))
     return boto3.client(
         "s3",
-        **required,
+        endpoint_url=endpoint_url,
+        aws_access_key_id=access_key_id,
+        aws_secret_access_key=secret_access_key,
         region_name=os.getenv("BACKUP_S3_REGION", "auto"),
         config=Config(signature_version="s3v4"),
     )
