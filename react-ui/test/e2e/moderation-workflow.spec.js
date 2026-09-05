@@ -79,9 +79,22 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "moderator");
   await page.goto("/moderation");
-  await expect(page.getByText("E2E Member")).toBeVisible();
-  page.once("dialog", async (dialog) => dialog.accept("Please add a second independent source."));
+  await expect(page.getByText(new RegExp(`^Submission #${submissionId} · E2E Member$`))).toBeVisible();
+  await expect(page.getByRole("button", { name: /submitted 1 submission/i })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("table", { name: "Proposed archive record" })).toContainText(DESIGNER_NAME);
+  await expect(page.getByLabel(new RegExp(`Audit history for submission ${submissionId}`))).toContainText("Submitted");
   await page.getByRole("button", { name: "Request changes" }).click();
+  const changesDialog = page.getByRole("dialog", { name: "Request changes" });
+  await expect(changesDialog).toBeVisible();
+  const requiredChanges = changesDialog.getByLabel("Required changes");
+  await expect(requiredChanges).toBeFocused();
+  await changesDialog.getByRole("button", { name: "Send change request" }).click();
+  await expect(changesDialog).toBeVisible();
+  await changesDialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(changesDialog).toBeHidden();
+  await page.getByRole("button", { name: "Request changes" }).click();
+  await requiredChanges.fill("Please add a second independent source.");
+  await changesDialog.getByRole("button", { name: "Send change request" }).click();
   await expect(page.getByText("The queue is clear.")).toBeVisible();
 
   await useIdentity(page, "member");
@@ -105,8 +118,10 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "moderator");
   await page.goto("/moderation");
-  page.once("dialog", async (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Approve", exact: true }).click();
+  const approvalDialog = page.getByRole("dialog", { name: "Approve proposal" });
+  await expect(approvalDialog).toContainText("promote this proposal into the public archive");
+  await approvalDialog.getByRole("button", { name: "Approve and publish" }).click();
   await expect(page.getByText("The queue is clear.")).toBeVisible();
 
   const duplicateApproval = await apiRequest(
@@ -126,16 +141,12 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "admin");
   await page.goto("/moderation");
-  await page.getByRole("button", { name: "approved", exact: true }).click();
+  await page.getByRole("button", { name: /^approved /i }).click();
   await expect(page.getByText(DESIGNER_NAME)).toBeVisible();
-  page.on("dialog", async (dialog) => {
-    await dialog.accept(
-      dialog.type() === "prompt"
-        ? "Rollback the isolated browser test record."
-        : undefined,
-    );
-  });
   await page.getByRole("button", { name: "Roll back approval" }).click();
+  const rollbackDialog = page.getByRole("dialog", { name: "Roll back approval" });
+  await rollbackDialog.getByLabel("Rollback reason").fill("Rollback the isolated browser test record.");
+  await rollbackDialog.getByRole("button", { name: "Restore previous state" }).click();
   await expect(page.getByText("The queue is clear.")).toBeVisible();
 
   const restoredDesigners = await apiRequest(page, "/designers");
