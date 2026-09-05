@@ -11,7 +11,7 @@ discovery mission.
 
 Today, visitors can browse designers and their collections across labels,
 seasons, and years through matching React and Vanilla JavaScript clients backed
-by FastAPI and SQLite. The public archive is read-only; only a Clerk-authenticated
+by FastAPI and MySQL. SQLite remains an explicit local fallback. The public archive is read-only; only a Clerk-authenticated
 Trainspotting administrator can change canonical records.
 
 ## Why Trainspotting is the next version
@@ -43,6 +43,8 @@ the expanded ERD is implemented incrementally.
 - Submit sourced additions and corrections from an authenticated account.
 - Review proposals through a moderator queue without changing canonical data
   until approval.
+- Dry-run and reconcile curated collection CSVs before routing valid rows into
+  the ordinary moderation queue.
 - Use either the React client or the matching Vanilla JavaScript client.
 - Preserve canonical archive content in reviewable JSON.
 - Run locally or as a Docker Compose stack.
@@ -50,7 +52,7 @@ the expanded ERD is implemented incrementally.
 
 ## Technology
 
-- SQLite
+- MySQL with an explicit SQLite fallback
 - Python
 - FastAPI
 - Vanilla HTML, CSS, and JavaScript
@@ -154,6 +156,11 @@ python3 -m scripts.bootstrap_admin user_your_clerk_user_id
 The command is deliberately limited to the first administrator. It is
 idempotent for that user and refuses to replace an existing administrator.
 
+Curated CSV ingestion is dry-run by default and can only create ordinary
+moderated submissions. See
+[`docs/CURATED_INGESTION.md`](docs/CURATED_INGESTION.md) for the contract,
+reconciliation workflow, and safe apply command.
+
 ## Preserve and restore archive content
 
 Trainspotting deliberately preserves two different layers. The versioned,
@@ -208,7 +215,7 @@ app/database.py
 app/schemas.py
     #Schemas.py defines the accepted structure and validation rules for designer and collection data received by the API. The SQL tables remain defined separately in schema.sql.
 app/main.py
-    #Main.py defines the middle-tier FastAPI application. Public read routes query SQLite, while every mutation route passes through the centralized administrator guard that will be connected to Clerk authentication.
+    #Main.py defines the middle-tier FastAPI application. Public read routes query the configured relational database, while protected mutations enforce Clerk identity and local application roles.
 web/
     #The web/ directory contains the read-only Vanilla client. Legacy form files remain unlinked until an authenticated administrative interface replaces them.
 tests/
@@ -235,7 +242,7 @@ React client. Proposals remain separate from canonical designers and
 collections while they are drafted or reviewed. Moderators may approve,
 reject, or request changes, but cannot review their own submissions.
 
-Approval validates the proposal again and promotes it in the same SQLite
+Approval validates the proposal again and promotes it in the same database
 transaction as the decision, promotion snapshot, and audit event. Retrying a
 successful approval is idempotent. Administrators may perform a controlled
 rollback only when the canonical record has not changed since approval. See

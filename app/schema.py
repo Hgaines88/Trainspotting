@@ -371,6 +371,57 @@ Index(
     submission_audit.c.id,
 )
 
+ingestion_batches = Table(
+    "ingestion_batches",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("submitter_user_id", Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False),
+    Column("source_name", String(255), nullable=False),
+    Column("input_format", String(16), nullable=False),
+    Column("status", String(32), nullable=False, server_default="running"),
+    Column("total_rows", Integer, nullable=False, server_default="0"),
+    Column("valid_rows", Integer, nullable=False, server_default="0"),
+    Column("invalid_rows", Integer, nullable=False, server_default="0"),
+    Column("duplicate_rows", Integer, nullable=False, server_default="0"),
+    Column("review_rows", Integer, nullable=False, server_default="0"),
+    Column("created_at", DateTime, nullable=False, server_default=func.current_timestamp()),
+    Column("completed_at", DateTime),
+    CheckConstraint("length(trim(source_name)) > 0", name="source_name_not_blank"),
+    CheckConstraint("input_format IN ('csv')", name="valid_input_format"),
+    CheckConstraint("status IN ('running', 'completed', 'failed')", name="valid_status"),
+    CheckConstraint(
+        "total_rows >= 0 AND valid_rows >= 0 AND invalid_rows >= 0 "
+        "AND duplicate_rows >= 0 AND review_rows >= 0",
+        name="counts_nonnegative",
+    ),
+)
+Index("idx_ingestion_batches_created", ingestion_batches.c.created_at)
+
+ingestion_rows = Table(
+    "ingestion_rows",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("batch_id", Integer, ForeignKey("ingestion_batches.id", ondelete="RESTRICT"), nullable=False),
+    Column("source_row_number", Integer, nullable=False),
+    Column("raw_payload", Text, nullable=False),
+    Column("normalized_payload", Text),
+    Column("fingerprint", String(64)),
+    Column("status", String(32), nullable=False),
+    Column("validation_errors", Text),
+    Column("submission_id", Integer, ForeignKey("submissions.id", ondelete="RESTRICT")),
+    Column("created_at", DateTime, nullable=False, server_default=func.current_timestamp()),
+    CheckConstraint("source_row_number > 0", name="source_row_number_positive"),
+    CheckConstraint("json_valid(raw_payload)", name="raw_payload_json"),
+    CheckConstraint("normalized_payload IS NULL OR json_valid(normalized_payload)", name="normalized_payload_json"),
+    CheckConstraint("validation_errors IS NULL OR json_valid(validation_errors)", name="validation_errors_json"),
+    CheckConstraint("fingerprint IS NULL OR length(fingerprint) = 64", name="fingerprint_length"),
+    CheckConstraint("status IN ('valid', 'invalid', 'duplicate', 'requiring_review')", name="valid_status"),
+    UniqueConstraint("batch_id", "source_row_number", name="uq_ingestion_row_number"),
+)
+Index("idx_ingestion_rows_batch", ingestion_rows.c.batch_id)
+Index("idx_ingestion_rows_fingerprint", ingestion_rows.c.fingerprint)
+Index("idx_ingestion_rows_status", ingestion_rows.c.status)
+
 for table in metadata.tables.values():
     table.dialect_options["mysql"]["engine"] = "InnoDB"
     table.dialect_options["mysql"]["charset"] = "utf8mb4"
