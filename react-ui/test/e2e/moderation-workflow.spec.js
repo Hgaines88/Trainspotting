@@ -171,7 +171,12 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
     .getByText(new RegExp(`^#${submissionId} · designer addition$`))
     .locator("..");
   await expect(memberSubmission.getByText("changes requested · version 2")).toBeVisible();
-  await memberSubmission.getByRole("link", { name: "Edit and resubmit" }).click();
+  await memberSubmission.getByRole("link", { name: "View details" }).click();
+  await expect(page.getByRole("heading", { name: "Changes requested", exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Reviewer feedback" })).toBeVisible();
+  await expect(page.locator(".review-decisions").getByText("Please add a second independent source.")).toBeVisible();
+  await expect(page.getByLabel(new RegExp(`Audit history for submission ${submissionId}`))).toContainText("Changes requested");
+  await page.getByRole("link", { name: "Revise and resubmit" }).click();
   await expect(page.getByLabel("Source URL")).toHaveValue(
     "https://example.test/primary-source",
   );

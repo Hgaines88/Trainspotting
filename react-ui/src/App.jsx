@@ -10,6 +10,7 @@ import DesignerForm from "./pages/DesignerForm";
 import DesignerList from "./pages/DesignerList";
 import NotFound from "./pages/NotFound";
 import SubmissionForm from "./pages/SubmissionForm";
+import SubmissionDetail from "./pages/SubmissionDetail";
 import MySubmissions from "./pages/MySubmissions";
 import ModerationQueue from "./pages/ModerationQueue";
 import "./App.css";
@@ -26,6 +27,7 @@ export default function App() {
       <Route path="/collections/:collectionId/edit" element={<RequireAdmin><CollectionForm /></RequireAdmin>} />
       <Route path="/submissions/new" element={<RequireAuthenticated><SubmissionForm /></RequireAuthenticated>} />
       <Route path="/submissions/:submissionId/edit" element={<RequireAuthenticated><SubmissionForm /></RequireAuthenticated>} />
+      <Route path="/submissions/:submissionId" element={<RequireAuthenticated><SubmissionDetail /></RequireAuthenticated>} />
       <Route path="/submissions/mine" element={<RequireAuthenticated><MySubmissions /></RequireAuthenticated>} />
       <Route path="/moderation" element={<RequireModerator><ModerationQueue /></RequireModerator>} />
       <Route path="*" element={<NotFound />} />
