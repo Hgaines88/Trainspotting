@@ -13,13 +13,28 @@ Create one Railway project with a `staging` environment and these services:
 | --- | --- | --- | --- |
 | `web` | `react-ui/Dockerfile` | One generated HTTPS domain | None |
 | `api` | root `Dockerfile` | No public domain | None |
-| `mysql` | Railway MySQL 8.4 template | No TCP proxy | Attached volume |
+| `mysql84` | Official `mysql:8.4.11` image | No TCP proxy | Attached volume |
 
 Keep the API and database private. The browser should reach FastAPI only through
 the web service's `/api` proxy. Set a usage alert or limit before leaving the
 environment continuously active.
 
 ## 2. Configure service settings
+
+Configure `mysql84` with:
+
+- the pinned official `mysql:8.4` image;
+- a persistent volume mounted at `/var/lib/mysql`;
+- separate generated root and application passwords stored only in Railway;
+- `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, and `MYSQL_ROOT_PASSWORD`;
+- a private `MYSQL_URL` assembled from Railway variable references;
+- no public domain or TCP proxy;
+- custom start command
+  `docker-entrypoint.sh mysqld --disable-log-bin --performance_schema=0 --innodb-buffer-pool-size=256M`.
+
+Disabling the binary log allows the restricted migration account to create the
+append-only audit triggers without granting `SUPER`. The 256 MB InnoDB buffer
+pool leaves operating headroom within the initial 1 GB service limit.
 
 Configure `api` with:
 
@@ -33,8 +48,15 @@ Configure `web` with:
 
 - health check path `/`;
 - `react-ui/Dockerfile` as its Docker build;
+- public listening port `80`;
 - one generated public domain;
 - restart policy `ON_FAILURE` with a finite retry limit.
+
+The web image enables the official Nginx entrypoint's local-resolver discovery
+and resolves `API_UPSTREAM` at request time with a short DNS TTL. This allows an
+API replacement to receive a new private address without requiring a manual web
+restart. Environment substitution is restricted to the two deployment values
+so native Nginx variables such as `$host` remain intact.
 
 Railway pre-deploy commands run in a separate container with private-network
 access. A failed migration therefore prevents the new API deployment from
@@ -61,6 +83,7 @@ On `web`:
 
 - `API_UPSTREAM`: the API service's Railway private DNS name and listening port,
   without `http://` or a path;
+- `PORT=80`, matching the Nginx listener used by Railway's health check;
 - `VITE_CLERK_PUBLISHABLE_KEY`: the Clerk staging publishable key. This is a
   public build-time value, not a secret.
 
