@@ -51,6 +51,35 @@ def test_merge_import_is_idempotent(tmp_path):
     assert archive_counts(database) == initial_counts
 
 
+def test_demo_collaborations_have_ordered_credits_and_sources():
+    payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
+    collections = {collection["key"]: collection for collection in payload["collections"]}
+
+    prada = collections["raf-simons-prada-spring-summer-2024"]
+    assert [
+        (credit["designer_key"], credit["role"], credit["position"])
+        for credit in prada["credits"]
+    ] == [
+        ("miuccia-prada", "co-designer", 1),
+        ("raf-simons", "co-designer", 2),
+    ]
+    assert prada["source_url"] == (
+        "https://www.vogue.com/fashion-shows/spring-2024-ready-to-wear/prada"
+    )
+
+    dior = collections["eli-russell-linnetz-dior-men-spring-summer-menswear-2023"]
+    assert [
+        (credit["designer_key"], credit["role"], credit["position"])
+        for credit in dior["credits"]
+    ] == [
+        ("eli-russell-linnetz", "lead", 1),
+        ("kim-jones", "collaborator", 2),
+    ]
+    assert dior["source_url"] == (
+        "https://www.vogue.com/fashion-shows/spring-2023-menswear/dior-men"
+    )
+
+
 def test_export_import_preserves_non_default_collection_credits(tmp_path):
     source = tmp_path / "credits-source.db"
     restored = tmp_path / "credits-restored.db"
