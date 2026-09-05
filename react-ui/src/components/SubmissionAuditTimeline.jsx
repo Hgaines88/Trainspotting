@@ -10,7 +10,8 @@ const EVENT_LABELS = {
 
 function readableDate(value) {
   if (!value) return "Time unavailable";
-  const normalized = /(?:Z|[+-]\d\d:\d\d)$/.test(value) ? value : `${value}Z`;
+  const isoLike = value.includes(" ") ? value.replace(" ", "T") : value;
+  const normalized = /(?:Z|[+-]\d\d:\d\d)$/.test(isoLike) ? isoLike : `${isoLike}Z`;
   const date = new Date(normalized);
   return Number.isNaN(date.valueOf()) ? value : date.toLocaleString();
 }
