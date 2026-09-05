@@ -81,6 +81,7 @@ p { line-height:1.65; }
 .pagination button:disabled { cursor:not-allowed; opacity:.45; }
 .pagination span { color:var(--dim); font-size:.7rem; text-align:center; text-transform:uppercase; }
 .source-fields { display:grid; gap:1rem; margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--line); }
+.archive-record-selector { display:grid; gap:.75rem; padding:1rem; border:1px solid var(--line); }
 .profile-title { border-bottom:1px solid var(--paper); padding-bottom:2rem; }
 .profile-intro { display:grid; grid-template-columns:1fr 2fr; gap:4rem; margin:2rem 0; }
 .biography { max-width:75ch; margin:0; font-size:clamp(1rem,1.5vw,1.35rem); }

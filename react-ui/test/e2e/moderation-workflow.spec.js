@@ -51,6 +51,31 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "member");
   await page.goto("/submissions/new");
+  await page.getByLabel("Proposal type").selectOption("correction");
+  await page.getByLabel("Search Existing designer").fill("Sarah Burton");
+  const existingDesigner = page.getByLabel("Existing designer", { exact: true });
+  const sarahId = await existingDesigner.locator("option").filter({ hasText: "Sarah Burton" }).getAttribute("value");
+  await existingDesigner.selectOption(sarahId);
+  await expect(existingDesigner).not.toHaveValue("");
+  await expect(page.getByLabel("Existing record ID")).toHaveCount(0);
+
+  await page.getByLabel("Record type").selectOption("collection");
+  const existingCollection = page.getByLabel("Existing collection", { exact: true });
+  await expect(existingCollection).toHaveValue("");
+  await page.getByLabel("Search Existing collection").fill("No. 13");
+  const collectionId = await existingCollection.locator("option").filter({ hasText: "No. 13" }).getAttribute("value");
+  await existingCollection.selectOption(collectionId);
+  await expect(existingCollection).not.toHaveValue("");
+
+  await page.getByLabel("Proposal type").selectOption("addition");
+  await page.getByLabel("Search Designer or creative lead").fill("Grace Wales Bonner");
+  const collectionDesigner = page.getByLabel("Designer or creative lead", { exact: true });
+  const graceId = await collectionDesigner.locator("option").filter({ hasText: "Grace Wales Bonner" }).getAttribute("value");
+  await collectionDesigner.selectOption(graceId);
+  await expect(collectionDesigner).not.toHaveValue("");
+
+  await page.getByLabel("Record type").selectOption("designer");
+  await expect(page.getByLabel("Designer or creative lead", { exact: true })).toHaveCount(0);
   await page.getByLabel("Biography").fill("Notes preserved from an incomplete draft.");
   await page.getByRole("button", { name: "Save draft" }).click();
   await expect(page).toHaveURL(/\/submissions\/\d+\/edit$/);

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
+import { apiRequest } from "../api";
+import ArchiveRecordSelector from "../components/ArchiveRecordSelector";
 import StatusMessage from "../components/StatusMessage";
 import { SUPPORTED_NATIONALITIES } from "../nationalityFlags";
 
@@ -10,12 +12,21 @@ const designerFields = [
   ["biography", "Biography", "textarea"],
 ];
 const collectionFields = [
-  ["designer_id", "Designer ID", "number"], ["label", "Label or fashion house"],
+  ["label", "Label or fashion house"],
   ["name", "Collection name"], ["season", "Season"],
   ["release_year", "Release year", "number"],
   ["piece_count", "Piece count", "number"], ["description", "Description", "textarea"],
   ["source_url", "Curated source URL", "url"], ["youtube_video_id", "YouTube URL or video ID"],
 ];
+
+const designerLabel = (designer) => [designer.full_name, designer.nationality]
+  .filter(Boolean)
+  .join(" — ");
+const collectionLabel = (collection) => {
+  const title = collection.name ? `${collection.label}: ${collection.name}` : collection.label;
+  const date = [collection.season, collection.release_year].filter(Boolean).join(" ");
+  return [collection.lead_designer, title, date].filter(Boolean).join(" — ");
+};
 
 export default function SubmissionForm() {
   const location = useLocation();
@@ -32,7 +43,30 @@ export default function SubmissionForm() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [designers, setDesigners] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [archiveLoading, setArchiveLoading] = useState(true);
+  const [archiveError, setArchiveError] = useState("");
   const required = submissionType === "addition";
+
+  useEffect(() => {
+    let active = true;
+    setArchiveLoading(true);
+    Promise.all([apiRequest("/designers"), apiRequest("/collections")])
+      .then(([designerRecords, collectionRecords]) => {
+        if (!active) return;
+        setDesigners(designerRecords);
+        setCollections(collectionRecords);
+        setArchiveError("");
+      })
+      .catch((requestError) => {
+        if (active) setArchiveError(requestError.message);
+      })
+      .finally(() => {
+        if (active) setArchiveLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     if (!editing) return;
@@ -63,12 +97,14 @@ export default function SubmissionForm() {
   function changeRecordType(event) {
     const nextRecordType = event.target.value;
     setRecordType(nextRecordType);
+    setTargetId("");
     setFields(nextRecordType === "collection" && submissionType === "addition" ? { status: "released" } : {});
   }
 
   function changeSubmissionType(event) {
     const nextSubmissionType = event.target.value;
     setSubmissionType(nextSubmissionType);
+    setTargetId("");
     setFields({ ...fields, status: recordType === "collection" && nextSubmissionType === "addition" ? "released" : "" });
   }
 
@@ -175,7 +211,28 @@ export default function SubmissionForm() {
     <form className="record-form" onSubmit={submit}>
       <label>Record type<select value={recordType} onChange={changeRecordType} disabled={editing}><option value="designer">Designer</option><option value="collection">Collection</option></select></label>
       <label>Proposal type<select value={submissionType} onChange={changeSubmissionType} disabled={editing}><option value="addition">Addition</option><option value="correction">Correction</option></select></label>
-      {submissionType === "correction" && <label>Existing record ID<input type="number" min="1" value={targetId} onChange={(event) => setTargetId(event.target.value)} required /></label>}
+      {submissionType === "correction" && <ArchiveRecordSelector
+        id="correction-target"
+        label={recordType === "designer" ? "Existing designer" : "Existing collection"}
+        records={recordType === "designer" ? designers : collections}
+        value={targetId}
+        onChange={setTargetId}
+        getLabel={recordType === "designer" ? designerLabel : collectionLabel}
+        loading={archiveLoading}
+        error={archiveError}
+        required
+      />}
+      {recordType === "collection" && <ArchiveRecordSelector
+        id="collection-designer"
+        label="Designer or creative lead"
+        records={designers}
+        value={fields.designer_id || ""}
+        onChange={(designerId) => setFields({ ...fields, designer_id: designerId })}
+        getLabel={designerLabel}
+        loading={archiveLoading}
+        error={archiveError}
+        required={required}
+      />}
       {fieldDefinitions.map(([name, label, type = "text"]) => {
         if (name === "status") return null;
         const isRequired = required && requiredAdditionFields.has(name);
