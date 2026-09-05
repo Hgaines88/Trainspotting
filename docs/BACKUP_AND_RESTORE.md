@@ -68,8 +68,8 @@ touched. The disposable container, key, and artifacts were removed afterward.
 
 The observed hands-on restore took under five minutes for the current tiny
 dataset. This is drill evidence, not yet the production recovery-time objective.
-The recovery-point objective remains undefined until scheduled off-platform
-retention and backup-age alerting are configured.
+Once the daily off-platform backup schedule is enabled, the staging recovery-point
+objective is 24 hours, with a 26-hour staleness threshold to allow scheduler variance.
 
 ## Legacy SQLite recovery material
 
