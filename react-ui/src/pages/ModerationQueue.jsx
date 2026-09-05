@@ -62,7 +62,7 @@ export default function ModerationQueue() {
     <StatusMessage error>{error}</StatusMessage>
     {loading && <StatusMessage>Loading review queue…</StatusMessage>}
     {!loading && !error && submissions.length === 0 && <StatusMessage>The queue is clear.</StatusMessage>}
-    {!loading && <div className="moderation-list">{submissions.map((item) => <article className="moderation-card" key={item.id}>
+    {!loading && !error && <div className="moderation-list">{submissions.map((item) => <article className="moderation-card" key={item.id}>
       <p className="eyebrow">Submission #{item.id} · {item.submitter_clerk_user_id === appUser?.clerk_user_id ? "your proposal" : (item.submitter_display_name || "Trainspotting member")}</p>
       <h2>{item.record_type} {item.submission_type}</h2><p>{item.explanation}</p>
       <SubmissionComparison submission={item} />
