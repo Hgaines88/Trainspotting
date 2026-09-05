@@ -17,10 +17,15 @@ def run_backup(now: datetime | None = None) -> dict:
         "DATABASE_URL": os.getenv("DATABASE_URL"),
         "MYSQL_BACKUP_ENCRYPTION_KEY": os.getenv("MYSQL_BACKUP_ENCRYPTION_KEY"),
         "BACKUP_S3_BUCKET": os.getenv("BACKUP_S3_BUCKET"),
+        "BACKUP_S3_ENDPOINT": os.getenv("BACKUP_S3_ENDPOINT"),
+        "BACKUP_S3_ACCESS_KEY_ID": os.getenv("BACKUP_S3_ACCESS_KEY_ID"),
+        "BACKUP_S3_SECRET_ACCESS_KEY": os.getenv("BACKUP_S3_SECRET_ACCESS_KEY"),
     }
     missing = [name for name, value in required.items() if not value]
     if missing:
         raise ValueError("Missing backup job configuration: " + ", ".join(missing))
+
+    client = storage_client()
     timestamp = (now or datetime.now(timezone.utc)).strftime("%Y%m%dT%H%M%SZ")
     with tempfile.TemporaryDirectory(prefix="trainspotting-backup-") as directory:
         backup = Path(directory) / f"trainspotting-{timestamp}.sql.enc"
@@ -31,7 +36,7 @@ def run_backup(now: datetime | None = None) -> dict:
         )
         verify_backup(required["MYSQL_BACKUP_ENCRYPTION_KEY"], backup)
         uploaded = upload_backup(
-            storage_client(),
+            client,
             required["BACKUP_S3_BUCKET"],
             os.getenv("BACKUP_S3_PREFIX", "staging/mysql"),
             backup,
