@@ -10,6 +10,9 @@ def test_job_creates_verifies_uploads_and_removes_temporary_artifact(
     monkeypatch.setenv("MYSQL_BACKUP_ENCRYPTION_KEY", "encryption-key")
     monkeypatch.setenv("BACKUP_S3_BUCKET", "private-backups")
     monkeypatch.setenv("BACKUP_S3_PREFIX", "staging/mysql")
+    monkeypatch.setenv("BACKUP_S3_ENDPOINT", "https://example.r2.invalid")
+    monkeypatch.setenv("BACKUP_S3_ACCESS_KEY_ID", "test-access-key")
+    monkeypatch.setenv("BACKUP_S3_SECRET_ACCESS_KEY", "test-secret-key")
     observed = {}
 
     def create(database_url, key, backup):
@@ -50,8 +53,18 @@ def test_job_fails_before_database_access_when_configuration_is_missing(monkeypa
         "DATABASE_URL",
         "MYSQL_BACKUP_ENCRYPTION_KEY",
         "BACKUP_S3_BUCKET",
+        "BACKUP_S3_ENDPOINT",
+        "BACKUP_S3_ACCESS_KEY_ID",
+        "BACKUP_S3_SECRET_ACCESS_KEY",
     ):
         monkeypatch.delenv(name, raising=False)
+    database_accessed = False
+
+    def unexpected_database_access(*_args, **_kwargs):
+        nonlocal database_accessed
+        database_accessed = True
+
+    monkeypatch.setattr(run_mysql_backup, "create_backup", unexpected_database_access)
 
     try:
         run_mysql_backup.run_backup()
@@ -62,3 +75,7 @@ def test_job_fails_before_database_access_when_configuration_is_missing(monkeypa
     assert "DATABASE_URL" in message
     assert "MYSQL_BACKUP_ENCRYPTION_KEY" in message
     assert "BACKUP_S3_BUCKET" in message
+    assert "BACKUP_S3_ENDPOINT" in message
+    assert "BACKUP_S3_ACCESS_KEY_ID" in message
+    assert "BACKUP_S3_SECRET_ACCESS_KEY" in message
+    assert database_accessed is False
