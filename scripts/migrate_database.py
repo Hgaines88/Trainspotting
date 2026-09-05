@@ -43,6 +43,14 @@ def migrate(database_url: str | None = None) -> None:
                 raise RuntimeError("Could not acquire the database migration lock")
             try:
                 apply_to(target_url, connection)
+                # GET_LOCK starts SQLAlchemy's outer transaction before Alembic
+                # receives this connection. Commit that transaction explicitly
+                # so the revision ledger survives after the pre-deploy process
+                # closes its connection.
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
             finally:
                 connection.execute(
                     text("SELECT RELEASE_LOCK(:name)"), {"name": LOCK_NAME}
