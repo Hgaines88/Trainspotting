@@ -195,6 +195,7 @@ def ingest_collection_csv(
                    VALUES (?, ?, 'csv')""",
                 (user["id"], source_name),
             ).lastrowid
+        seen_fingerprints: set[str] = set()
 
         for row_number, raw in enumerate(rows, start=2):
             normalized = None
@@ -204,7 +205,9 @@ def ingest_collection_csv(
             try:
                 normalized = normalized_row(connection, raw)
                 row_fingerprint = fingerprint(normalized)
-                if is_duplicate(connection, normalized, row_fingerprint):
+                if row_fingerprint in seen_fingerprints or is_duplicate(
+                    connection, normalized, row_fingerprint
+                ):
                     outcome = "duplicate"
                 elif dry_run:
                     ingestion_payload(normalized, source_name, row_number)
@@ -215,6 +218,7 @@ def ingest_collection_csv(
                         connection, payload, dict(user), "submitted"
                     )
                     outcome = "requiring_review"
+                seen_fingerprints.add(row_fingerprint)
             except ValidationError as error:
                 outcome = "invalid"
                 errors = validation_messages(error)
