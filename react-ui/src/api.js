@@ -1,4 +1,5 @@
 const API_ROOT = "/api";
+let archiveVersionRequest = null;
 
 function isPublicArchiveRead(path, options) {
   const method = String(options.method || "GET").toUpperCase();
@@ -14,15 +15,26 @@ function isPublicArchiveRead(path, options) {
   );
 }
 
-async function versionedPath(path) {
-  const response = await fetch(`${API_ROOT}/archive-version`, { cache: "no-store" });
-  if (!response.ok) throw new Error("The archive version is unavailable.");
-  const payload = await response.json();
-  if (!Number.isInteger(payload.version) || payload.version < 1) {
-    throw new Error("The archive version is invalid.");
+function currentArchiveVersion() {
+  if (!archiveVersionRequest) {
+    archiveVersionRequest = fetch(`${API_ROOT}/archive-version`, { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("The archive version is unavailable.");
+        const payload = await response.json();
+        if (!Number.isInteger(payload.version) || payload.version < 1) {
+          throw new Error("The archive version is invalid.");
+        }
+        return payload.version;
+      })
+      .finally(() => { archiveVersionRequest = null; });
   }
+  return archiveVersionRequest;
+}
+
+async function versionedPath(path) {
+  const version = await currentArchiveVersion();
   const separator = path.includes("?") ? "&" : "?";
-  return `${path}${separator}archive_version=${payload.version}`;
+  return `${path}${separator}archive_version=${version}`;
 }
 
 function describeApiError(detail, fallback) {

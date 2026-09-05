@@ -44,6 +44,43 @@ test("the public collection list uses the current archive version", async () => 
   ]);
 });
 
+test("parallel public reads share one in-flight archive version lookup", async () => {
+  const requests = [];
+  globalThis.fetch = async (url) => {
+    requests.push(url);
+    if (url === "/api/archive-version") {
+      return new Response(JSON.stringify({ version: 11 }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ items: [] }), { status: 200 });
+  };
+
+  await Promise.all([
+    apiRequest("/designers?page=1"),
+    apiRequest("/collections?sort=newest"),
+  ]);
+
+  assert.equal(requests.filter((url) => url === "/api/archive-version").length, 1);
+  assert.ok(requests.includes("/api/designers?page=1&archive_version=11"));
+  assert.ok(requests.includes("/api/collections?sort=newest&archive_version=11"));
+});
+
+test("later public reads refresh the archive version", async () => {
+  let version = 20;
+  const versionRequests = [];
+  globalThis.fetch = async (url) => {
+    if (url === "/api/archive-version") {
+      versionRequests.push(url);
+      return new Response(JSON.stringify({ version: version++ }), { status: 200 });
+    }
+    return new Response(JSON.stringify([]), { status: 200 });
+  };
+
+  await apiRequest("/designers");
+  await apiRequest("/designers");
+
+  assert.equal(versionRequests.length, 2);
+});
+
 test("archive selector searches use the current archive version", async () => {
   const requests = [];
   globalThis.fetch = async (url) => {
