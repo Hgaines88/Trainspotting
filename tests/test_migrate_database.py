@@ -120,11 +120,10 @@ def test_mysql_migration_rolls_back_before_releasing_lock_on_failure(monkeypatch
             return None
 
     monkeypatch.setattr(migrate_database, "build_engine", lambda _url: Engine())
-    monkeypatch.setattr(
-        migrate_database,
-        "apply_to",
-        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("failed")),
-    )
+    def apply_to_failure(*_args, **_kwargs):
+        raise RuntimeError("failed")
+
+    monkeypatch.setattr(migrate_database, "apply_to", apply_to_failure)
 
     with pytest.raises(RuntimeError, match="failed"):
         migrate_database.migrate("mysql://user:password@mysql/archive")
