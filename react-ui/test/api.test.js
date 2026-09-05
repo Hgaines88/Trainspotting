@@ -62,6 +62,26 @@ test("archive selector searches use the current archive version", async () => {
   ]);
 });
 
+test("archive discovery queries retain filters and use the current version", async () => {
+  const requests = [];
+  globalThis.fetch = async (url) => {
+    requests.push(url);
+    if (url === "/api/archive-version") {
+      return new Response(JSON.stringify({ version: 10 }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ items: [], pagination: {} }), {
+      status: 200,
+    });
+  };
+
+  await apiRequest("/designers?search=McQueen&page=2&page_size=12");
+
+  assert.deepEqual(requests, [
+    "/api/archive-version",
+    "/api/designers?search=McQueen&page=2&page_size=12&archive_version=10",
+  ]);
+});
+
 test("mutation requests do not fetch or append an archive version", async () => {
   const requests = [];
   globalThis.fetch = async (url, options = {}) => {

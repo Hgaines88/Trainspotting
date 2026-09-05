@@ -92,6 +92,16 @@ def test_mysql_submission_approval_audit_and_rollback(monkeypatch):
             assert response.status_code == 200
             assert response.json()["status"] == "approved"
 
+            discovery = client.get(
+                f"/designers?search={tag}&sort=collections&direction=desc"
+                "&page=1&page_size=5"
+            )
+            assert discovery.status_code == 200
+            assert discovery.json()["pagination"]["total"] == 1
+            assert discovery.json()["items"][0]["full_name"] == (
+                f"MySQL Runtime Designer {tag}"
+            )
+
             response = client.post(
                 f"/moderation/submissions/{submission_id}/rollback",
                 json={"reason": "Automated MySQL verification complete."},

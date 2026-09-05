@@ -34,6 +34,29 @@ async function apiRequest(page, path, { identity, method = "GET", body } = {}) {
 }
 
 
+test("public archive discovery preserves filters and pagination in the URL", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator("article.card")).toHaveCount(12);
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page).toHaveURL(/\?page=2$/);
+  await expect(page.locator("article.card").first().locator(".card-index")).toHaveText("013");
+
+  await page.getByLabel("Search the archive").fill("Afro-Atlantic");
+  await page.getByRole("button", { name: "Apply filters" }).click();
+  await expect(page).toHaveURL(/\?search=Afro-Atlantic$/);
+  await expect(page.getByRole("link", { name: /Grace Wales Bonner/ })).toBeVisible();
+  await expect(page.locator("article.card")).toHaveCount(1);
+
+  await page.getByLabel("Search the archive").fill("No such archive record");
+  await page.getByRole("button", { name: "Apply filters" }).click();
+  await expect(page.getByRole("heading", { name: "No profiles match these filters." })).toBeVisible();
+  await page.getByRole("link", { name: "Clear filters" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("article.card")).toHaveCount(12);
+});
+
+
 test("critical moderation workflow is isolated, authorized, idempotent, and reversible", async ({ page }) => {
   await useIdentity(page, null);
   await expect(page.getByRole("heading", { name: /Who made it/i })).toBeVisible();
@@ -213,7 +236,11 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   expect(duplicateApproval.body.status).toBe("approved");
 
   const approvedDesigners = await apiRequest(page, "/designers");
-  expect(approvedDesigners.body.filter((item) => item.full_name === DESIGNER_NAME)).toHaveLength(1);
+  expect(
+    approvedDesigners.body.items.filter(
+      (item) => item.full_name === DESIGNER_NAME,
+    ),
+  ).toHaveLength(1);
 
   await useIdentity(page, "admin");
   await page.goto("/moderation");
@@ -226,7 +253,11 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   await expect(page.getByText("The queue is clear.")).toBeVisible();
 
   const restoredDesigners = await apiRequest(page, "/designers");
-  expect(restoredDesigners.body.some((item) => item.full_name === DESIGNER_NAME)).toBe(false);
+  expect(
+    restoredDesigners.body.items.some(
+      (item) => item.full_name === DESIGNER_NAME,
+    ),
+  ).toBe(false);
   const audit = await apiRequest(page, `/submissions/${submissionId}/audit`, {
     identity: "admin",
   });

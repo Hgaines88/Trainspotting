@@ -337,9 +337,10 @@ def list_designers(
                 "OR LOWER(collections.label) LIKE LOWER(?) "
                 "OR LOWER(COALESCE(collections.name, '')) LIKE LOWER(?) "
                 "OR LOWER(collections.season) LIKE LOWER(?) "
-                "OR CAST(collections.release_year AS CHAR) LIKE ?)"
+                "OR CAST(collections.release_year AS CHAR) LIKE ? "
+                "OR LOWER(COALESCE(collections.description, '')) LIKE LOWER(?))"
             )
-            parameters.extend([pattern] * 7)
+            parameters.extend([pattern] * 8)
         for value, expression in (
             (nationality.strip(), "LOWER(COALESCE(designers.nationality, '')) = LOWER(?)"),
             (label.strip(), "LOWER(collections.label) = LOWER(?)"),
