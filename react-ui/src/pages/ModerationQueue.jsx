@@ -58,7 +58,7 @@ export default function ModerationQueue() {
 
   return <>
     <p className="eyebrow">Moderator workspace</p><h1>Review queue</h1>
-    <div className="queue-filters" aria-label="Submission status">{["submitted", "changes_requested", "approved", "rejected", "rolled_back"].map((itemStatus) => <button aria-pressed={queueStatus === itemStatus} className={queueStatus === itemStatus ? "active" : "secondary"} type="button" key={itemStatus} onClick={() => { setPage(1); setQueueStatus(itemStatus); }}>{itemStatus.replaceAll("_", " ")} <span aria-label={`${counts[itemStatus] || 0} submissions`}>{counts[itemStatus] || 0}</span></button>)}</div>
+    <div className="queue-filters" aria-label="Submission status">{["submitted", "changes_requested", "approved", "rejected", "rolled_back"].map((itemStatus) => <button aria-pressed={queueStatus === itemStatus} className={queueStatus === itemStatus ? "active" : "secondary"} type="button" key={itemStatus} onClick={() => { setPage(1); setQueueStatus(itemStatus); }}>{itemStatus.replaceAll("_", " ")} <span aria-label={`${counts[itemStatus] || 0} ${(counts[itemStatus] || 0) === 1 ? "submission" : "submissions"}`}>{counts[itemStatus] || 0}</span></button>)}</div>
     <StatusMessage error>{error}</StatusMessage>
     {loading && <StatusMessage>Loading review queue…</StatusMessage>}
     {!loading && !error && submissions.length === 0 && <StatusMessage>The queue is clear.</StatusMessage>}
