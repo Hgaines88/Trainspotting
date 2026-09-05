@@ -138,6 +138,10 @@ p { line-height:1.65; }
 .collection-list strong { text-transform:uppercase; }
 .collection-list span { color:var(--dim); text-align:right; font-size:.72rem; text-transform:uppercase; }
 .collection-list a:hover span,.collection-list a:hover i { color:var(--ink); }
+.source-list { margin:0; padding:0; border-top:1px solid var(--line); list-style:none; }
+.source-list li { display:grid; gap:.35rem; padding:1rem .4rem; border-bottom:1px solid var(--line); }
+.source-list a { width:fit-content; font-weight:600; text-transform:uppercase; }
+.source-list span { color:var(--dim); font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; }
 .record-form { display:grid; gap:1.2rem; max-width:760px; }
 .record-form label { display:grid; gap:.45rem; font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
 .record-form input,.record-form select,.record-form textarea { width:100%; border:1px solid var(--line); border-radius:0; outline:0; color:var(--paper); background:#111; padding:1rem; }

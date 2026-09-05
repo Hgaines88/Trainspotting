@@ -214,7 +214,42 @@ def fetch_collection(
             detail="Collection not found",
         )
 
-    return collection_payloads(connection, [row])[0]
+    payload = collection_payloads(connection, [row])[0]
+    payload["provenance"] = public_provenance(
+        connection, "collection", collection_id, payload.get("source_url")
+    )
+    return payload
+
+
+def public_provenance(
+    connection, record_type: str, record_id: int, canonical_source: str | None = None
+) -> dict:
+    """Return safe evidence from canonical data and active approved promotions."""
+    sources = []
+    seen_urls = set()
+    if canonical_source:
+        sources.append({"url": canonical_source, "title": "Curated archive source", "origin": "canonical", "reviewed_at": None})
+        seen_urls.add(canonical_source)
+    rows = connection.execute(
+        """SELECT submission_sources.url, submission_sources.title,
+                  submissions.reviewed_at
+           FROM submission_promotions
+           JOIN submissions ON submissions.id = submission_promotions.submission_id
+           JOIN submission_sources ON submission_sources.submission_id = submissions.id
+           WHERE submission_promotions.canonical_record_type = ?
+             AND submission_promotions.canonical_record_id = ?
+             AND submission_promotions.rolled_back_at IS NULL
+             AND submissions.status = 'approved'
+           ORDER BY submissions.reviewed_at DESC, submission_sources.id""",
+        (record_type, record_id),
+    ).fetchall()
+    for row in rows:
+        if row["url"] in seen_urls:
+            continue
+        seen_urls.add(row["url"])
+        sources.append({"url": row["url"], "title": row["title"] or "Approved community source", "origin": "approved_submission", "reviewed_at": row["reviewed_at"]})
+    reviewed = [source["reviewed_at"] for source in sources if source["reviewed_at"]]
+    return {"sources": sources, "last_reviewed_at": max(reviewed) if reviewed else None}
 
 
 def collection_payloads(connection, rows) -> list[dict]:
@@ -568,7 +603,9 @@ def get_designer(designer_id: int):
                 detail="Designer not found",
             )
 
-        return dict(row)
+        payload = dict(row)
+        payload["provenance"] = public_provenance(connection, "designer", designer_id)
+        return payload
     finally:
         connection.close()
 
@@ -742,7 +779,11 @@ def create_designer(payload: DesignerCreate):
             (cursor.lastrowid,),
         ).fetchone()
 
-        return dict(row)
+        result = dict(row)
+        result["provenance"] = public_provenance(
+            connection, "designer", result["id"]
+        )
+        return result
 
     except DATABASE_INTEGRITY_ERRORS as error:
         connection.rollback()
@@ -817,7 +858,11 @@ def update_designer(designer_id: int, payload: DesignerCreate):
             (designer_id,),
         ).fetchone()
 
-        return dict(updated_designer)
+        result = dict(updated_designer)
+        result["provenance"] = public_provenance(
+            connection, "designer", designer_id
+        )
+        return result
 
     except DATABASE_INTEGRITY_ERRORS as error:
         connection.rollback()

@@ -82,6 +82,8 @@ test("homepage offers a self-guided path into collection discovery", async ({ pa
 test("collection pages show ranked recommendations with visible reasons", async ({ page }) => {
   await page.goto("/collections/1");
 
+  await expect(page.getByRole("heading", { name: "Evidence" })).toBeVisible();
+  await expect(page.locator(".source-list a").first()).toHaveAttribute("href", /^https:\/\//);
   await expect(page.getByRole("heading", { name: "Related collections" })).toBeVisible();
   const recommendations = page.locator(".related-list > li");
   await expect(recommendations.first()).toBeVisible();
@@ -281,6 +283,20 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
       (item) => item.full_name === DESIGNER_NAME,
     ),
   ).toHaveLength(1);
+  const publishedDesigner = approvedDesigners.body.items.find(
+    (item) => item.full_name === DESIGNER_NAME,
+  );
+  const publishedDetail = await apiRequest(page, `/designers/${publishedDesigner.id}`);
+  expect(publishedDetail.body.provenance.sources).toEqual([
+    expect.objectContaining({
+      url: "https://example.test/independent-source",
+      origin: "approved_submission",
+    }),
+    expect.objectContaining({
+      url: "https://example.test/primary-source",
+      origin: "approved_submission",
+    }),
+  ]);
 
   await useIdentity(page, "admin");
   await page.goto("/moderation");

@@ -45,6 +45,10 @@ export default function DesignerDetail() {
       <p className="external-link">{designer.website ? <a href={designer.website} target="_blank" rel="noreferrer">Official transmission ↗</a> : "No website is available."}</p>
       {isAdmin && <div className="actions"><Link className="button" to={`/designers/${designerId}/edit`}>Edit designer</Link><Link className="button secondary" to={`/designers/${designerId}/collections/new`}>Add a collection</Link><button className="danger" type="button" onClick={deleteDesigner}>Delete designer</button></div>}
       <StatusMessage error>{error}</StatusMessage>
+      <section className="section provenance" aria-labelledby="provenance-heading">
+        <div className="section-heading"><h2 id="provenance-heading">Evidence</h2><span>Public provenance</span></div>
+        {designer.provenance.sources.length > 0 ? <ul className="source-list">{designer.provenance.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a><span>Approved community evidence{source.reviewed_at ? ` · reviewed ${new Date(source.reviewed_at).toLocaleDateString()}` : ""}</span></li>)}</ul> : <p className="meta">No public source is available for this profile yet.</p>}
+      </section>
       <section className="section">
         <div className="section-heading"><h2>Collections</h2><span>{String(collections.length).padStart(2, "0")} records</span></div>
         {collections.length === 0 ? <p>No collections have been added.</p> : (
