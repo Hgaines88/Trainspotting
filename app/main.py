@@ -307,6 +307,12 @@ def pagination_payload(rows, *, page: int, page_size: int, total: int):
     }
 
 
+def case_insensitive_equality(connection, column: str) -> str:
+    if getattr(connection, "_backend", "sqlite") == "mysql":
+        return f"{column} = ?"
+    return f"{column} COLLATE NOCASE = ?"
+
+
 @app.get("/designers")
 def list_designers(
     search: str = Query(default="", max_length=120),
@@ -342,9 +348,12 @@ def list_designers(
             )
             parameters.extend([pattern] * 8)
         for value, expression in (
-            (nationality.strip(), "LOWER(COALESCE(designers.nationality, '')) = LOWER(?)"),
-            (label.strip(), "LOWER(collections.label) = LOWER(?)"),
-            (season.strip(), "LOWER(collections.season) = LOWER(?)"),
+            (
+                nationality.strip(),
+                case_insensitive_equality(connection, "designers.nationality"),
+            ),
+            (label.strip(), case_insensitive_equality(connection, "collections.label")),
+            (season.strip(), case_insensitive_equality(connection, "collections.season")),
         ):
             if value:
                 clauses.append(expression)
@@ -371,9 +380,12 @@ def list_designers(
             "oldest": "MIN(collections.release_year)",
             "collections": "collection_count",
         }
-        order_direction = (
-            direction or ("desc" if sort in {"newest", "collections"} else "asc")
-        ).upper()
+        default_direction = "desc" if sort in {"newest", "collections"} else "asc"
+        order_direction = (direction or default_direction).upper()
+        order_sql = (
+            f"{sort_expressions[sort]} {order_direction}, "
+            f"designers.id {order_direction}"
+        )
         offset = (page - 1) * page_size
         rows = connection.execute(
             f"""
@@ -384,14 +396,16 @@ def list_designers(
                 designers.birth_year,
                 designers.website,
                 designers.biography,
-                (
-                    SELECT COUNT(*)
-                    FROM collections AS all_collections
-                    WHERE all_collections.designer_id = designers.id
-                ) AS collection_count
+                COALESCE(MAX(collection_stats.collection_count), 0) AS collection_count
             FROM designers
             LEFT JOIN collections
                 ON collections.designer_id = designers.id
+            LEFT JOIN (
+                SELECT designer_id, COUNT(*) AS collection_count
+                FROM collections
+                GROUP BY designer_id
+            ) AS collection_stats
+                ON collection_stats.designer_id = designers.id
             {where_sql}
             GROUP BY designers.id
             ORDER BY {order_sql}
@@ -949,9 +963,12 @@ def list_collections(
             clauses.append("collections.designer_id = ?")
             parameters.append(designer_id)
         for value, expression in (
-            (nationality.strip(), "LOWER(COALESCE(designers.nationality, '')) = LOWER(?)"),
-            (label.strip(), "LOWER(collections.label) = LOWER(?)"),
-            (season.strip(), "LOWER(collections.season) = LOWER(?)"),
+            (
+                nationality.strip(),
+                case_insensitive_equality(connection, "designers.nationality"),
+            ),
+            (label.strip(), case_insensitive_equality(connection, "collections.label")),
+            (season.strip(), case_insensitive_equality(connection, "collections.season")),
         ):
             if value:
                 clauses.append(expression)

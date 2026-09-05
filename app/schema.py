@@ -4,6 +4,7 @@ from sqlalchemy import (
     CheckConstraint,
     Column,
     DateTime,
+    DDL,
     ForeignKey,
     Index,
     Integer,
@@ -12,6 +13,7 @@ from sqlalchemy import (
     Table,
     Text,
     UniqueConstraint,
+    event,
     func,
 )
 
@@ -53,7 +55,17 @@ designers = Table(
         name="birth_year_range",
     ),
 )
-Index("idx_designers_nationality", designers.c.nationality)
+Index("idx_designers_nationality", designers.c.nationality).ddl_if(
+    dialect=("mysql", "mariadb")
+)
+event.listen(
+    designers,
+    "after_create",
+    DDL(
+        "CREATE INDEX idx_designers_nationality "
+        "ON designers(nationality COLLATE NOCASE)"
+    ).execute_if(dialect="sqlite"),
+)
 
 collections = Table(
     "collections",
@@ -92,8 +104,28 @@ collections = Table(
     ),
 )
 Index("idx_collections_designer_id", collections.c.designer_id)
-Index("idx_collections_label", collections.c.label)
-Index("idx_collections_season", collections.c.season)
+Index("idx_collections_label", collections.c.label).ddl_if(
+    dialect=("mysql", "mariadb")
+)
+Index("idx_collections_season", collections.c.season).ddl_if(
+    dialect=("mysql", "mariadb")
+)
+event.listen(
+    collections,
+    "after_create",
+    DDL(
+        "CREATE INDEX idx_collections_label "
+        "ON collections(label COLLATE NOCASE)"
+    ).execute_if(dialect="sqlite"),
+)
+event.listen(
+    collections,
+    "after_create",
+    DDL(
+        "CREATE INDEX idx_collections_season "
+        "ON collections(season COLLATE NOCASE)"
+    ).execute_if(dialect="sqlite"),
+)
 Index(
     "idx_collections_year_status",
     collections.c.release_year,

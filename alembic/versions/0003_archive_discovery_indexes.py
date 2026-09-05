@@ -28,7 +28,13 @@ def upgrade():
     }
     for name, table, columns in indexes:
         if name not in indexes_by_table[table]:
-            op.create_index(name, table, columns)
+            if inspector.bind.dialect.name == "sqlite":
+                expressions = ", ".join(
+                    f'"{column}" COLLATE NOCASE' for column in columns
+                )
+                op.execute(f'CREATE INDEX "{name}" ON "{table}" ({expressions})')
+            else:
+                op.create_index(name, table, columns)
 
 
 def downgrade():

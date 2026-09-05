@@ -358,6 +358,78 @@ def test_designer_discovery_search_filters_and_paginates_stably(client):
     assert filtered.json()["items"][0]["id"] != second_page.json()["items"][0]["id"]
 
 
+def test_discovery_equality_filters_are_case_insensitive_and_indexed(client):
+    designers = client.get("/designers?nationality=japanese&page_size=50")
+    collections = client.get(
+        "/collections?label=alexander%20mcqueen&season=spring%2Fsummer"
+    )
+
+    assert designers.status_code == 200
+    assert designers.json()["pagination"]["total"] > 0
+    assert all(
+        item["nationality"].lower() == "japanese"
+        for item in designers.json()["items"]
+    )
+    assert collections.status_code == 200
+    assert collections.json()["pagination"]["total"] >= 1
+
+    connection = database.connect()
+    try:
+        plans = (
+            connection.execute(
+                "EXPLAIN QUERY PLAN SELECT id FROM designers "
+                "WHERE nationality COLLATE NOCASE = ?",
+                ("japanese",),
+            ).fetchall(),
+            connection.execute(
+                "EXPLAIN QUERY PLAN SELECT id FROM collections "
+                "WHERE label COLLATE NOCASE = ?",
+                ("alexander mcqueen",),
+            ).fetchall(),
+            connection.execute(
+                "EXPLAIN QUERY PLAN SELECT id FROM collections "
+                "WHERE season COLLATE NOCASE = ?",
+                ("spring/summer",),
+            ).fetchall(),
+        )
+    finally:
+        connection.close()
+
+    assert "idx_designers_nationality" in plans[0][0]["detail"]
+    assert "idx_collections_label" in plans[1][0]["detail"]
+    assert "idx_collections_season" in plans[2][0]["detail"]
+
+
+def test_designer_newest_sort_defaults_to_descending(client):
+    older = client.post(
+        "/designers", json={"full_name": "Newest Default Test Older"}
+    ).json()
+    newer = client.post(
+        "/designers", json={"full_name": "Newest Default Test Newer"}
+    ).json()
+    collection_payload = {
+        "label": "Newest Default Test",
+        "season": "Ready-to-wear",
+        "status": "released",
+    }
+    assert client.post(
+        "/collections",
+        json={**collection_payload, "designer_id": older["id"], "release_year": 2001},
+    ).status_code == 201
+    assert client.post(
+        "/collections",
+        json={**collection_payload, "designer_id": newer["id"], "release_year": 2025},
+    ).status_code == 201
+
+    response = client.get("/designers?search=Newest%20Default%20Test&sort=newest")
+
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()["items"]] == [
+        newer["id"],
+        older["id"],
+    ]
+
+
 def test_collection_discovery_search_filters_and_paginates_stably(client):
     response = client.get(
         "/collections?search=No.%2013&status=archived&sort=label&page_size=5"
