@@ -74,8 +74,16 @@ def validate_base_url(base_url: str, allow_http: bool) -> None:
     require(not parsed.query and not parsed.fragment, "The base URL cannot contain a query")
 
 
-def run(base_url: str, token: str | None = None, *, allow_http: bool = False) -> None:
+def run(
+    base_url: str,
+    token: str | None = None,
+    *,
+    allow_http: bool = False,
+    require_token: bool = False,
+) -> None:
     validate_base_url(base_url, allow_http)
+    if require_token:
+        require(bool(token and token.strip()), "A non-admin smoke token is required")
 
     health = request(base_url, "/api/health")
     require(health.status == 200 and health.payload == {"status": "ok"}, "Liveness failed")
@@ -139,6 +147,11 @@ def parse_args() -> argparse.Namespace:
         default=os.getenv("STAGING_SMOKE_BEARER_TOKEN"),
         help="Optional short-lived non-admin token",
     )
+    parser.add_argument(
+        "--require-token",
+        action="store_true",
+        help="Fail unless an authenticated non-admin token is configured",
+    )
     parser.add_argument("--allow-http", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
     if not args.base_url:
@@ -149,7 +162,12 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     try:
-        run(args.base_url, args.token, allow_http=args.allow_http)
+        run(
+            args.base_url,
+            args.token,
+            allow_http=args.allow_http,
+            require_token=args.require_token,
+        )
     except RuntimeError as error:
         print(f"Staging smoke checks failed: {error}", file=sys.stderr)
         raise SystemExit(1) from error

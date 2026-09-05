@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from app import database
 from app.auth import ClerkIdentity, require_authenticated_user
+from app.database import current_archive_version
 from app.main import app, require_archive_admin
 
 
@@ -110,6 +111,24 @@ def test_only_anonymous_public_reads_are_shared_cacheable(public_client):
     assert unversioned_response.headers["cache-control"] == "private, no-store"
     assert stale_response.headers["cache-control"] == "private, no-store"
     assert version_response.headers["cache-control"] == "private, no-store"
+
+
+def test_public_cache_version_reads_run_outside_the_event_loop(
+    public_client, monkeypatch
+):
+    version = archive_version(public_client)
+    calls = []
+
+    async def record_threadpool_call(function):
+        calls.append(function)
+        return function()
+
+    monkeypatch.setattr("app.main.run_in_threadpool", record_threadpool_call)
+
+    response = public_client.get(f"/designers?archive_version={version}")
+
+    assert response.status_code == 200
+    assert calls == [current_archive_version, current_archive_version]
 
 
 def test_canonical_admin_writes_increment_archive_version_transactionally(client):

@@ -15,6 +15,7 @@ from app.schemas import CollectionCreate, DesignerCreate
 from app.users import get_or_create_user, sync_clerk_user_profile
 from app.submissions import router as submissions_router
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 
 
 @asynccontextmanager
@@ -60,7 +61,8 @@ async def cache_policy(request, call_next):
     if eligible_request:
         try:
             version_matches_before = (
-                int(requested_version) == current_archive_version()
+                int(requested_version)
+                == await run_in_threadpool(current_archive_version)
             )
         except Exception:
             version_matches_before = False
@@ -70,7 +72,8 @@ async def cache_policy(request, call_next):
     if version_matches_before and response.status_code == 200:
         try:
             version_matches_after = (
-                int(requested_version) == current_archive_version()
+                int(requested_version)
+                == await run_in_threadpool(current_archive_version)
             )
         except Exception:
             version_matches_after = False

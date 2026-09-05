@@ -55,6 +55,23 @@ jobs:
         with:
           ref: ${{ needs.verify-release.outputs.commit }}
 
+      - name: Require complete staging configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::RAILWAY_TOKEN is missing"
+            exit 1
+          fi
+          if [ -z "$STAGING_BASE_URL" ]; then
+            echo "::error::STAGING_BASE_URL is missing"
+            exit 1
+          fi
+          if [ -z "$STAGING_SMOKE_BEARER_TOKEN" ]; then
+            echo "::error::STAGING_SMOKE_BEARER_TOKEN is missing"
+            exit 1
+          fi
+
       - name: Set up Node.js for Railway CLI
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -74,7 +91,7 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in {1..12}; do
-            if python -m scripts.smoke_staging; then
+            if python -m scripts.smoke_staging --require-token; then
               exit 0
             fi
             if [ "$attempt" -eq 12 ]; then
