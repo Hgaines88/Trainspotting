@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiRequest } from "../api";
+import { collectionCreditLine } from "../collectionAttribution";
 import StatusMessage from "../components/StatusMessage";
 
 const EMPTY_PAGINATION = { page: 1, page_size: 12, total: 0, total_pages: 0 };
@@ -10,11 +11,6 @@ const QUERY_NAMES = [...FILTER_NAMES, "sort", "direction", "page"];
 function positiveInteger(value, fallback) {
   const parsed = Number.parseInt(value, 10);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-function creditLine(collection) {
-  const names = collection.credits?.map((credit) => credit.designer_name).filter(Boolean) || [];
-  return names.length ? names.join(" + ") : collection.lead_designer;
 }
 
 export default function CollectionList() {
@@ -78,7 +74,7 @@ export default function CollectionList() {
   return (
     <>
       <div className="page-heading collection-explorer-heading">
-        <div><p className="eyebrow">Collections / {String(pagination.total).padStart(3, "0")} documented seasons</p><h1>What<br />arrived?</h1></div>
+        <div><p className="eyebrow">Collections / {String(pagination.total).padStart(3, "0")} documented collections</p><h1>What<br />arrived?</h1></div>
         <Link className="button secondary" to="/">Browse designers</Link>
       </div>
       <form className="archive-filters" key={queryString} onSubmit={applyFilters}>
@@ -97,7 +93,7 @@ export default function CollectionList() {
       {!loading && !error && collections.length > 0 && <ol className="collection-explorer-results">
         {collections.map((collection, index) => {
           const resultNumber = (pagination.page - 1) * pagination.page_size + index + 1;
-          return <li key={collection.id}><Link to={`/collections/${collection.id}`}><span className="collection-result-index">{String(resultNumber).padStart(3, "0")}</span><span className="collection-result-title"><strong>{collection.name || `${collection.season} ${collection.release_year}`}</strong><small>{collection.label}</small></span><span className="collection-result-credit">{creditLine(collection)}</span><span className="collection-result-meta">{collection.season} {collection.release_year}<small>{collection.status}</small></span><span aria-hidden="true">↗</span></Link></li>;
+          return <li key={collection.id}><Link to={`/collections/${collection.id}`}><span className="collection-result-index">{String(resultNumber).padStart(3, "0")}</span><span className="collection-result-title"><strong>{collection.name || `${collection.season} ${collection.release_year}`}</strong><small>{collection.label}</small></span><span className="collection-result-credit">{collectionCreditLine(collection)}</span><span className="collection-result-meta">{collection.season} {collection.release_year}<small>{collection.status}</small></span><span aria-hidden="true">↗</span></Link></li>;
         })}
       </ol>}
       {!loading && !error && pagination.total_pages > 1 && <nav className="pagination" aria-label="Collection result pages"><button className="secondary" type="button" disabled={pagination.page === 1} onClick={() => movePage(pagination.page - 1)}>Previous</button><span>Page {pagination.page} of {pagination.total_pages} · {pagination.total} collections</span><button className="secondary" type="button" disabled={pagination.page === pagination.total_pages} onClick={() => movePage(pagination.page + 1)}>Next</button></nav>}

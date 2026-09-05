@@ -93,9 +93,12 @@ test("public collection explorer preserves discovery filters in a shareable URL"
   await expect(page.getByText("Miuccia Prada + Raf Simons")).toBeVisible();
 
   const collection = page.locator(".collection-explorer-results a").first();
+  await expect(collection).toHaveAttribute("href", /^\/collections\/\d+$/);
   const destination = await collection.getAttribute("href");
+  if (!destination) throw new Error("Collection result is missing its destination");
+  const expectedUrl = new URL(destination, page.url()).toString();
   await collection.click();
-  await expect(page).toHaveURL(new RegExp(`${destination}$`));
+  await expect(page).toHaveURL(expectedUrl);
   await expect(page.getByRole("heading", { name: "Evidence" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Related collections" })).toBeVisible();
 });
