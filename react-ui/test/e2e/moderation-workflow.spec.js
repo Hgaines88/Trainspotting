@@ -57,6 +57,28 @@ test("public archive discovery preserves filters and pagination in the URL", asy
 });
 
 
+test("homepage offers a self-guided path into collection discovery", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: "Start exploring" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Archive discovery shortcuts" }).getByRole("link")).toHaveCount(4);
+  await expect(page.getByText("Recent archive arrivals")).toBeVisible();
+
+  const recentCollection = page.locator(".recent-collections .collection-list a").first();
+  const destination = await recentCollection.getAttribute("href");
+  expect(destination).toMatch(/^\/collections\/\d+$/);
+  await recentCollection.click();
+  await expect(page).toHaveURL(new RegExp(`${destination}$`));
+  await expect(page.getByRole("heading", { name: "Related collections" })).toBeVisible();
+
+  await page.goto("/");
+  await page.getByRole("link", { name: /Most documented/ }).click();
+  await expect(page).toHaveURL(/\?sort=collections&direction=desc$/);
+  await expect(page.getByRole("heading", { name: "Start exploring" })).toHaveCount(0);
+  await expect(page.locator("article.card").first()).toBeVisible();
+});
+
+
 test("collection pages show ranked recommendations with visible reasons", async ({ page }) => {
   await page.goto("/collections/1");
 
