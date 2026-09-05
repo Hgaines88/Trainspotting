@@ -305,3 +305,14 @@ VALUES (
         40,
         'A presentation performed by four step teams that challenged conventional runway casting and beauty standards.'
     );
+
+INSERT INTO collection_credits (
+    collection_id, designer_id, credit_role, credit_order
+)
+SELECT collections.id, collections.designer_id, 'lead', 1
+FROM collections
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM collection_credits
+    WHERE collection_credits.collection_id = collections.id
+);

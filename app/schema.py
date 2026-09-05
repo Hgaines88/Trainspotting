@@ -132,6 +132,48 @@ Index(
     collections.c.status,
 )
 
+collection_credits = Table(
+    "collection_credits",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column(
+        "collection_id",
+        Integer,
+        ForeignKey("collections.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "designer_id",
+        Integer,
+        ForeignKey("designers.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("credit_role", String(32), nullable=False),
+    Column("credit_order", Integer, nullable=False),
+    Column("attribution_note", Text),
+    CheckConstraint(
+        "credit_role IN ('lead', 'co-designer', 'guest', 'collaborator', "
+        "'attribution-note')",
+        name="ck_collection_credits_valid_role",
+    ),
+    CheckConstraint(
+        "credit_order > 0",
+        name="ck_collection_credits_order_positive",
+    ),
+    CheckConstraint(
+        "attribution_note IS NULL OR length(trim(attribution_note)) > 0",
+        name="ck_collection_credits_attribution_note_not_blank",
+    ),
+    UniqueConstraint(
+        "collection_id", "designer_id", name="uq_collection_credit_designer"
+    ),
+    UniqueConstraint(
+        "collection_id", "credit_order", name="uq_collection_credit_order"
+    ),
+)
+Index("idx_collection_credits_collection", collection_credits.c.collection_id)
+Index("idx_collection_credits_designer", collection_credits.c.designer_id)
+
 collection_media = Table(
     "collection_media",
     metadata,

@@ -53,6 +53,7 @@ def test_fresh_initialization_uses_canonical_archive(tmp_path, monkeypatch):
     assert {
         "designers",
         "collections",
+        "collection_credits",
         "collection_media",
         "users",
         "submissions",

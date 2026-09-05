@@ -78,6 +78,40 @@ CREATE INDEX idx_collections_year_status
     ON collections(release_year, status);
 
 
+CREATE TABLE collection_credits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    collection_id INTEGER NOT NULL,
+    designer_id INTEGER NOT NULL,
+    credit_role TEXT NOT NULL
+        CHECK (credit_role IN ('lead', 'co-designer', 'guest', 'collaborator', 'attribution-note')),
+    credit_order INTEGER NOT NULL CHECK (credit_order > 0),
+    attribution_note TEXT
+        CHECK (attribution_note IS NULL OR length(trim(attribution_note)) > 0),
+
+    FOREIGN KEY (collection_id)
+        REFERENCES collections(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (designer_id)
+        REFERENCES designers(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+
+    UNIQUE (collection_id, designer_id),
+    UNIQUE (collection_id, credit_order)
+);
+
+CREATE INDEX idx_collection_credits_collection
+    ON collection_credits(collection_id);
+CREATE INDEX idx_collection_credits_designer
+    ON collection_credits(designer_id);
+
+INSERT INTO collection_credits (
+    collection_id, designer_id, credit_role, credit_order
+)
+SELECT id, designer_id, 'lead', 1
+FROM collections;
+
+
 CREATE TABLE collection_media (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     collection_id INTEGER NOT NULL,

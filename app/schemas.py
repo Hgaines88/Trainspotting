@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Literal
 from urllib.parse import parse_qs, urlparse
 import re
@@ -11,6 +11,34 @@ CollectionStatus = Literal[
     "released",
     "archived",
 ]
+
+CollectionCreditRole = Literal[
+    "lead",
+    "co-designer",
+    "guest",
+    "collaborator",
+    "attribution-note",
+]
+
+
+class CollectionCredit(BaseModel):
+    designer_id: int = Field(ge=1)
+    role: CollectionCreditRole
+    position: int = Field(ge=1, le=100)
+    attribution_note: str | None = Field(default=None, max_length=500)
+
+    @field_validator("attribution_note")
+    @classmethod
+    def attribution_note_must_not_be_blank(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is None:
+            return None
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("Attribution note must not be blank")
+        return cleaned
 
 class DesignerCreate(BaseModel):
     full_name: str = Field(min_length=1, max_length=120)
@@ -52,6 +80,25 @@ class CollectionCreate(BaseModel):
     description: str | None = Field(default=None, max_length=10_000)
     source_url: str | None = Field(default=None, max_length=500)
     youtube_video_id: str | None = Field(default=None, max_length=200)
+    credits: list[CollectionCredit] | None = Field(default=None, max_length=20)
+
+    @model_validator(mode="after")
+    def validate_credits(self):
+        if self.credits is None:
+            return self
+
+        designer_ids = [credit.designer_id for credit in self.credits]
+        positions = [credit.position for credit in self.credits]
+        leads = [credit for credit in self.credits if credit.role == "lead"]
+        if len(set(designer_ids)) != len(designer_ids):
+            raise ValueError("A designer may only be credited once")
+        if len(set(positions)) != len(positions):
+            raise ValueError("Credit positions must be unique")
+        if len(leads) != 1 or leads[0].designer_id != self.designer_id:
+            raise ValueError(
+                "Credits must contain exactly one lead matching designer_id"
+            )
+        return self
 
     @field_validator("label", "season")
     @classmethod

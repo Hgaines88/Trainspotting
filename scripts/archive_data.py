@@ -46,6 +46,7 @@ def database_archive(database_path: Path) -> dict:
         collection_rows = connection.execute(
             """
             SELECT
+                collections.id AS collection_id,
                 designers.full_name AS designer_name,
                 collections.label,
                 collections.name,
@@ -70,6 +71,19 @@ def database_archive(database_path: Path) -> dict:
                 collections.label COLLATE NOCASE
             """
         ).fetchall()
+        credit_rows = connection.execute(
+            """
+            SELECT
+                collection_credits.collection_id,
+                designers.full_name AS designer_name,
+                collection_credits.credit_role AS role,
+                collection_credits.credit_order AS position,
+                collection_credits.attribution_note
+            FROM collection_credits
+            JOIN designers ON designers.id = collection_credits.designer_id
+            ORDER BY collection_credits.collection_id, collection_credits.credit_order
+            """
+        ).fetchall()
     finally:
         connection.close()
 
@@ -85,8 +99,15 @@ def database_archive(database_path: Path) -> dict:
 
     collections = []
     seen_collection_keys = set()
+    credits_by_collection = {}
+    for row in credit_rows:
+        credit = dict(row)
+        collection_id = credit.pop("collection_id")
+        credit["designer_key"] = designer_keys[credit.pop("designer_name")]
+        credits_by_collection.setdefault(collection_id, []).append(credit)
     for row in collection_rows:
         record = dict(row)
+        collection_id = record.pop("collection_id")
         designer_key = designer_keys[record.pop("designer_name")]
         key = stable_key(
             f"{designer_key} {record['label']} {record['season']} "
@@ -95,7 +116,19 @@ def database_archive(database_path: Path) -> dict:
         if key in seen_collection_keys:
             raise ValueError(f"Duplicate stable collection key: {key}")
         seen_collection_keys.add(key)
-        collections.append({"key": key, "designer_key": designer_key, **record})
+        collection = {"key": key, "designer_key": designer_key, **record}
+        credits = credits_by_collection.get(collection_id, [])
+        default_credit = [
+            {
+                "designer_key": designer_key,
+                "role": "lead",
+                "position": 1,
+                "attribution_note": None,
+            }
+        ]
+        if credits != default_credit:
+            collection["credits"] = credits
+        collections.append(collection)
 
     return {
         "format_version": 1,
@@ -235,6 +268,36 @@ def import_archive(
                 VALUES (?, ?, ?)
                 """,
                 [item for item in media if item[2] is not None],
+            )
+            connection.execute(
+                "DELETE FROM collection_credits WHERE collection_id = ?",
+                (collection_id,),
+            )
+            credits = collection.get("credits") or [
+                {
+                    "designer_key": collection["designer_key"],
+                    "role": "lead",
+                    "position": 1,
+                    "attribution_note": None,
+                }
+            ]
+            connection.executemany(
+                """
+                INSERT INTO collection_credits (
+                    collection_id, designer_id, credit_role, credit_order,
+                    attribution_note
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        collection_id,
+                        designer_ids[credit["designer_key"]],
+                        credit["role"],
+                        credit["position"],
+                        credit.get("attribution_note"),
+                    )
+                    for credit in credits
+                ],
             )
 
         connection.commit()

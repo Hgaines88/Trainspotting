@@ -14,7 +14,12 @@ def archive_counts(database_path):
     try:
         return tuple(
             connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-            for table in ("designers", "collections", "collection_media")
+            for table in (
+                "designers",
+                "collections",
+                "collection_credits",
+                "collection_media",
+            )
         )
     finally:
         connection.close()
@@ -44,6 +49,46 @@ def test_merge_import_is_idempotent(tmp_path):
     import_archive(database, archive)
 
     assert archive_counts(database) == initial_counts
+
+
+def test_export_import_preserves_non_default_collection_credits(tmp_path):
+    source = tmp_path / "credits-source.db"
+    restored = tmp_path / "credits-restored.db"
+    exported = tmp_path / "credits.json"
+    reexported = tmp_path / "credits-restored.json"
+    import_archive(source, ARCHIVE, replace=True)
+
+    connection = sqlite3.connect(source)
+    try:
+        guest_id = connection.execute(
+            "INSERT INTO designers (full_name) VALUES ('Archive Credit Guest')"
+        ).lastrowid
+        collection_id = connection.execute(
+            "SELECT id FROM collections ORDER BY id LIMIT 1"
+        ).fetchone()[0]
+        connection.execute(
+            """INSERT INTO collection_credits
+               (collection_id, designer_id, credit_role, credit_order, attribution_note)
+               VALUES (?, ?, 'guest', 2, 'Archive round-trip credit')""",
+            (collection_id, guest_id),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    export_archive(source, exported)
+    payload = json.loads(exported.read_text())
+    credited = next(
+        collection for collection in payload["collections"]
+        if len(collection.get("credits", [])) == 2
+    )
+    assert credited["credits"][1]["attribution_note"] == (
+        "Archive round-trip credit"
+    )
+
+    import_archive(restored, exported, replace=True)
+    export_archive(restored, reexported)
+    assert json.loads(exported.read_text()) == json.loads(reexported.read_text())
 
 
 def test_drift_check_detects_and_export_resolves_canonical_changes(tmp_path):

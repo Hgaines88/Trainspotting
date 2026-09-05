@@ -53,6 +53,10 @@ li:hover a,li:hover p { color:var(--ink); }
 #status { color:var(--signal); }
 #status.error { color:#ff4b39; }
 #designer-details,#collection-designer,#collection-season,#collection-status,#collection-piece-count { color:var(--dim); font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; }
+#collection-credits { display:grid; gap:.5rem; margin:.5rem 0 1rem; padding:0; list-style:none; }
+#collection-credits li { display:grid; grid-template-columns:minmax(10rem,auto) auto; justify-content:start; gap:.15rem .75rem; }
+#collection-credits li span { color:var(--signal); font-size:.65rem; }
+#collection-credits li small { grid-column:1/-1; max-width:55ch; color:var(--dim); text-transform:none; }
 #designer-biography,#collection-description { max-width:75ch; font-size:clamp(1rem,1.5vw,1.35rem); }
 .profile-title { border-bottom:1px solid var(--paper); padding-bottom:2rem; }
 .profile-intro { display:grid; grid-template-columns:1fr 2fr; gap:4rem; margin:2rem 0; }

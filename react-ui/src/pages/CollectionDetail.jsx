@@ -42,7 +42,7 @@ export default function CollectionDetail() {
       </div>
       <p className="meta">{collection.season} {collection.release_year} · {collection.status}</p>
       <dl className="details">
-        <div><dt>Lead designer</dt><dd><Link to={`/designers/${collection.designer_id}`}>{collection.lead_designer}</Link></dd></div>
+        <div><dt>Credits</dt><dd><ol className="collection-credits">{collection.credits.map((credit) => <li key={credit.designer_id}><Link to={`/designers/${credit.designer_id}`}>{credit.designer_name}</Link><span>{credit.role}</span>{credit.attribution_note && <small>{credit.attribution_note}</small>}</li>)}</ol></dd></div>
         <div><dt>Piece count</dt><dd>{collection.piece_count ?? "Unavailable"}</dd></div>
       </dl>
       <p>{collection.description || "No description is available."}</p>

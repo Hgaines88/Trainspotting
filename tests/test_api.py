@@ -888,3 +888,161 @@ def test_nested_collection_create_uses_path_designer(client):
     assert response.json()["id"] in {
         collection["id"] for collection in collections
     }
+
+
+def test_collection_credits_are_ordered_queryable_and_compatibility_safe(client):
+    guest = client.post(
+        "/designers",
+        json={"full_name": "Guest Credit Designer"},
+    )
+    assert guest.status_code == 201
+    guest_id = guest.json()["id"]
+
+    created = client.post(
+        "/collections",
+        json={
+            "designer_id": 1,
+            "label": "Collaborative Credit Label",
+            "season": "Resort",
+            "release_year": 2028,
+            "status": "concept",
+            "credits": [
+                {
+                    "designer_id": guest_id,
+                    "role": "guest",
+                    "position": 2,
+                    "attribution_note": "Guest capsule contributor",
+                },
+                {"designer_id": 1, "role": "lead", "position": 1},
+            ],
+        },
+    )
+
+    assert created.status_code == 201
+    payload = created.json()
+    assert payload["designer_id"] == 1
+    assert payload["lead_designer"]
+    assert payload["credits"] == [
+        {
+            "designer_id": 1,
+            "designer_name": payload["lead_designer"],
+            "role": "lead",
+            "position": 1,
+            "attribution_note": None,
+        },
+        {
+            "designer_id": guest_id,
+            "designer_name": "Guest Credit Designer",
+            "role": "guest",
+            "position": 2,
+            "attribution_note": "Guest capsule contributor",
+        },
+    ]
+
+    collection_id = payload["id"]
+    contributor_detail = client.get(
+        f"/designers/{guest_id}/collections"
+    ).json()
+    assert [record["id"] for record in contributor_detail] == [collection_id]
+    filtered = client.get(
+        f"/collections?designer_id={guest_id}&page_size=10"
+    ).json()
+    assert [record["id"] for record in filtered["items"]] == [collection_id]
+
+    legacy = client.post(
+        "/collections",
+        json={
+            "designer_id": guest_id,
+            "label": "Legacy Client Label",
+            "season": "Resort",
+            "release_year": 2029,
+            "status": "concept",
+        },
+    )
+    assert legacy.status_code == 201
+    assert legacy.json()["credits"] == [
+        {
+            "designer_id": guest_id,
+            "designer_name": "Guest Credit Designer",
+            "role": "lead",
+            "position": 1,
+            "attribution_note": None,
+        }
+    ]
+
+    updated = client.put(
+        f"/collections/{collection_id}",
+        json={
+            "designer_id": guest_id,
+            "label": "Collaborative Credit Label",
+            "season": "Resort",
+            "release_year": 2028,
+            "status": "released",
+            "credits": [
+                {"designer_id": guest_id, "role": "lead", "position": 1},
+                {
+                    "designer_id": 1,
+                    "role": "co-designer",
+                    "position": 2,
+                },
+            ],
+        },
+    )
+    assert updated.status_code == 200
+    assert [credit["designer_id"] for credit in updated.json()["credits"]] == [
+        guest_id,
+        1,
+    ]
+    assert updated.json()["designer_id"] == guest_id
+
+
+@pytest.mark.parametrize(
+    "credits",
+    [
+        [],
+        [
+            {"designer_id": 1, "role": "lead", "position": 1},
+            {"designer_id": 1, "role": "guest", "position": 2},
+        ],
+        [
+            {"designer_id": 1, "role": "lead", "position": 1},
+            {"designer_id": 2, "role": "guest", "position": 1},
+        ],
+        [{"designer_id": 2, "role": "lead", "position": 1}],
+    ],
+)
+def test_collection_credit_validation_rejects_ambiguous_credits(client, credits):
+    response = client.post(
+        "/collections",
+        json={
+            "designer_id": 1,
+            "label": "Invalid Credit Label",
+            "season": "Resort",
+            "release_year": 2030,
+            "status": "concept",
+            "credits": credits,
+        },
+    )
+    assert response.status_code == 422
+
+
+def test_unknown_secondary_credit_rolls_back_collection_create(client):
+    response = client.post(
+        "/collections",
+        json={
+            "designer_id": 1,
+            "label": "Unknown Contributor Label",
+            "season": "Resort",
+            "release_year": 2030,
+            "status": "concept",
+            "credits": [
+                {"designer_id": 1, "role": "lead", "position": 1},
+                {"designer_id": 999999, "role": "guest", "position": 2},
+            ],
+        },
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Credited designer not found: 999999"}
+    assert client.get(
+        "/collections?search=Unknown%20Contributor%20Label"
+    ).json()["pagination"]["total"] == 0

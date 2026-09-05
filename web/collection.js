@@ -36,16 +36,22 @@ async function loadCollection() {
             collection.name ||
             `${collection.season} ${collection.release_year}`;
 
-        const designerLink = document.createElement("a");
-        designerLink.textContent = collection.lead_designer;
-        designerLink.href =
-            `/designer.html?id=${collection.designer_id}`;
-
-        const designerContainer =
-            document.querySelector("#collection-designer");
-
-        designerContainer.textContent = "Lead designer: ";
-        designerContainer.append(designerLink);
+        const credits = document.querySelector("#collection-credits");
+        collection.credits.forEach((credit) => {
+            const item = document.createElement("li");
+            const designerLink = document.createElement("a");
+            const role = document.createElement("span");
+            designerLink.textContent = credit.designer_name;
+            designerLink.href = `/designer.html?id=${credit.designer_id}`;
+            role.textContent = credit.role;
+            item.append(designerLink, role);
+            if (credit.attribution_note) {
+                const note = document.createElement("small");
+                note.textContent = credit.attribution_note;
+                item.append(note);
+            }
+            credits.append(item);
+        });
 
         document.querySelector("#collection-season").textContent =
             `${collection.label} · ` +
