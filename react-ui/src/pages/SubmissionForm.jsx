@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
 import StatusMessage from "../components/StatusMessage";
 import { SUPPORTED_NATIONALITIES } from "../nationalityFlags";
@@ -18,6 +18,7 @@ const collectionFields = [
 ];
 
 export default function SubmissionForm() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { submissionId } = useParams();
   const editing = Boolean(submissionId);
@@ -27,17 +28,17 @@ export default function SubmissionForm() {
   const [targetId, setTargetId] = useState("");
   const [fields, setFields] = useState({});
   const [explanation, setExplanation] = useState("");
-  const [sources, setSources] = useState([{ url: "", title: "" }]);
+  const [sources, setSources] = useState([{ url: "", title: "", notes: "" }]);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const required = submissionType === "addition";
 
   useEffect(() => {
     if (!editing) return;
     setStatus("Loading proposal…");
-    authorizedRequest("/submissions/mine")
-      .then((items) => {
-        const submission = items.find((item) => String(item.id) === submissionId);
+    authorizedRequest(`/submissions/${submissionId}`)
+      .then((submission) => {
         if (!submission || !["draft", "changes_requested"].includes(submission.status)) {
           throw new Error("This submission is not available for editing.");
         }
@@ -49,15 +50,15 @@ export default function SubmissionForm() {
         ));
         setExplanation(submission.explanation || "");
         setSources(submission.sources.length
-          ? submission.sources.map((source) => ({ url: source.url, title: source.title || "" }))
-          : [{ url: "", title: "" }]);
-        setStatus("");
+          ? submission.sources.map((source) => ({ url: source.url, title: source.title || "", notes: source.notes || "" }))
+          : [{ url: "", title: "", notes: "" }]);
+        setStatus(location.state?.notice || "");
       })
       .catch((requestError) => {
         setError(requestError.message);
         setStatus("");
       });
-  }, [authorizedRequest, editing, submissionId]);
+  }, [authorizedRequest, editing, location.state?.notice, submissionId]);
 
   function changeRecordType(event) {
     const nextRecordType = event.target.value;
@@ -81,10 +82,7 @@ export default function SubmissionForm() {
     )));
   }
 
-  async function submit(event) {
-    event.preventDefault();
-    setStatus("Submitting proposal…");
-    setError("");
+  function requestBody() {
     const numericFields = new Set(["birth_year", "designer_id", "release_year", "piece_count"]);
     const proposedData = Object.fromEntries(
       Object.entries(fields)
@@ -94,34 +92,73 @@ export default function SubmissionForm() {
     if (recordType === "collection" && submissionType === "addition" && !proposedData.status) {
       proposedData.status = "released";
     }
+    const startedSources = sources.filter((source) => (
+      source.url.trim() || source.title.trim() || source.notes.trim()
+    ));
+    if (startedSources.some((source) => !source.url.trim())) {
+      throw new Error("Add a URL for each started source or remove the unfinished source row.");
+    }
+    return JSON.stringify({
+      record_type: recordType,
+      submission_type: submissionType,
+      target_id: submissionType === "correction" && targetId ? Number(targetId) : null,
+      proposed_data: proposedData,
+      explanation,
+      sources: startedSources.map((source) => ({
+        url: source.url,
+        title: source.title || null,
+        notes: source.notes || null,
+      })),
+    });
+  }
+
+  async function saveDraft() {
+    setBusy(true);
+    setStatus("Saving draft…");
+    setError("");
     try {
-      const requestBody = JSON.stringify({
-        record_type: recordType,
-        submission_type: submissionType,
-        target_id: submissionType === "correction" ? Number(targetId) : null,
-        proposed_data: proposedData,
-        explanation,
-        sources: sources.map((source) => ({
-          url: source.url,
-          title: source.title || null,
-        })),
+      const saved = await authorizedRequest(
+        editing ? `/submission-drafts/${submissionId}` : "/submission-drafts",
+        { method: editing ? "PUT" : "POST", body: requestBody() },
+      );
+      if (editing) setStatus("Draft saved.");
+      else navigate(`/submissions/${saved.id}/edit`, {
+        replace: true,
+        state: { notice: "Draft saved." },
       });
+    } catch (requestError) {
+      setError(requestError.message);
+      setStatus("");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+    setBusy(true);
+    setStatus("Submitting proposal…");
+    setError("");
+    try {
+      const body = requestBody();
       if (editing) {
         await authorizedRequest(`/submission-drafts/${submissionId}`, {
           method: "PUT",
-          body: requestBody,
+          body,
         });
         await authorizedRequest(`/submissions/${submissionId}/submit`, {
           method: "POST",
         });
       } else await authorizedRequest("/submissions", {
         method: "POST",
-        body: requestBody,
+        body,
       });
       navigate("/submissions/mine");
     } catch (requestError) {
       setError(requestError.message);
       setStatus("");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -146,8 +183,8 @@ export default function SubmissionForm() {
       })}
       {recordType === "collection" && <label>Status<select name="status" value={fields.status ?? (required ? "released" : "")} onChange={updateField} required={required}>{!required && <option value="">Keep unchanged</option>}<option value="concept">Concept</option><option value="in-production">In production</option><option value="released">Released</option><option value="archived">Archived</option></select></label>}
       <label>Why should the archive change?<textarea rows="5" value={explanation} onChange={(event) => setExplanation(event.target.value)} required /></label>
-      <fieldset><legend>Supporting sources</legend>{sources.map((source, index) => <div className="source-fields" key={index}><label>Source URL<input type="url" value={source.url} onChange={(event) => updateSource(index, "url", event.target.value)} required /></label><label>Source title<input value={source.title} onChange={(event) => updateSource(index, "title", event.target.value)} /></label>{sources.length > 1 && <button className="danger" type="button" onClick={() => setSources(sources.filter((_, sourceIndex) => sourceIndex !== index))}>Remove source</button>}</div>)}<button className="button secondary" type="button" onClick={() => setSources([...sources, { url: "", title: "" }])}>Add another source</button></fieldset>
-      <button className="button" type="submit">{editing ? "Save and resubmit" : "Submit for review"}</button>
+      <fieldset><legend>Supporting sources</legend><small>Sources are required for review, but a draft may be saved before sources are added.</small>{sources.map((source, index) => <div className="source-fields" key={index}><label>Source URL<input type="url" value={source.url} onChange={(event) => updateSource(index, "url", event.target.value)} required /></label><label>Source title<input value={source.title} onChange={(event) => updateSource(index, "title", event.target.value)} /></label><label>Source notes<textarea rows="3" value={source.notes} onChange={(event) => updateSource(index, "notes", event.target.value)} /></label>{sources.length > 1 && <button className="danger" type="button" onClick={() => setSources(sources.filter((_, sourceIndex) => sourceIndex !== index))}>Remove source</button>}</div>)}<button className="button secondary" type="button" onClick={() => setSources([...sources, { url: "", title: "", notes: "" }])}>Add another source</button></fieldset>
+      <div className="actions"><button className="button secondary" type="button" disabled={busy} onClick={saveDraft}>Save draft</button><button className="button" type="submit" disabled={busy}>{editing ? "Save and resubmit" : "Submit for review"}</button></div>
       <StatusMessage>{status}</StatusMessage><StatusMessage error>{error}</StatusMessage>
     </form>
   </>;

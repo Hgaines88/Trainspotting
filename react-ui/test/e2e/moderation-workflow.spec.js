@@ -51,6 +51,12 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "member");
   await page.goto("/submissions/new");
+  await page.getByLabel("Biography").fill("Notes preserved from an incomplete draft.");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page).toHaveURL(/\/submissions\/\d+\/edit$/);
+  await expect(page.getByText("Draft saved.")).toBeVisible();
+  const submissionId = Number(page.url().match(/\/submissions\/(\d+)\/edit$/)[1]);
+  await expect(page.getByLabel("Biography")).toHaveValue("Notes preserved from an incomplete draft.");
   await page.getByLabel("Full name").fill(DESIGNER_NAME);
   await page.getByLabel("Nationality").fill("American");
   await page.getByLabel("Why should the archive change?").fill(
@@ -58,11 +64,11 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   );
   await page.getByLabel("Source URL").fill("https://example.test/primary-source");
   await page.getByLabel("Source title").fill("Primary documented source");
-  await page.getByRole("button", { name: "Submit for review" }).click();
+  await page.getByRole("button", { name: "Save and resubmit" }).click();
   await expect(page).toHaveURL(/\/submissions\/mine$/);
   const submissionLabel = page.getByText(/#\d+ · designer addition/).first();
   await expect(submissionLabel).toBeVisible();
-  const submissionId = Number((await submissionLabel.textContent()).match(/#(\d+)/)[1]);
+  await expect(submissionLabel).toContainText(`#${submissionId}`);
 
   await page.goto("/moderation");
   await expect(page).toHaveURL(/\/$/);
@@ -126,7 +132,7 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   const memberSubmission = page
     .getByText(new RegExp(`^#${submissionId} · designer addition$`))
     .locator("..");
-  await expect(memberSubmission.getByText("changes requested · version 1")).toBeVisible();
+  await expect(memberSubmission.getByText("changes requested · version 2")).toBeVisible();
   await memberSubmission.getByRole("link", { name: "Edit and resubmit" }).click();
   await expect(page.getByLabel("Source URL")).toHaveValue(
     "https://example.test/primary-source",
@@ -138,7 +144,7 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   const sourceTitles = page.getByLabel("Source title");
   await sourceTitles.nth(1).fill("Independent documented source");
   await page.getByRole("button", { name: "Save and resubmit" }).click();
-  await expect(page.getByText("submitted · version 2")).toBeVisible();
+  await expect(page.getByText("submitted · version 3")).toBeVisible();
 
   await useIdentity(page, "moderator");
   await page.goto("/moderation");
@@ -180,6 +186,8 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   });
   expect(audit.status).toBe(200);
   expect(audit.body.map((event) => event.event_type)).toEqual([
+    "created",
+    "draft_updated",
     "submitted",
     "changes_requested",
     "draft_updated",

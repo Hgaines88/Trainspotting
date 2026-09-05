@@ -182,6 +182,7 @@ def test_member_cannot_view_moderation_queue_or_another_members_draft(client):
     authenticate("user_other")
 
     assert client.get("/moderation/submissions").status_code == 403
+    assert client.get(f"/submissions/{draft['id']}").status_code == 403
     assert client.put(
         f"/submission-drafts/{draft['id']}",
         json={
@@ -190,6 +191,32 @@ def test_member_cannot_view_moderation_queue_or_another_members_draft(client):
             "proposed_data": {"full_name": "Stolen Draft"},
         },
     ).status_code == 403
+
+
+def test_owner_can_save_and_retrieve_an_incomplete_draft(client):
+    authenticate("user_draft_owner")
+    created = client.post(
+        "/submission-drafts",
+        json={
+            "record_type": "collection",
+            "submission_type": "correction",
+            "proposed_data": {"description": "Research in progress."},
+            "explanation": "",
+            "sources": [],
+        },
+    )
+
+    assert created.status_code == 201
+    submission_id = created.json()["id"]
+    retrieved = client.get(f"/submissions/{submission_id}")
+    assert retrieved.status_code == 200
+    assert retrieved.json()["status"] == "draft"
+    assert retrieved.json()["target_id"] is None
+    assert retrieved.json()["sources"] == []
+
+    submitted = client.post(f"/submissions/{submission_id}/submit")
+    assert submitted.status_code == 422
+    assert client.get(f"/submissions/{submission_id}").json()["status"] == "draft"
 
 
 def test_request_changes_edit_and_resubmit_transition(client):
