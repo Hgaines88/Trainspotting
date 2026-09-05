@@ -48,3 +48,36 @@ def test_alembic_upgrade_creates_schema_and_append_only_guards(tmp_path):
     finally:
         connection.close()
     assert not EXPECTED_TABLES & tables
+
+
+def test_archive_version_migration_resumes_after_nontransactional_ddl(tmp_path):
+    database_path = tmp_path / "partial-alembic.db"
+    config = config_for(database_path)
+    command.upgrade(config, "0001")
+
+    engine = create_engine(f"sqlite+pysqlite:///{database_path}")
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    """CREATE TABLE archive_state (
+                        id INTEGER NOT NULL PRIMARY KEY,
+                        version INTEGER NOT NULL DEFAULT 1,
+                        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT ck_archive_state_singleton CHECK (id = 1),
+                        CONSTRAINT ck_archive_state_version_positive CHECK (version > 0)
+                    )"""
+                )
+            )
+
+        command.upgrade(config, "head")
+
+        with engine.connect() as connection:
+            assert connection.execute(
+                text("SELECT version_num FROM alembic_version")
+            ).scalar_one() == "0002"
+            assert connection.execute(
+                text("SELECT id, version FROM archive_state")
+            ).one() == (1, 1)
+    finally:
+        engine.dispose()
