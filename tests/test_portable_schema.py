@@ -7,6 +7,7 @@ from app.schema import metadata
 
 EXPECTED_TABLES = {
     "archive_state",
+    "collection_credits",
     "collection_media",
     "collections",
     "designers",
@@ -34,6 +35,17 @@ def test_portable_metadata_creates_all_tables_constraints_and_indexes(tmp_path):
             foreign_key["referred_table"]
             for foreign_key in inspector.get_foreign_keys("submission_promotions")
         } == {"submissions", "users"}
+        assert {
+            foreign_key["referred_table"]
+            for foreign_key in inspector.get_foreign_keys("collection_credits")
+        } == {"collections", "designers"}
+        assert {
+            index["name"]
+            for index in inspector.get_indexes("collection_credits")
+        } == {
+            "idx_collection_credits_collection",
+            "idx_collection_credits_designer",
+        }
         constraints = {
             constraint["name"]
             for constraint in inspector.get_check_constraints("archive_state")

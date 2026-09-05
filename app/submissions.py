@@ -475,7 +475,21 @@ def write_collection(connection, record_id, values):
     columns = ("designer_id", "label", "name", "season", "release_year", "status", "piece_count", "description")
     if connection.execute("SELECT 1 FROM designers WHERE id = ?", (payload.designer_id,)).fetchone() is None:
         raise HTTPException(status_code=404, detail="Designer not found")
-    if record_id is None:
+    creating = record_id is None
+    previous_lead_id = None
+    has_lead_credit = False
+    if not creating:
+        previous_lead = connection.execute(
+            "SELECT designer_id FROM collections WHERE id = ?",
+            (record_id,),
+        ).fetchone()
+        previous_lead_id = previous_lead["designer_id"] if previous_lead else None
+        has_lead_credit = connection.execute(
+            """SELECT 1 FROM collection_credits
+               WHERE collection_id = ? AND credit_role = 'lead'""",
+            (record_id,),
+        ).fetchone() is not None
+    if creating:
         cursor = connection.execute(
             f"INSERT INTO collections ({', '.join(columns)}) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             tuple(fields[name] for name in columns),
@@ -487,6 +501,33 @@ def write_collection(connection, record_id, values):
             f"UPDATE collections SET {assignments} WHERE id = ?",
             tuple(fields[name] for name in columns) + (record_id,),
         )
+    if creating:
+        connection.execute(
+            """INSERT INTO collection_credits
+               (collection_id, designer_id, credit_role, credit_order)
+               VALUES (?, ?, 'lead', 1)""",
+            (record_id, payload.designer_id),
+        )
+    elif previous_lead_id != payload.designer_id:
+        connection.execute(
+            """DELETE FROM collection_credits
+               WHERE collection_id = ? AND designer_id = ?
+                 AND credit_role <> 'lead'""",
+            (record_id, payload.designer_id),
+        )
+        if has_lead_credit:
+            connection.execute(
+                """UPDATE collection_credits SET designer_id = ?
+                   WHERE collection_id = ? AND credit_role = 'lead'""",
+                (payload.designer_id, record_id),
+            )
+        else:
+            connection.execute(
+                """INSERT INTO collection_credits
+                   (collection_id, designer_id, credit_role, credit_order)
+                   VALUES (?, ?, 'lead', 1)""",
+                (record_id, payload.designer_id),
+            )
     connection.execute("DELETE FROM collection_media WHERE collection_id = ?", (record_id,))
     connection.executemany(
         "INSERT INTO collection_media (collection_id, media_type, media_value) VALUES (?, ?, ?)",

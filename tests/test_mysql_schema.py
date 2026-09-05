@@ -29,7 +29,7 @@ def test_mysql_schema_and_append_only_audit_guards():
                     "WHERE table_schema = DATABASE() "
                     "AND table_name <> 'alembic_version'"
                 )
-            ).scalar_one() == 10
+            ).scalar_one() == 11
             assert connection.execute(
                 text(
                     "SELECT COUNT(*) FROM information_schema.triggers "
@@ -47,6 +47,23 @@ def test_mysql_schema_and_append_only_audit_guards():
                 "idx_collections_year_status",
             } <= {
                 index["name"] for index in inspector.get_indexes("collections")
+            }
+            collection_count = connection.execute(
+                text("SELECT COUNT(*) FROM collections")
+            ).scalar_one()
+            lead_credit_count = connection.execute(
+                text(
+                    "SELECT COUNT(*) FROM collection_credits "
+                    "WHERE credit_role = 'lead'"
+                )
+            ).scalar_one()
+            assert lead_credit_count == collection_count
+            assert {
+                "idx_collection_credits_collection",
+                "idx_collection_credits_designer",
+            } <= {
+                index["name"]
+                for index in inspector.get_indexes("collection_credits")
             }
 
             user_id = connection.execute(

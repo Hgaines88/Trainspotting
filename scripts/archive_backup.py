@@ -26,6 +26,7 @@ BACKUP_FORMAT_VERSION = 1
 COUNTED_TABLES = (
     "designers",
     "collections",
+    "collection_credits",
     "collection_media",
     "users",
     "submissions",

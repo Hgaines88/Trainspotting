@@ -20,6 +20,7 @@ FORMAT_VERSION = 1
 REQUIRED_TABLES = {
     "alembic_version",
     "archive_state",
+    "collection_credits",
     "collection_media",
     "collections",
     "designers",

@@ -123,3 +123,41 @@ def test_discovery_index_migration_resumes_after_partial_ddl(tmp_path):
             ).scalar_one() == expected_alembic_revision()
     finally:
         engine.dispose()
+
+
+def test_collection_credit_migration_backfills_one_lead_per_collection(tmp_path):
+    database_path = tmp_path / "collection-credits.db"
+    config = config_for(database_path)
+    command.upgrade(config, "0003")
+
+    engine = create_engine(f"sqlite+pysqlite:///{database_path}")
+    try:
+        with engine.begin() as connection:
+            designer_id = connection.execute(
+                text("INSERT INTO designers (full_name) VALUES ('Credit Lead') RETURNING id")
+            ).scalar_one()
+            collection_id = connection.execute(
+                text(
+                    "INSERT INTO collections "
+                    "(designer_id, label, season, release_year, status) "
+                    "VALUES (:designer_id, 'Credit Label', 'Resort', 2028, 'concept') "
+                    "RETURNING id"
+                ),
+                {"designer_id": designer_id},
+            ).scalar_one()
+
+        command.upgrade(config, "head")
+
+        with engine.connect() as connection:
+            credit = connection.execute(
+                text(
+                    "SELECT collection_id, designer_id, credit_role, credit_order "
+                    "FROM collection_credits"
+                )
+            ).one()
+            assert credit == (collection_id, designer_id, "lead", 1)
+            assert connection.execute(
+                text("SELECT version_num FROM alembic_version")
+            ).scalar_one() == expected_alembic_revision()
+    finally:
+        engine.dispose()

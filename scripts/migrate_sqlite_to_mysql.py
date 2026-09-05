@@ -17,6 +17,7 @@ TABLES = (
     "users",
     "designers",
     "collections",
+    "collection_credits",
     "collection_media",
     "submissions",
     "submission_sources",

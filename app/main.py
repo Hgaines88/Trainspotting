@@ -213,7 +213,103 @@ def fetch_collection(
             detail="Collection not found",
         )
 
-    return dict(row)
+    return collection_payloads(connection, [row])[0]
+
+
+def collection_payloads(connection, rows) -> list[dict]:
+    """Attach ordered contributor credits without issuing one query per row."""
+    payloads = [dict(row) for row in rows]
+    if not payloads:
+        return payloads
+
+    collection_ids = [payload["id"] for payload in payloads]
+    placeholders = ", ".join("?" for _ in collection_ids)
+    credit_rows = connection.execute(
+        f"""
+        SELECT
+            collection_credits.collection_id,
+            collection_credits.designer_id,
+            designers.full_name AS designer_name,
+            collection_credits.credit_role AS role,
+            collection_credits.credit_order AS position,
+            collection_credits.attribution_note
+        FROM collection_credits
+        JOIN designers
+            ON designers.id = collection_credits.designer_id
+        WHERE collection_credits.collection_id IN ({placeholders})
+        ORDER BY collection_credits.collection_id, collection_credits.credit_order
+        """,
+        collection_ids,
+    ).fetchall()
+    credits_by_collection = {collection_id: [] for collection_id in collection_ids}
+    for credit in credit_rows:
+        credit_payload = dict(credit)
+        collection_id = credit_payload.pop("collection_id")
+        credits_by_collection[collection_id].append(credit_payload)
+    for payload in payloads:
+        payload["credits"] = credits_by_collection[payload["id"]]
+    return payloads
+
+
+def sync_collection_credits(
+    connection,
+    collection_id: int,
+    payload: CollectionCreate,
+) -> None:
+    credits = payload.credits or [
+        {
+            "designer_id": payload.designer_id,
+            "role": "lead",
+            "position": 1,
+            "attribution_note": None,
+        }
+    ]
+    credit_values = [
+        credit.model_dump() if hasattr(credit, "model_dump") else credit
+        for credit in credits
+    ]
+    designer_ids = [credit["designer_id"] for credit in credit_values]
+    placeholders = ", ".join("?" for _ in designer_ids)
+    existing_ids = {
+        row[0]
+        for row in connection.execute(
+            f"SELECT id FROM designers WHERE id IN ({placeholders})",
+            designer_ids,
+        ).fetchall()
+    }
+    missing_ids = sorted(set(designer_ids) - existing_ids)
+    if missing_ids:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Credited designer not found: {missing_ids[0]}",
+        )
+
+    connection.execute(
+        "DELETE FROM collection_credits WHERE collection_id = ?",
+        (collection_id,),
+    )
+    connection.executemany(
+        """
+        INSERT INTO collection_credits (
+            collection_id,
+            designer_id,
+            credit_role,
+            credit_order,
+            attribution_note
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        [
+            (
+                collection_id,
+                credit["designer_id"],
+                credit["role"],
+                credit["position"],
+                credit["attribution_note"],
+            )
+            for credit in credit_values
+        ],
+    )
 
 
 def sync_collection_media(
@@ -369,7 +465,10 @@ def list_designers(
         total = connection.execute(
             f"""SELECT COUNT(DISTINCT designers.id)
                 FROM designers
-                LEFT JOIN collections ON collections.designer_id = designers.id
+                LEFT JOIN collection_credits
+                    ON collection_credits.designer_id = designers.id
+                LEFT JOIN collections
+                    ON collections.id = collection_credits.collection_id
                 {where_sql}""",
             parameters,
         ).fetchone()[0]
@@ -398,11 +497,13 @@ def list_designers(
                 designers.biography,
                 COALESCE(MAX(collection_stats.collection_count), 0) AS collection_count
             FROM designers
+            LEFT JOIN collection_credits
+                ON collection_credits.designer_id = designers.id
             LEFT JOIN collections
-                ON collections.designer_id = designers.id
+                ON collections.id = collection_credits.collection_id
             LEFT JOIN (
                 SELECT designer_id, COUNT(*) AS collection_count
-                FROM collections
+                FROM collection_credits
                 GROUP BY designer_id
             ) AS collection_stats
                 ON collection_stats.designer_id = designers.id
@@ -515,13 +616,18 @@ def list_designer_collections(designer_id: int):
                       AND media_type = 'youtube'
                 ) AS youtube_video_id
             FROM collections
-            WHERE designer_id = ?
+            WHERE EXISTS (
+                SELECT 1
+                FROM collection_credits
+                WHERE collection_credits.collection_id = collections.id
+                  AND collection_credits.designer_id = ?
+            )
             ORDER BY release_year DESC, season
             """,
             (designer_id,),
         ).fetchall()
 
-        return [dict(row) for row in rows]
+        return collection_payloads(connection, rows)
     finally:
         connection.close()
 
@@ -765,6 +871,7 @@ def create_collection(payload: CollectionCreate):
             cursor.lastrowid,
             payload,
         )
+        sync_collection_credits(connection, cursor.lastrowid, payload)
 
         bump_archive_version(connection)
         connection.commit()
@@ -861,6 +968,7 @@ def update_collection(
             collection_id,
             payload,
         )
+        sync_collection_credits(connection, collection_id, payload)
 
         bump_archive_version(connection)
         connection.commit()
@@ -960,7 +1068,11 @@ def list_collections(
             )
             parameters.extend([pattern] * 6)
         if designer_id is not None:
-            clauses.append("collections.designer_id = ?")
+            clauses.append(
+                "EXISTS (SELECT 1 FROM collection_credits "
+                "WHERE collection_credits.collection_id = collections.id "
+                "AND collection_credits.designer_id = ?)"
+            )
             parameters.append(designer_id)
         for value, expression in (
             (
@@ -1032,7 +1144,12 @@ def list_collections(
             (*parameters, page_size, offset),
         ).fetchall()
 
-        return pagination_payload(rows, page=page, page_size=page_size, total=total)
+        return pagination_payload(
+            collection_payloads(connection, rows),
+            page=page,
+            page_size=page_size,
+            total=total,
+        )
     finally:
         connection.close()
 
@@ -1075,7 +1192,13 @@ def create_designer_collection(
     designer_id: int,
     payload: CollectionCreate,
 ):
-    payload = payload.model_copy(update={"designer_id": designer_id})
+    values = payload.model_dump()
+    values["designer_id"] = designer_id
+    if values["credits"] is not None:
+        for credit in values["credits"]:
+            if credit["role"] == "lead":
+                credit["designer_id"] = designer_id
+    payload = CollectionCreate.model_validate(values)
     return create_collection(payload)
 
 app.mount(
