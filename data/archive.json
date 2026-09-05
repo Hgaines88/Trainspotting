@@ -3507,16 +3507,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "rick-owens-rick-owens-spring-summer-2014",
+      "key": "rick-owens-rick-owens-spring-summer-ready-to-wear-2014",
       "designer_key": "rick-owens",
       "label": "Rick Owens",
       "name": "Vicious",
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2014,
       "status": "archived",
       "piece_count": 40,
       "description": "A presentation performed by four step teams that challenged conventional runway casting and beauty standards.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2014-ready-to-wear/rick-owens",
       "youtube_video_id": "TirA415R7o4"
     },
     {
@@ -3728,29 +3728,29 @@
       "youtube_video_id": null
     },
     {
-      "key": "sarah-burton-alexander-mcqueen-spring-summer-2024",
+      "key": "sarah-burton-alexander-mcqueen-spring-summer-ready-to-wear-2024",
       "designer_key": "sarah-burton",
       "label": "Alexander McQueen",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2024,
       "status": "archived",
       "piece_count": null,
       "description": "Sarah Burton's final collection as creative director of Alexander McQueen.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2024-ready-to-wear/alexander-mcqueen",
       "youtube_video_id": "EASTZ800WHA"
     },
     {
-      "key": "sarah-burton-givenchy-fall-winter-2025",
+      "key": "sarah-burton-givenchy-fall-winter-ready-to-wear-2025",
       "designer_key": "sarah-burton",
       "label": "Givenchy",
       "name": null,
-      "season": "Fall/Winter",
+      "season": "Fall/Winter Ready-to-Wear",
       "release_year": 2025,
-      "status": "released",
+      "status": "archived",
       "piece_count": 52,
       "description": "The collection focused on cut, proportion, and tailoring.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2025-ready-to-wear/givenchy",
       "youtube_video_id": "6K37zIVNpJI"
     },
     {
@@ -4651,16 +4651,16 @@
       "youtube_video_id": null
     },
     {
-      "key": "virgil-abloh-louis-vuitton-spring-summer-2019",
+      "key": "virgil-abloh-louis-vuitton-spring-summer-menswear-2019",
       "designer_key": "virgil-abloh",
       "label": "Louis Vuitton",
       "name": null,
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Menswear",
       "release_year": 2019,
       "status": "archived",
       "piece_count": null,
       "description": "Virgil Abloh's debut menswear collection for Louis Vuitton.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-menswear/louis-vuitton",
       "youtube_video_id": "I1AqjvdiubA"
     },
     {
@@ -5041,16 +5041,16 @@
       "youtube_video_id": "1Ph6qxV06AA"
     },
     {
-      "key": "ye-kanye-west-yeezy-spring-summer-2017",
+      "key": "ye-kanye-west-yeezy-spring-summer-ready-to-wear-2017",
       "designer_key": "ye-kanye-west",
       "label": "Yeezy",
       "name": "Yeezy Season 4",
-      "season": "Spring/Summer",
+      "season": "Spring/Summer Ready-to-Wear",
       "release_year": 2017,
       "status": "archived",
       "piece_count": null,
       "description": "A presentation staged at Franklin D. Roosevelt Four Freedoms Park on Roosevelt Island, continuing Yeezy’s exploration of monochromatic casting, body-conscious foundations, oversized outerwear, and utilitarian footwear.",
-      "source_url": null,
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2017-ready-to-wear/kanye-west-adidas-originals",
       "youtube_video_id": "C0XfvDTao88"
     },
     {
