@@ -81,6 +81,11 @@ p { line-height:1.65; }
 .pagination button:disabled { cursor:not-allowed; opacity:.45; }
 .pagination span { color:var(--dim); font-size:.7rem; text-align:center; text-transform:uppercase; }
 .source-fields { display:grid; gap:1rem; margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--line); }
+.source-fields h3 { margin:0; color:var(--signal); font-size:.8rem; text-transform:uppercase; }
+.source-actions { display:flex; flex-wrap:wrap; gap:.5rem; }
+.validation-summary { padding:1rem; border:1px solid #ff4b39; color:#ff4b39; background:#111; }
+.validation-summary h2 { margin:0 0 .75rem; font-size:1rem; }
+.validation-summary ul { margin:0; padding-left:1.25rem; }
 .archive-record-selector { display:grid; gap:.75rem; padding:1rem; border:1px solid var(--line); }
 .record-form .correction-field { margin:0; }
 .profile-title { border-bottom:1px solid var(--paper); padding-bottom:2rem; }

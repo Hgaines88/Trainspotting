@@ -5,8 +5,10 @@ import { apiRequest } from "../api";
 import ArchiveRecordSelector from "../components/ArchiveRecordSelector";
 import CorrectionField from "../components/CorrectionField";
 import StatusMessage from "../components/StatusMessage";
+import ValidationSummary from "../components/ValidationSummary";
 import { SUPPORTED_NATIONALITIES } from "../nationalityFlags";
 import { buildProposedData } from "../submissionProposal";
+import { startedSources, validateForReview } from "../submissionValidation";
 
 const designerFields = [
   ["full_name", "Full name"], ["nationality", "Nationality"],
@@ -52,6 +54,7 @@ export default function SubmissionForm() {
   const [sources, setSources] = useState([{ url: "", title: "", notes: "" }]);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState([]);
   const [busy, setBusy] = useState(false);
   const [designers, setDesigners] = useState([]);
   const [collections, setCollections] = useState([]);
@@ -138,37 +141,44 @@ export default function SubmissionForm() {
     )));
   }
 
-  function requestBody() {
+  function moveSource(index, direction) {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= sources.length) return;
+    const nextSources = [...sources];
+    [nextSources[index], nextSources[nextIndex]] = [nextSources[nextIndex], nextSources[index]];
+    setSources(nextSources);
+  }
+
+  function requestPayload() {
     const proposedData = buildProposedData({
       fields, fieldActions, submissionType, fieldLabels,
     });
     if (recordType === "collection" && submissionType === "addition" && !proposedData.status) {
       proposedData.status = "released";
     }
-    const startedSources = sources.filter((source) => (
-      source.url.trim() || source.title.trim() || source.notes.trim()
-    ));
-    if (startedSources.some((source) => !source.url.trim())) {
+    const preparedSources = startedSources(sources);
+    if (preparedSources.some((source) => !source.url)) {
       throw new Error("Add a URL for each started source or remove the unfinished source row.");
     }
-    return JSON.stringify({
+    return {
       record_type: recordType,
       submission_type: submissionType,
       target_id: submissionType === "correction" && targetId ? Number(targetId) : null,
       proposed_data: proposedData,
       explanation,
-      sources: startedSources.map((source) => ({
-        url: source.url,
-        title: source.title || null,
-        notes: source.notes || null,
-      })),
-    });
+      sources: preparedSources,
+    };
+  }
+
+  function requestBody() {
+    return JSON.stringify(requestPayload());
   }
 
   async function saveDraft() {
     setBusy(true);
     setStatus("Saving draft…");
     setError("");
+    setValidationErrors([]);
     try {
       const saved = await authorizedRequest(
         editing ? `/submission-drafts/${submissionId}` : "/submission-drafts",
@@ -192,8 +202,24 @@ export default function SubmissionForm() {
     setBusy(true);
     setStatus("Submitting proposal…");
     setError("");
+    setValidationErrors([]);
     try {
-      const body = requestBody();
+      const payload = requestPayload();
+      const reviewErrors = validateForReview({
+        recordType: payload.record_type,
+        submissionType: payload.submission_type,
+        targetId: payload.target_id,
+        proposedData: payload.proposed_data,
+        explanation: payload.explanation,
+        sources: payload.sources,
+        fieldLabels,
+      });
+      if (reviewErrors.length) {
+        setValidationErrors(reviewErrors);
+        setStatus("");
+        return;
+      }
+      const body = JSON.stringify(payload);
       if (editing) {
         await authorizedRequest(`/submission-drafts/${submissionId}`, {
           method: "PUT",
@@ -241,7 +267,8 @@ export default function SubmissionForm() {
   return <>
     <p className="eyebrow">Community research</p><h1>{editing ? "Revise your proposal" : "Propose an archive update"}</h1>
     <p>Your proposal enters moderation and never changes the public archive directly.</p>
-    <form className="record-form" onSubmit={submit}>
+    <form className="record-form" onSubmit={submit} noValidate>
+      <ValidationSummary errors={validationErrors} />
       <label>Record type<select value={recordType} onChange={changeRecordType} disabled={editing}><option value="designer">Designer</option><option value="collection">Collection</option></select></label>
       <label>Proposal type<select value={submissionType} onChange={changeSubmissionType} disabled={editing}><option value="addition">Addition</option><option value="correction">Correction</option></select></label>
       {submissionType === "correction" && <ArchiveRecordSelector
@@ -275,7 +302,7 @@ export default function SubmissionForm() {
       >{renderValueInput("status", "Status")}</CorrectionField>}
       {recordType === "collection" && submissionType === "addition" && renderValueInput("status", "Status", "text", true)}
       <label>Why should the archive change?<textarea rows="5" value={explanation} onChange={(event) => setExplanation(event.target.value)} required /></label>
-      <fieldset><legend>Supporting sources</legend><small>Sources are required for review, but a draft may be saved before sources are added.</small>{sources.map((source, index) => <div className="source-fields" key={index}><label>Source URL<input type="url" value={source.url} onChange={(event) => updateSource(index, "url", event.target.value)} required /></label><label>Source title<input value={source.title} onChange={(event) => updateSource(index, "title", event.target.value)} /></label><label>Source notes<textarea rows="3" value={source.notes} onChange={(event) => updateSource(index, "notes", event.target.value)} /></label>{sources.length > 1 && <button className="danger" type="button" onClick={() => setSources(sources.filter((_, sourceIndex) => sourceIndex !== index))}>Remove source</button>}</div>)}<button className="button secondary" type="button" onClick={() => setSources([...sources, { url: "", title: "", notes: "" }])}>Add another source</button></fieldset>
+      <fieldset><legend>Supporting sources</legend><small>At least one source is required for review, but drafts may be saved without one.</small>{sources.length === 0 && <StatusMessage>No sources added yet.</StatusMessage>}{sources.map((source, index) => <div className="source-fields" key={index}><h3>Source {index + 1}</h3><label>Source URL<input type="url" value={source.url} onChange={(event) => updateSource(index, "url", event.target.value)} /></label><label>Source title<input value={source.title} onChange={(event) => updateSource(index, "title", event.target.value)} /></label><label>Source notes<textarea rows="3" value={source.notes} onChange={(event) => updateSource(index, "notes", event.target.value)} /></label><div className="source-actions"><button className="secondary" type="button" disabled={index === 0} onClick={() => moveSource(index, -1)}>Move up</button><button className="secondary" type="button" disabled={index === sources.length - 1} onClick={() => moveSource(index, 1)}>Move down</button><button className="danger" type="button" onClick={() => setSources(sources.filter((_, sourceIndex) => sourceIndex !== index))}>Remove source</button></div></div>)}<button className="button secondary" type="button" disabled={sources.length >= 20} onClick={() => setSources([...sources, { url: "", title: "", notes: "" }])}>Add another source</button><small>{sources.length} of 20 sources added</small></fieldset>
       <div className="actions"><button className="button secondary" type="button" disabled={busy} onClick={saveDraft}>Save draft</button><button className="button" type="submit" disabled={busy}>{editing ? "Save and resubmit" : "Submit for review"}</button></div>
       <StatusMessage>{status}</StatusMessage><StatusMessage error>{error}</StatusMessage>
     </form>

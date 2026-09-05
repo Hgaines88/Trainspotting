@@ -51,6 +51,14 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "member");
   await page.goto("/submissions/new");
+  await page.getByRole("button", { name: "Submit for review" }).click();
+  const validationSummary = page.getByRole("alert");
+  await expect(validationSummary).toBeFocused();
+  await expect(validationSummary).toContainText("Full name is required");
+  await expect(validationSummary).toContainText("Add at least one supporting source");
+  await page.getByRole("button", { name: "Remove source" }).click();
+  await expect(page.getByText("No sources added yet.")).toBeVisible();
+  await page.getByRole("button", { name: "Add another source" }).click();
   await page.getByLabel("Proposal type").selectOption("correction");
   await page.getByLabel("Search Existing designer").fill("Sarah Burton");
   const existingDesigner = page.getByLabel("Existing designer", { exact: true });
@@ -173,6 +181,9 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   await sourceUrls.nth(1).fill("https://example.test/independent-source");
   const sourceTitles = page.getByLabel("Source title");
   await sourceTitles.nth(1).fill("Independent documented source");
+  await page.locator(".source-fields").nth(1).getByRole("button", { name: "Move up" }).click();
+  await expect(sourceUrls.nth(0)).toHaveValue("https://example.test/independent-source");
+  await expect(sourceUrls.nth(1)).toHaveValue("https://example.test/primary-source");
   await page.getByRole("button", { name: "Save and resubmit" }).click();
   await expect(page.getByText("submitted · version 3")).toBeVisible();
 
