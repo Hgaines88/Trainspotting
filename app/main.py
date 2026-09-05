@@ -371,8 +371,9 @@ def list_designers(
             "oldest": "MIN(collections.release_year)",
             "collections": "collection_count",
         }
-        order_direction = (direction or ("desc" if sort == "collections" else "asc")).upper()
-        order_sql = f"{sort_expressions[sort]} {order_direction}, designers.id {order_direction}"
+        order_direction = (
+            direction or ("desc" if sort in {"newest", "collections"} else "asc")
+        ).upper()
         offset = (page - 1) * page_size
         rows = connection.execute(
             f"""
