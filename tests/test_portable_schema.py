@@ -46,6 +46,16 @@ def test_portable_metadata_creates_all_tables_constraints_and_indexes(tmp_path):
             "idx_collection_credits_collection",
             "idx_collection_credits_designer",
         }
+        assert {
+            constraint["name"]
+            for constraint in inspector.get_check_constraints(
+                "collection_credits"
+            )
+        } == {
+            "ck_collection_credits_attribution_note_not_blank",
+            "ck_collection_credits_order_positive",
+            "ck_collection_credits_valid_role",
+        }
         constraints = {
             constraint["name"]
             for constraint in inspector.get_check_constraints("archive_state")
