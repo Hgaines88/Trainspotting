@@ -7,8 +7,8 @@ NGINX_TEMPLATE = PROJECT_ROOT / "react-ui" / "nginx.conf.template"
 
 
 def test_nginx_uses_the_container_dns_resolver_dynamically():
-    dockerfile = DOCKERFILE.read_text()
-    template = NGINX_TEMPLATE.read_text()
+    dockerfile = DOCKERFILE.read_text(encoding="utf-8")
+    template = NGINX_TEMPLATE.read_text(encoding="utf-8")
 
     assert "NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1" in dockerfile
     assert "resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;" in template
