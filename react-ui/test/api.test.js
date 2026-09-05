@@ -44,6 +44,24 @@ test("the public collection list uses the current archive version", async () => 
   ]);
 });
 
+test("archive selector searches use the current archive version", async () => {
+  const requests = [];
+  globalThis.fetch = async (url) => {
+    requests.push(url);
+    if (url === "/api/archive-version") {
+      return new Response(JSON.stringify({ version: 9 }), { status: 200 });
+    }
+    return new Response(JSON.stringify([]), { status: 200 });
+  };
+
+  await apiRequest("/archive-options/designers?search=grace&limit=20");
+
+  assert.deepEqual(requests, [
+    "/api/archive-version",
+    "/api/archive-options/designers?search=grace&limit=20&archive_version=9",
+  ]);
+});
+
 test("mutation requests do not fetch or append an archive version", async () => {
   const requests = [];
   globalThis.fetch = async (url, options = {}) => {

@@ -1,6 +1,6 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import (
     DATABASE_INTEGRITY_ERRORS,
@@ -58,6 +58,7 @@ def is_public_archive_path(path: str) -> bool:
         or path.startswith("/designers/")
         or path == "/collections"
         or path.startswith("/collections/")
+        or path.startswith("/archive-options/")
     )
 
 
@@ -315,6 +316,27 @@ def list_designers():
             """
         ).fetchall()
 
+        return [dict(row) for row in rows]
+    finally:
+        connection.close()
+
+
+@app.get("/archive-options/designers")
+def designer_options(
+    search: str = Query(default="", max_length=120),
+    limit: int = Query(default=20, ge=1, le=50),
+):
+    connection = connect()
+    try:
+        rows = connection.execute(
+            """SELECT id, full_name, nationality
+               FROM designers
+               WHERE LOWER(full_name) LIKE LOWER(?)
+                  OR LOWER(COALESCE(nationality, '')) LIKE LOWER(?)
+               ORDER BY full_name
+               LIMIT ?""",
+            (f"%{search.strip()}%", f"%{search.strip()}%", limit),
+        ).fetchall()
         return [dict(row) for row in rows]
     finally:
         connection.close()
@@ -845,6 +867,35 @@ def list_collections():
             """
         ).fetchall()
 
+        return [dict(row) for row in rows]
+    finally:
+        connection.close()
+
+
+@app.get("/archive-options/collections")
+def collection_options(
+    search: str = Query(default="", max_length=120),
+    limit: int = Query(default=20, ge=1, le=50),
+):
+    connection = connect()
+    try:
+        pattern = f"%{search.strip()}%"
+        rows = connection.execute(
+            """SELECT collections.id, collections.designer_id,
+                      designers.full_name AS lead_designer,
+                      collections.label, collections.name,
+                      collections.season, collections.release_year
+               FROM collections
+               JOIN designers ON designers.id = collections.designer_id
+               WHERE LOWER(designers.full_name) LIKE LOWER(?)
+                  OR LOWER(collections.label) LIKE LOWER(?)
+                  OR LOWER(COALESCE(collections.name, '')) LIKE LOWER(?)
+                  OR LOWER(collections.season) LIKE LOWER(?)
+                  OR CAST(collections.release_year AS CHAR) LIKE ?
+               ORDER BY collections.release_year DESC, collections.label
+               LIMIT ?""",
+            (pattern, pattern, pattern, pattern, pattern, limit),
+        ).fetchall()
         return [dict(row) for row in rows]
     finally:
         connection.close()

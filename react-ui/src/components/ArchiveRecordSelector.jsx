@@ -6,6 +6,7 @@ export default function ArchiveRecordSelector({
   records,
   value,
   onChange,
+  onSearchChange,
   getLabel,
   loading = false,
   error = "",
@@ -27,9 +28,12 @@ export default function ArchiveRecordSelector({
       id={`${id}-search`}
       type="search"
       value={query}
-      onChange={(event) => setQuery(event.target.value)}
+      onChange={(event) => {
+        setQuery(event.target.value);
+        onSearchChange?.(event.target.value);
+      }}
       placeholder={`Search ${label.toLocaleLowerCase()}`}
-      disabled={loading || Boolean(error)}
+      aria-busy={loading}
     />
     <label htmlFor={id}>{label}</label>
     <select

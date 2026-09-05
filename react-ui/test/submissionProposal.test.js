@@ -21,6 +21,22 @@ test("numeric replacements are serialized as numbers", () => {
   }), { birth_year: 1988 });
 });
 
+test("invalid numeric values cannot become accidental null clears", () => {
+  assert.throws(() => buildProposedData({
+    submissionType: "correction",
+    fields: { birth_year: "not-a-number" },
+    fieldActions: { birth_year: "replace" },
+    fieldLabels: { birth_year: "Birth year" },
+  }), /valid number for Birth year/);
+
+  assert.throws(() => buildProposedData({
+    submissionType: "addition",
+    fields: { piece_count: Number.POSITIVE_INFINITY },
+    fieldActions: {},
+    fieldLabels: { piece_count: "Piece count" },
+  }), /valid number for Piece count/);
+});
+
 test("an incomplete replacement reports the human field label", () => {
   assert.throws(() => buildProposedData({
     submissionType: "correction",

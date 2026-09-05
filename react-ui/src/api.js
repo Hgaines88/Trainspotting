@@ -7,7 +7,8 @@ function isPublicArchiveRead(path, options) {
     (path === "/designers" ||
       path.startsWith("/designers/") ||
       path === "/collections" ||
-      path.startsWith("/collections/"))
+      path.startsWith("/collections/") ||
+      path.startsWith("/archive-options/"))
   );
 }
 

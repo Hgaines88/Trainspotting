@@ -326,6 +326,24 @@ def test_list_designers(client):
     } <= designer_names
 
 
+def test_archive_option_search_is_filtered_and_bounded(client):
+    designers = client.get("/archive-options/designers?search=Wales&limit=5")
+    collections = client.get("/archive-options/collections?search=No.%2013&limit=5")
+    bounded = client.get("/archive-options/designers?limit=3")
+
+    assert designers.status_code == 200
+    assert [item["full_name"] for item in designers.json()] == ["Grace Wales Bonner"]
+    assert collections.status_code == 200
+    assert [item["name"] for item in collections.json()] == ["No. 13"]
+    assert len(bounded.json()) == 3
+    assert set(designers.json()[0]) == {"id", "full_name", "nationality"}
+
+
+def test_archive_option_search_enforces_query_limits(client):
+    assert client.get("/archive-options/designers?limit=51").status_code == 422
+    assert client.get(f"/archive-options/collections?search={'x' * 121}").status_code == 422
+
+
 def test_me_creates_one_member_for_the_verified_clerk_identity(client):
     app.dependency_overrides[require_authenticated_user] = lambda: ClerkIdentity(
         user_id="user_first123",

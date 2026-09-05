@@ -58,28 +58,77 @@ export default function SubmissionForm() {
   const [busy, setBusy] = useState(false);
   const [designers, setDesigners] = useState([]);
   const [collections, setCollections] = useState([]);
-  const [archiveLoading, setArchiveLoading] = useState(true);
-  const [archiveError, setArchiveError] = useState("");
+  const [designerSearch, setDesignerSearch] = useState("");
+  const [collectionSearch, setCollectionSearch] = useState("");
+  const [designersLoading, setDesignersLoading] = useState(false);
+  const [collectionsLoading, setCollectionsLoading] = useState(false);
+  const [designersError, setDesignersError] = useState("");
+  const [collectionsError, setCollectionsError] = useState("");
   const required = submissionType === "addition";
+  const needsDesignerOptions = (
+    (recordType === "designer" && submissionType === "correction")
+    || (recordType === "collection" && (
+      submissionType === "addition" || fieldActions.designer_id === "replace"
+    ))
+  );
+  const needsCollectionOptions = recordType === "collection" && submissionType === "correction";
 
   useEffect(() => {
+    if (!needsDesignerOptions) {
+      setDesigners([]);
+      setDesignersLoading(false);
+      setDesignersError("");
+      return undefined;
+    }
     let active = true;
-    setArchiveLoading(true);
-    Promise.all([apiRequest("/designers"), apiRequest("/collections")])
-      .then(([designerRecords, collectionRecords]) => {
-        if (!active) return;
-        setDesigners(designerRecords);
-        setCollections(collectionRecords);
-        setArchiveError("");
-      })
-      .catch((requestError) => {
-        if (active) setArchiveError(requestError.message);
-      })
-      .finally(() => {
-        if (active) setArchiveLoading(false);
-      });
-    return () => { active = false; };
-  }, []);
+    setDesignersLoading(true);
+    const timeout = window.setTimeout(async () => {
+      try {
+        const records = await apiRequest(`/archive-options/designers?search=${encodeURIComponent(designerSearch)}&limit=20`);
+        const selectedId = recordType === "designer" ? targetId : fields.designer_id;
+        if (selectedId && !records.some((record) => String(record.id) === String(selectedId))) {
+          records.push(await apiRequest(`/designers/${selectedId}`));
+        }
+        if (active) {
+          setDesigners(records);
+          setDesignersError("");
+        }
+      } catch (requestError) {
+        if (active) setDesignersError(requestError.message);
+      } finally {
+        if (active) setDesignersLoading(false);
+      }
+    }, 250);
+    return () => { active = false; window.clearTimeout(timeout); };
+  }, [designerSearch, fields.designer_id, needsDesignerOptions, recordType, targetId]);
+
+  useEffect(() => {
+    if (!needsCollectionOptions) {
+      setCollections([]);
+      setCollectionsLoading(false);
+      setCollectionsError("");
+      return undefined;
+    }
+    let active = true;
+    setCollectionsLoading(true);
+    const timeout = window.setTimeout(async () => {
+      try {
+        const records = await apiRequest(`/archive-options/collections?search=${encodeURIComponent(collectionSearch)}&limit=20`);
+        if (targetId && !records.some((record) => String(record.id) === String(targetId))) {
+          records.push(await apiRequest(`/collections/${targetId}`));
+        }
+        if (active) {
+          setCollections(records);
+          setCollectionsError("");
+        }
+      } catch (requestError) {
+        if (active) setCollectionsError(requestError.message);
+      } finally {
+        if (active) setCollectionsLoading(false);
+      }
+    }, 250);
+    return () => { active = false; window.clearTimeout(timeout); };
+  }, [collectionSearch, needsCollectionOptions, targetId]);
 
   useEffect(() => {
     if (!editing) return;
@@ -114,6 +163,8 @@ export default function SubmissionForm() {
     const nextRecordType = event.target.value;
     setRecordType(nextRecordType);
     setTargetId("");
+    setDesignerSearch("");
+    setCollectionSearch("");
     setFieldActions({});
     setFields(nextRecordType === "collection" && submissionType === "addition" ? { status: "released" } : {});
   }
@@ -122,31 +173,38 @@ export default function SubmissionForm() {
     const nextSubmissionType = event.target.value;
     setSubmissionType(nextSubmissionType);
     setTargetId("");
+    setDesignerSearch("");
+    setCollectionSearch("");
     setFieldActions({});
-    setFields({ ...fields, status: recordType === "collection" && nextSubmissionType === "addition" ? "released" : "" });
+    setFields((current) => ({
+      ...current,
+      status: recordType === "collection" && nextSubmissionType === "addition" ? "released" : "",
+    }));
   }
 
   function updateField(event) {
-    setFields({ ...fields, [event.target.name]: event.target.value });
+    setFields((current) => ({ ...current, [event.target.name]: event.target.value }));
   }
 
   function updateFieldAction(name, action) {
-    setFieldActions({ ...fieldActions, [name]: action });
-    if (action !== "replace") setFields({ ...fields, [name]: "" });
+    setFieldActions((current) => ({ ...current, [name]: action }));
+    if (action !== "replace") setFields((current) => ({ ...current, [name]: "" }));
   }
 
   function updateSource(index, field, value) {
-    setSources(sources.map((source, sourceIndex) => (
+    setSources((current) => current.map((source, sourceIndex) => (
       sourceIndex === index ? { ...source, [field]: value } : source
     )));
   }
 
   function moveSource(index, direction) {
-    const nextIndex = index + direction;
-    if (nextIndex < 0 || nextIndex >= sources.length) return;
-    const nextSources = [...sources];
-    [nextSources[index], nextSources[nextIndex]] = [nextSources[nextIndex], nextSources[index]];
-    setSources(nextSources);
+    setSources((current) => {
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= current.length) return current;
+      const nextSources = [...current];
+      [nextSources[index], nextSources[nextIndex]] = [nextSources[nextIndex], nextSources[index]];
+      return nextSources;
+    });
   }
 
   function requestPayload() {
@@ -254,10 +312,11 @@ export default function SubmissionForm() {
       label="Designer or creative lead"
       records={designers}
       value={fields.designer_id || ""}
-      onChange={(designerId) => setFields({ ...fields, designer_id: designerId })}
+      onChange={(designerId) => setFields((current) => ({ ...current, designer_id: designerId }))}
+      onSearchChange={setDesignerSearch}
       getLabel={designerLabel}
-      loading={archiveLoading}
-      error={archiveError}
+      loading={designersLoading}
+      error={designersError}
       required={isRequired}
     />;
     if (name === "status") return <label>Status<select name="status" value={fields.status ?? (isRequired ? "released" : "")} onChange={updateField} required={isRequired}><option value="">Choose status</option><option value="concept">Concept</option><option value="in-production">In production</option><option value="released">Released</option><option value="archived">Archived</option></select></label>;
@@ -277,9 +336,10 @@ export default function SubmissionForm() {
         records={recordType === "designer" ? designers : collections}
         value={targetId}
         onChange={setTargetId}
+        onSearchChange={recordType === "designer" ? setDesignerSearch : setCollectionSearch}
         getLabel={recordType === "designer" ? designerLabel : collectionLabel}
-        loading={archiveLoading}
-        error={archiveError}
+        loading={recordType === "designer" ? designersLoading : collectionsLoading}
+        error={recordType === "designer" ? designersError : collectionsError}
         required
       />}
       {fieldDefinitions.map(([name, label, type = "text"]) => {
@@ -302,7 +362,7 @@ export default function SubmissionForm() {
       >{renderValueInput("status", "Status")}</CorrectionField>}
       {recordType === "collection" && submissionType === "addition" && renderValueInput("status", "Status", "text", true)}
       <label>Why should the archive change?<textarea rows="5" value={explanation} onChange={(event) => setExplanation(event.target.value)} required /></label>
-      <fieldset><legend>Supporting sources</legend><small>At least one source is required for review, but drafts may be saved without one.</small>{sources.length === 0 && <StatusMessage>No sources added yet.</StatusMessage>}{sources.map((source, index) => <div className="source-fields" key={index}><h3>Source {index + 1}</h3><label>Source URL<input type="url" value={source.url} onChange={(event) => updateSource(index, "url", event.target.value)} /></label><label>Source title<input value={source.title} onChange={(event) => updateSource(index, "title", event.target.value)} /></label><label>Source notes<textarea rows="3" value={source.notes} onChange={(event) => updateSource(index, "notes", event.target.value)} /></label><div className="source-actions"><button className="secondary" type="button" disabled={index === 0} onClick={() => moveSource(index, -1)}>Move up</button><button className="secondary" type="button" disabled={index === sources.length - 1} onClick={() => moveSource(index, 1)}>Move down</button><button className="danger" type="button" onClick={() => setSources(sources.filter((_, sourceIndex) => sourceIndex !== index))}>Remove source</button></div></div>)}<button className="button secondary" type="button" disabled={sources.length >= 20} onClick={() => setSources([...sources, { url: "", title: "", notes: "" }])}>Add another source</button><small>{sources.length} of 20 sources added</small></fieldset>
+      <fieldset><legend>Supporting sources</legend><small>At least one source is required for review, but drafts may be saved without one.</small>{sources.length === 0 && <StatusMessage>No sources added yet.</StatusMessage>}{sources.map((source, index) => <div className="source-fields" key={index}><h3>Source {index + 1}</h3><label>Source URL<input type="url" value={source.url} onChange={(event) => updateSource(index, "url", event.target.value)} /></label><label>Source title<input value={source.title} onChange={(event) => updateSource(index, "title", event.target.value)} /></label><label>Source notes<textarea rows="3" value={source.notes} onChange={(event) => updateSource(index, "notes", event.target.value)} /></label><div className="source-actions"><button className="secondary" type="button" disabled={index === 0} onClick={() => moveSource(index, -1)}>Move up</button><button className="secondary" type="button" disabled={index === sources.length - 1} onClick={() => moveSource(index, 1)}>Move down</button><button className="danger" type="button" onClick={() => setSources((current) => current.filter((_, sourceIndex) => sourceIndex !== index))}>Remove source</button></div></div>)}<button className="button secondary" type="button" disabled={sources.length >= 20} onClick={() => setSources((current) => [...current, { url: "", title: "", notes: "" }])}>Add another source</button><small>{sources.length} of 20 sources added</small></fieldset>
       <div className="actions"><button className="button secondary" type="button" disabled={busy} onClick={saveDraft}>Save draft</button><button className="button" type="submit" disabled={busy}>{editing ? "Save and resubmit" : "Submit for review"}</button></div>
       <StatusMessage>{status}</StatusMessage><StatusMessage error>{error}</StatusMessage>
     </form>
