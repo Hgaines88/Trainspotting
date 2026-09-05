@@ -14,6 +14,7 @@ COPY alembic ./alembic
 COPY scripts ./scripts
 COPY sql ./sql
 COPY data/archive.json ./data/archive.json
+COPY examples ./examples
 COPY web ./web
 
 RUN useradd --create-home --uid 10001 appuser \

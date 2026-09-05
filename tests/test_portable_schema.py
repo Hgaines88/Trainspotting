@@ -11,6 +11,8 @@ EXPECTED_TABLES = {
     "collection_media",
     "collections",
     "designers",
+    "ingestion_batches",
+    "ingestion_rows",
     "submission_audit",
     "submission_decisions",
     "submission_promotions",
@@ -46,6 +48,10 @@ def test_portable_metadata_creates_all_tables_constraints_and_indexes(tmp_path):
             "idx_collection_credits_collection",
             "idx_collection_credits_designer",
         }
+        assert {
+            foreign_key["referred_table"]
+            for foreign_key in inspector.get_foreign_keys("ingestion_rows")
+        } == {"ingestion_batches", "submissions"}
         assert {
             constraint["name"]
             for constraint in inspector.get_check_constraints(

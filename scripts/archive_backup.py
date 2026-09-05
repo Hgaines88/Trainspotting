@@ -34,6 +34,8 @@ COUNTED_TABLES = (
     "submission_decisions",
     "submission_promotions",
     "submission_audit",
+    "ingestion_batches",
+    "ingestion_rows",
 )
 
 

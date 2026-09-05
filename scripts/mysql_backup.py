@@ -24,6 +24,8 @@ REQUIRED_TABLES = {
     "collection_media",
     "collections",
     "designers",
+    "ingestion_batches",
+    "ingestion_rows",
     "submission_audit",
     "submission_decisions",
     "submission_promotions",

@@ -236,3 +236,40 @@ CREATE TRIGGER submission_decisions_no_update BEFORE UPDATE ON submission_decisi
 BEGIN SELECT RAISE(ABORT, 'submission decisions are append-only'); END;
 CREATE TRIGGER submission_decisions_no_delete BEFORE DELETE ON submission_decisions
 BEGIN SELECT RAISE(ABORT, 'submission decisions are append-only'); END;
+
+CREATE TABLE ingestion_batches (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    submitter_user_id INTEGER NOT NULL,
+    source_name TEXT NOT NULL CHECK (length(trim(source_name)) > 0),
+    input_format TEXT NOT NULL CHECK (input_format IN ('csv')),
+    status TEXT NOT NULL DEFAULT 'running' CHECK (status IN ('running', 'completed', 'failed')),
+    total_rows INTEGER NOT NULL DEFAULT 0,
+    valid_rows INTEGER NOT NULL DEFAULT 0,
+    invalid_rows INTEGER NOT NULL DEFAULT 0,
+    duplicate_rows INTEGER NOT NULL DEFAULT 0,
+    review_rows INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TEXT,
+    FOREIGN KEY (submitter_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+    CHECK (total_rows >= 0 AND valid_rows >= 0 AND invalid_rows >= 0 AND duplicate_rows >= 0 AND review_rows >= 0)
+);
+CREATE INDEX idx_ingestion_batches_created ON ingestion_batches(created_at);
+
+CREATE TABLE ingestion_rows (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    batch_id INTEGER NOT NULL,
+    source_row_number INTEGER NOT NULL CHECK (source_row_number > 0),
+    raw_payload TEXT NOT NULL CHECK (json_valid(raw_payload)),
+    normalized_payload TEXT CHECK (normalized_payload IS NULL OR json_valid(normalized_payload)),
+    fingerprint TEXT CHECK (fingerprint IS NULL OR length(fingerprint) = 64),
+    status TEXT NOT NULL CHECK (status IN ('valid', 'invalid', 'duplicate', 'requiring_review')),
+    validation_errors TEXT CHECK (validation_errors IS NULL OR json_valid(validation_errors)),
+    submission_id INTEGER,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (batch_id) REFERENCES ingestion_batches(id) ON DELETE RESTRICT,
+    FOREIGN KEY (submission_id) REFERENCES submissions(id) ON DELETE RESTRICT,
+    UNIQUE (batch_id, source_row_number)
+);
+CREATE INDEX idx_ingestion_rows_batch ON ingestion_rows(batch_id);
+CREATE INDEX idx_ingestion_rows_fingerprint ON ingestion_rows(fingerprint);
+CREATE INDEX idx_ingestion_rows_status ON ingestion_rows(status);

@@ -5,8 +5,8 @@ Trainspotting has three complementary recovery artifacts:
 - `data/archive.json` is the versioned public-content snapshot. It contains
   designers, collections, and collection media, and belongs in Git.
 - An encrypted MySQL logical backup contains the complete operational database,
-  including users, submissions, sources, decisions, promotions, and append-only
-  audit history. It is the active recovery format.
+  including users, submissions, ingestion ledgers, sources, decisions,
+  promotions, and append-only audit history. It is the active recovery format.
 - A private legacy SQLite backup contains the pre-migration operational database,
   including
   users, submissions, sources, decisions, promotions, and append-only audit
@@ -53,7 +53,7 @@ DATABASE_URL='mysql+pymysql://USER:PASSWORD@HOST:PORT/EMPTY_DATABASE' \
   backups/trainspotting-YYYYMMDD.sql.enc --apply
 ```
 
-The restore streams decrypted SQL directly into `mysql`, then verifies all 11
+The restore streams decrypted SQL directly into `mysql`, then verifies all 13
 required Trainspotting tables. Before promoting a recovered database, also
 confirm the Alembic revision, representative canonical and moderation rows,
 foreign-key behavior, and the four append-only audit triggers.

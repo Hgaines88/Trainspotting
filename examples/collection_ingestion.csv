@@ -1,0 +1,4 @@
+designer_name,label,name,season,release_year,status,piece_count,description,source_url,source_title,source_notes,youtube_video_id
+Grace Wales Bonner,Wales Bonner,Ingestion Study,Resort,2029,in-production,24,A documented candidate for the Trainspotting moderation workflow.,https://www.vogue.com/fashion-shows,Vogue Runway,Curated demonstration input,
+Unknown Pipeline Designer,Unknown Label,Unresolved Record,Resort,2029,released,,This row demonstrates inspectable validation failure.,https://example.com/source,Demonstration source,,
+Grace Wales Bonner,Wales Bonner,Ebonics,Spring/Summer Menswear,2015,archived,,This row demonstrates canonical duplicate detection.,https://walesbonner.com/pages/archive,Wales Bonner archive,,
