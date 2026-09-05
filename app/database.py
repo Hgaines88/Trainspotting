@@ -213,18 +213,26 @@ def database_readiness() -> dict[str, str]:
                 raise RuntimeError("Database schema revision is not ready")
             return {"database": "mysql", "revision": revision[0]}
 
-        archive_table = connection.execute(
-            "SELECT name FROM sqlite_master "
-            "WHERE type = 'table' AND name = 'designers'"
-        ).fetchone()
-        if archive_table is None:
+        required_tables = {
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table' "
+                "AND name IN ('designers', 'archive_state')"
+            ).fetchall()
+        }
+        if required_tables != {"designers", "archive_state"}:
             raise RuntimeError("SQLite archive schema is not ready")
+        version = connection.execute(
+            "SELECT version FROM archive_state WHERE id = 1"
+        ).fetchone()
+        if version is None or version[0] < 1:
+            raise RuntimeError("SQLite archive version ledger is not ready")
         return {"database": "sqlite", "revision": "legacy-current"}
     finally:
         connection.close()
 
 
-def apply_migrations() -> list[str]:
+def apply_migrations(alembic_connection=None) -> list[str]:
     """Apply each pending SQL migration exactly once."""
     database_url = os.getenv("DATABASE_URL")
     if database_url:
@@ -232,6 +240,8 @@ def apply_migrations() -> list[str]:
     if database_url and make_url(database_url).get_backend_name() == "mysql":
         configuration = Config(PROJECT_ROOT / "alembic.ini")
         configuration.set_main_option("sqlalchemy.url", database_url)
+        if alembic_connection is not None:
+            configuration.attributes["connection"] = alembic_connection
         command.upgrade(configuration, "head")
         return []
 

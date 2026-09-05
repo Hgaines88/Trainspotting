@@ -27,6 +27,23 @@ test("public archive reads use the current archive version", async () => {
   assert.equal(requests[0].options.cache, "no-store");
 });
 
+test("the public collection list uses the current archive version", async () => {
+  const requests = [];
+  globalThis.fetch = async (url) => {
+    requests.push(url);
+    if (url === "/api/archive-version") {
+      return new Response(JSON.stringify({ version: 8 }), { status: 200 });
+    }
+    return new Response(JSON.stringify([]), { status: 200 });
+  };
+
+  assert.deepEqual(await apiRequest("/collections"), []);
+  assert.deepEqual(requests, [
+    "/api/archive-version",
+    "/api/collections?archive_version=8",
+  ]);
+});
+
 test("mutation requests do not fetch or append an archive version", async () => {
   const requests = [];
   globalThis.fetch = async (url, options = {}) => {

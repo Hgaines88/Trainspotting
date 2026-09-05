@@ -38,8 +38,11 @@ app.include_router(submissions_router)
 
 
 def is_public_archive_path(path: str) -> bool:
-    return path == "/designers" or path.startswith("/designers/") or path.startswith(
-        "/collections/"
+    return (
+        path == "/designers"
+        or path.startswith("/designers/")
+        or path == "/collections"
+        or path.startswith("/collections/")
     )
 
 

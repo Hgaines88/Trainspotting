@@ -11,6 +11,10 @@ def test_sqlite_readiness_is_read_only(tmp_path, monkeypatch):
     database_path = tmp_path / "ready.db"
     connection = sqlite3.connect(database_path)
     connection.execute("CREATE TABLE designers (id INTEGER PRIMARY KEY)")
+    connection.execute(
+        "CREATE TABLE archive_state (id INTEGER PRIMARY KEY, version INTEGER NOT NULL)"
+    )
+    connection.execute("INSERT INTO archive_state (id, version) VALUES (1, 1)")
     connection.commit()
     connection.close()
     monkeypatch.delenv("DATABASE_URL", raising=False)
@@ -20,6 +24,31 @@ def test_sqlite_readiness_is_read_only(tmp_path, monkeypatch):
         "database": "sqlite",
         "revision": "legacy-current",
     }
+
+
+@pytest.mark.parametrize(
+    "ledger_sql",
+    [
+        None,
+        "CREATE TABLE archive_state "
+        "(id INTEGER PRIMARY KEY, version INTEGER NOT NULL)",
+    ],
+)
+def test_sqlite_readiness_requires_initialized_archive_ledger(
+    tmp_path, monkeypatch, ledger_sql
+):
+    database_path = tmp_path / "incomplete.db"
+    connection = sqlite3.connect(database_path)
+    connection.execute("CREATE TABLE designers (id INTEGER PRIMARY KEY)")
+    if ledger_sql:
+        connection.execute(ledger_sql)
+    connection.commit()
+    connection.close()
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.setattr(database, "DATABASE_PATH", database_path)
+
+    with pytest.raises(RuntimeError, match="archive"):
+        database.database_readiness()
 
 
 def test_readiness_endpoint_fails_closed(monkeypatch):

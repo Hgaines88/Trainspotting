@@ -6,6 +6,7 @@ function isPublicArchiveRead(path, options) {
     method === "GET" &&
     (path === "/designers" ||
       path.startsWith("/designers/") ||
+      path === "/collections" ||
       path.startsWith("/collections/"))
   );
 }

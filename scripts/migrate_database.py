@@ -15,11 +15,11 @@ from app.database_url import normalize_database_url
 LOCK_NAME = "trainspotting_alembic_migration"
 
 
-def apply_to(database_url: str) -> None:
+def apply_to(database_url: str, alembic_connection=None) -> None:
     previous_url = os.environ.get("DATABASE_URL")
     os.environ["DATABASE_URL"] = database_url
     try:
-        apply_migrations()
+        apply_migrations(alembic_connection)
     finally:
         if previous_url is None:
             os.environ.pop("DATABASE_URL", None)
@@ -42,7 +42,7 @@ def migrate(database_url: str | None = None) -> None:
             if acquired != 1:
                 raise RuntimeError("Could not acquire the database migration lock")
             try:
-                apply_to(target_url)
+                apply_to(target_url, connection)
             finally:
                 connection.execute(
                     text("SELECT RELEASE_LOCK(:name)"), {"name": LOCK_NAME}
