@@ -68,6 +68,14 @@ CREATE TABLE collections (
 
 CREATE INDEX idx_collections_designer_id
     ON collections(designer_id);
+CREATE INDEX idx_designers_nationality
+    ON designers(nationality);
+CREATE INDEX idx_collections_label
+    ON collections(label);
+CREATE INDEX idx_collections_season
+    ON collections(season);
+CREATE INDEX idx_collections_year_status
+    ON collections(release_year, status);
 
 
 CREATE TABLE collection_media (

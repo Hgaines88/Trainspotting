@@ -288,13 +288,20 @@ def test_authenticated_admin_can_mutate_the_archive(public_client):
 
 
 def test_list_designers(client):
-    response = client.get("/designers")
+    response = client.get("/designers?page_size=50")
 
     assert response.status_code == 200
 
-    designers = response.json()
+    payload = response.json()
+    designers = payload["items"]
 
     assert len(designers) == 30
+    assert payload["pagination"] == {
+        "page": 1,
+        "page_size": 50,
+        "total": 30,
+        "total_pages": 1,
+    }
     designer_names = {
         designer["full_name"]
         for designer in designers
@@ -324,6 +331,58 @@ def test_list_designers(client):
         "John Elliott",
         "Haider Ackermann",
     } <= designer_names
+
+
+def test_designer_discovery_search_filters_and_paginates_stably(client):
+    search = client.get("/designers?search=Afro-Atlantic")
+    filtered = client.get(
+        "/designers?nationality=Japanese&sort=name&page_size=1"
+    )
+    second_page = client.get(
+        "/designers?nationality=Japanese&sort=name&page=2&page_size=1"
+    )
+
+    assert search.status_code == 200
+    assert [item["full_name"] for item in search.json()["items"]] == [
+        "Grace Wales Bonner"
+    ]
+    assert filtered.status_code == 200
+    assert filtered.json()["pagination"]["total"] >= 2
+    assert second_page.status_code == 200
+    assert filtered.json()["items"][0]["id"] != second_page.json()["items"][0]["id"]
+
+
+def test_collection_discovery_search_filters_and_paginates_stably(client):
+    response = client.get(
+        "/collections?search=No.%2013&status=archived&sort=label&page_size=5"
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["pagination"] == {
+        "page": 1,
+        "page_size": 5,
+        "total": 1,
+        "total_pages": 1,
+    }
+    assert payload["items"][0]["name"] == "No. 13"
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/designers?page=0",
+        "/designers?page_size=51",
+        "/designers?year=1899",
+        "/designers?status=unknown",
+        "/designers?sort=unknown",
+        "/collections?page_size=0",
+        "/collections?designer_id=0",
+        "/collections?direction=sideways",
+    ],
+)
+def test_archive_discovery_rejects_invalid_query_values(client, path):
+    assert client.get(path).status_code == 422
 
 
 def test_archive_option_search_is_filtered_and_bounded(client):
@@ -482,7 +541,7 @@ def test_designer_without_collections_is_listed_with_zero_count(client):
     )
     assert created.status_code == 201
 
-    designers = client.get("/designers").json()
+    designers = client.get("/designers?page_size=50").json()["items"]
     listed = next(
         designer
         for designer in designers
@@ -510,23 +569,23 @@ def test_list_collections_for_designer(client):
     } == {"Alexander McQueen", "Givenchy"}
 
 
-def test_every_seeded_designer_has_a_collection(client):
-    designers_response = client.get("/designers")
-    collections_response = client.get("/collections")
+def test_every_seeded_collection_has_a_designer(client):
+    designers_response = client.get("/designers?page_size=50")
+    collections_response = client.get("/collections?page_size=100")
 
     assert designers_response.status_code == 200
     assert collections_response.status_code == 200
 
     designer_ids = {
         designer["id"]
-        for designer in designers_response.json()
+        for designer in designers_response.json()["items"]
     }
     credited_designer_ids = {
         collection["designer_id"]
-        for collection in collections_response.json()
+        for collection in collections_response.json()["items"]
     }
 
-    assert designer_ids <= credited_designer_ids
+    assert credited_designer_ids <= designer_ids
 
 
 def test_collection_media_is_normalized_and_updated(client):
@@ -683,7 +742,7 @@ def test_updating_a_missing_designer_returns_404(client):
 
 
 def test_duplicate_designer_name_returns_409(client):
-    existing = client.get("/designers").json()[0]["full_name"]
+    existing = client.get("/designers").json()["items"][0]["full_name"]
 
     response = client.post("/designers", json={"full_name": existing})
 
@@ -694,7 +753,7 @@ def test_duplicate_designer_name_returns_409(client):
 
 
 def test_duplicate_collection_returns_409(client):
-    designers = client.get("/designers").json()
+    designers = client.get("/designers").json()["items"]
     designer_id = designers[0]["id"]
     payload = {
         "designer_id": designer_id,
@@ -728,7 +787,7 @@ def test_collection_for_unknown_designer_returns_404(client):
 
 
 def test_nested_collection_create_uses_path_designer(client):
-    designers = client.get("/designers").json()
+    designers = client.get("/designers").json()["items"]
     designer_id = designers[0]["id"]
 
     response = client.post(

@@ -5,6 +5,7 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine, inspect, text
 
+from app.database import expected_alembic_revision
 from tests.test_portable_schema import EXPECTED_TABLES
 
 
@@ -75,9 +76,50 @@ def test_archive_version_migration_resumes_after_nontransactional_ddl(tmp_path):
         with engine.connect() as connection:
             assert connection.execute(
                 text("SELECT version_num FROM alembic_version")
-            ).scalar_one() == "0002"
+            ).scalar_one() == expected_alembic_revision()
             assert connection.execute(
                 text("SELECT id, version FROM archive_state")
             ).one() == (1, 1)
+    finally:
+        engine.dispose()
+
+
+def test_discovery_index_migration_resumes_after_partial_ddl(tmp_path):
+    database_path = tmp_path / "partial-discovery-indexes.db"
+    config = config_for(database_path)
+    command.upgrade(config, "0002")
+
+    engine = create_engine(f"sqlite+pysqlite:///{database_path}")
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "CREATE INDEX idx_designers_nationality "
+                    "ON designers(nationality)"
+                )
+            )
+            connection.execute(
+                text("CREATE INDEX idx_collections_label ON collections(label)")
+            )
+
+        command.upgrade(config, "head")
+
+        inspector = inspect(engine)
+        designer_indexes = {
+            index["name"] for index in inspector.get_indexes("designers")
+        }
+        collection_indexes = {
+            index["name"] for index in inspector.get_indexes("collections")
+        }
+        assert "idx_designers_nationality" in designer_indexes
+        assert {
+            "idx_collections_label",
+            "idx_collections_season",
+            "idx_collections_year_status",
+        } <= collection_indexes
+        with engine.connect() as connection:
+            assert connection.execute(
+                text("SELECT version_num FROM alembic_version")
+            ).scalar_one() == expected_alembic_revision()
     finally:
         engine.dispose()

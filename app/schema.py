@@ -53,6 +53,7 @@ designers = Table(
         name="birth_year_range",
     ),
 )
+Index("idx_designers_nationality", designers.c.nationality)
 
 collections = Table(
     "collections",
@@ -91,6 +92,13 @@ collections = Table(
     ),
 )
 Index("idx_collections_designer_id", collections.c.designer_id)
+Index("idx_collections_label", collections.c.label)
+Index("idx_collections_season", collections.c.season)
+Index(
+    "idx_collections_year_status",
+    collections.c.release_year,
+    collections.c.status,
+)
 
 collection_media = Table(
     "collection_media",
