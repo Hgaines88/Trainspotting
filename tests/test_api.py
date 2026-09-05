@@ -890,6 +890,27 @@ def test_nested_collection_create_uses_path_designer(client):
     }
 
 
+def test_related_collections_endpoint_is_public_explainable_and_bounded(client):
+    target = client.get("/collections/1").json()
+
+    response = client.get("/collections/1/related?limit=2")
+
+    assert response.status_code == 200
+    results = response.json()
+    assert len(results) <= 2
+    assert all(result["id"] != target["id"] for result in results)
+    assert all(result["score"] > 0 for result in results)
+    assert all(result["reasons"] for result in results)
+    assert [result["score"] for result in results] == sorted(
+        (result["score"] for result in results), reverse=True
+    )
+
+
+def test_related_collections_endpoint_validates_collection_and_limit(client):
+    assert client.get("/collections/999999/related").status_code == 404
+    assert client.get("/collections/1/related?limit=0").status_code == 422
+
+
 def test_collection_credits_are_ordered_queryable_and_compatibility_safe(client):
     guest = client.post(
         "/designers",

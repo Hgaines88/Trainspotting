@@ -57,6 +57,22 @@ test("public archive discovery preserves filters and pagination in the URL", asy
 });
 
 
+test("collection pages show ranked recommendations with visible reasons", async ({ page }) => {
+  await page.goto("/collections/1");
+
+  await expect(page.getByRole("heading", { name: "Related collections" })).toBeVisible();
+  const recommendations = page.locator(".related-list > li");
+  await expect(recommendations).toHaveCount(4);
+  await expect(recommendations.first().locator(".related-score")).toContainText(/^Match \d+$/);
+  await expect(recommendations.first().locator(".related-reasons li").first()).toBeVisible();
+
+  const destination = await recommendations.first().getByRole("link").getAttribute("href");
+  await recommendations.first().getByRole("link").click();
+  await expect(page).toHaveURL(new RegExp(`${destination}$`));
+  await expect(page.getByRole("heading", { name: "Related collections" })).toBeVisible();
+});
+
+
 test("critical moderation workflow is isolated, authorized, idempotent, and reversible", async ({ page }) => {
   await useIdentity(page, null);
   await expect(page.getByRole("heading", { name: /Who made it/i })).toBeVisible();

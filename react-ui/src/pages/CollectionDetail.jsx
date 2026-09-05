@@ -13,12 +13,28 @@ export default function CollectionDetail() {
   const navigate = useNavigate();
   const { authorizedRequest, isAdmin } = useApplicationUser();
   const [collection, setCollection] = useState(null);
+  const [related, setRelated] = useState(null);
+  const [relatedError, setRelatedError] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let active = true;
+    setCollection(null);
+    setError("");
     apiRequest(`/collections/${collectionId}`)
-      .then(setCollection)
-      .catch((requestError) => setError(requestError.message));
+      .then((result) => { if (active) setCollection(result); })
+      .catch((requestError) => { if (active) setError(requestError.message); });
+    return () => { active = false; };
+  }, [collectionId]);
+
+  useEffect(() => {
+    let active = true;
+    setRelated(null);
+    setRelatedError("");
+    apiRequest(`/collections/${collectionId}/related?limit=4`)
+      .then((result) => { if (active) setRelated(result); })
+      .catch((requestError) => { if (active) setRelatedError(requestError.message); });
+    return () => { active = false; };
   }, [collectionId]);
 
   if (error && !collection) return <StatusMessage error>{error}</StatusMessage>;
@@ -64,6 +80,35 @@ export default function CollectionDetail() {
           {collection.source_url && <p><a href={collection.source_url} target="_blank" rel="noreferrer">View the curated collection source ↗</a></p>}
         </section>
       )}
+
+      <section className="section related-collections" aria-labelledby="related-collections-heading">
+        <div className="section-heading">
+          <h2 id="related-collections-heading">Related collections</h2>
+          <span>Explainable matches</span>
+        </div>
+        {related === null && !relatedError && <StatusMessage>Finding related collections…</StatusMessage>}
+        {relatedError && <StatusMessage error>Related collections are temporarily unavailable.</StatusMessage>}
+        {related?.length === 0 && <p className="meta">No strong metadata matches yet.</p>}
+        {related?.length > 0 && (
+          <ol className="related-list">
+            {related.map((item, index) => (
+              <li key={item.id}>
+                <Link to={`/collections/${item.id}`}>
+                  <span className="related-rank">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="related-record">
+                    <strong>{item.name || `${item.season} ${item.release_year}`}</strong>
+                    <small>{item.label} · {item.season} {item.release_year}</small>
+                  </span>
+                  <span className="related-score">Match {item.score}</span>
+                </Link>
+                <ul className="related-reasons" aria-label={`Why ${item.name || item.label} is related`}>
+                  {item.reasons.map((reason) => <li key={reason}>{reason}</li>)}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
 
       <StatusMessage error>{error}</StatusMessage>
     </article>
