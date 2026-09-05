@@ -47,6 +47,15 @@ p { line-height:1.65; }
 .moderation-list { display:grid; gap:1rem; }
 .moderation-card { padding:1.5rem; border:1px solid var(--line); }
 .moderation-card pre { overflow:auto; padding:1rem; color:var(--paper); background:#111; }
+.moderation-dialog { width:min(560px,calc(100% - 2rem)); padding:0; border:1px solid var(--paper); color:var(--paper); background:var(--ink); box-shadow:12px 12px 0 var(--signal); }
+.moderation-dialog::backdrop { background:rgb(0 0 0 / .82); }
+.moderation-dialog form { padding:1.5rem; }
+.moderation-dialog h2 { margin:.25rem 0 1rem; font-size:clamp(2rem,6vw,4rem); line-height:.9; }
+.moderation-dialog label { display:grid; gap:.5rem; margin-top:1.5rem; font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+.moderation-dialog textarea { width:100%; box-sizing:border-box; resize:vertical; border:1px solid var(--line); color:var(--paper); background:#111; padding:1rem; }
+.moderation-dialog textarea:focus { outline:2px solid var(--signal); outline-offset:2px; }
+.moderation-dialog .actions { justify-content:flex-end; margin:2rem 0 0; }
+.moderation-dialog button:disabled { cursor:wait; opacity:.6; }
 .queue-filters { display:flex; flex-wrap:wrap; gap:.5rem; margin:0 0 2rem; }
 .queue-filters button { min-width:auto; }
 .queue-filters .active { border-color:var(--signal); background:var(--signal); }
