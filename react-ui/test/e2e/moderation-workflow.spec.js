@@ -80,6 +80,7 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   await useIdentity(page, "moderator");
   await page.goto("/moderation");
   await expect(page.getByText(new RegExp(`^Submission #${submissionId} · E2E Member$`))).toBeVisible();
+  await expect(page.getByRole("button", { name: /submitted 1 submission/i })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("table", { name: "Proposed archive record" })).toContainText(DESIGNER_NAME);
   await expect(page.getByLabel(new RegExp(`Audit history for submission ${submissionId}`))).toContainText("Submitted");
   await page.getByRole("button", { name: "Request changes" }).click();
@@ -140,7 +141,7 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
 
   await useIdentity(page, "admin");
   await page.goto("/moderation");
-  await page.getByRole("button", { name: "approved", exact: true }).click();
+  await page.getByRole("button", { name: /^approved /i }).click();
   await expect(page.getByText(DESIGNER_NAME)).toBeVisible();
   await page.getByRole("button", { name: "Roll back approval" }).click();
   const rollbackDialog = page.getByRole("dialog", { name: "Roll back approval" });

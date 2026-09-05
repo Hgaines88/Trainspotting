@@ -1,7 +1,7 @@
 import json
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import ValidationError
 
 from app.auth import ClerkIdentity, require_authenticated_user
@@ -399,17 +399,35 @@ def list_my_submissions(user: dict = Depends(authenticated_app_user)):
 @router.get("/moderation/submissions")
 def moderation_queue(
     queue_status: str = "submitted",
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=50)] = 10,
     _reviewer: dict = Depends(require_moderator),
 ):
     if queue_status not in VALID_TRANSITIONS:
         raise HTTPException(status_code=422, detail="Unknown submission status")
     connection = connect()
     try:
-        ids = connection.execute(
-            "SELECT id FROM submissions WHERE status = ? ORDER BY submitted_at, id",
-            (queue_status,),
+        count_rows = connection.execute(
+            "SELECT status, COUNT(*) AS count FROM submissions GROUP BY status"
         ).fetchall()
-        return [serialize_submission(connection, row["id"]) for row in ids]
+        counts = {status_name: 0 for status_name in VALID_TRANSITIONS}
+        counts.update({row["status"]: row["count"] for row in count_rows})
+        total = counts[queue_status]
+        ids = connection.execute(
+            """SELECT id FROM submissions WHERE status = ?
+               ORDER BY submitted_at, id LIMIT ? OFFSET ?""",
+            (queue_status, page_size, (page - 1) * page_size),
+        ).fetchall()
+        return {
+            "items": [serialize_submission(connection, row["id"]) for row in ids],
+            "counts": counts,
+            "pagination": {
+                "page": page,
+                "page_size": page_size,
+                "total": total,
+                "total_pages": (total + page_size - 1) // page_size,
+            },
+        }
     finally:
         connection.close()
 

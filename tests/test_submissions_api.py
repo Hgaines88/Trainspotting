@@ -197,7 +197,7 @@ def test_request_changes_edit_and_resubmit_transition(client):
     submission = client.post("/submissions", json=designer_submission()).json()
     authenticate("user_moderator", "moderator")
     queue = client.get("/moderation/submissions").json()
-    assert [item["id"] for item in queue] == [submission["id"]]
+    assert [item["id"] for item in queue["items"]] == [submission["id"]]
 
     decision = client.post(
         f"/moderation/submissions/{submission['id']}/decisions",
@@ -249,13 +249,41 @@ def test_moderation_queue_includes_canonical_comparison_and_human_audit_identity
 
     authenticate("user_comparison_moderator", "moderator")
     queue = client.get("/moderation/submissions").json()
-    item = next(candidate for candidate in queue if candidate["id"] == submission["id"])
+    item = next(candidate for candidate in queue["items"] if candidate["id"] == submission["id"])
 
     assert item["submitter_display_name"] == "Named Contributor"
     assert item["current_data"]["biography"] == original
     assert item["proposed_data"] == {"biography": "A sourced replacement biography."}
     assert item["audit"][0]["event_type"] == "submitted"
     assert item["audit"][0]["actor_display_name"] == "Named Contributor"
+
+
+def test_moderation_queue_is_counted_paginated_and_bounded(client):
+    authenticate("user_pagination_submitter")
+    submission_ids = [
+        client.post(
+            "/submissions", json=designer_submission(f"Paginated Designer {index}")
+        ).json()["id"]
+        for index in range(3)
+    ]
+    authenticate("user_pagination_moderator", "moderator")
+
+    first = client.get("/moderation/submissions?page=1&page_size=2")
+    second = client.get("/moderation/submissions?page=2&page_size=2")
+
+    assert first.status_code == second.status_code == 200
+    assert [item["id"] for item in first.json()["items"]] == submission_ids[:2]
+    assert [item["id"] for item in second.json()["items"]] == submission_ids[2:]
+    assert first.json()["counts"]["submitted"] == 3
+    assert first.json()["counts"]["rejected"] == 0
+    assert first.json()["pagination"] == {
+        "page": 1,
+        "page_size": 2,
+        "total": 3,
+        "total_pages": 2,
+    }
+    assert client.get("/moderation/submissions?page=0").status_code == 422
+    assert client.get("/moderation/submissions?page_size=51").status_code == 422
 
 
 def test_approval_is_transactional_and_idempotent(client):
