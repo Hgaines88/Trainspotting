@@ -28,7 +28,7 @@ const ACTION_COPY = {
   },
 };
 
-export default function ModerationActionDialog({ action, busy, onCancel, onConfirm }) {
+export default function ModerationActionDialog({ action, busy, error, onCancel, onConfirm }) {
   const dialogRef = useRef(null);
   const notesRef = useRef(null);
   const [notes, setNotes] = useState("");
@@ -64,6 +64,7 @@ export default function ModerationActionDialog({ action, busy, onCancel, onConfi
       <p className="eyebrow">Review decision</p>
       <h2 id="moderation-action-title">{copy.title}</h2>
       <p id="moderation-action-description">{copy.description}</p>
+      {error && <p className="status error" role="alert">{error}</p>}
       {copy.notesLabel && <label>{copy.notesLabel}
         <textarea ref={notesRef} required rows="5" value={notes} onChange={(event) => setNotes(event.target.value)} />
       </label>}

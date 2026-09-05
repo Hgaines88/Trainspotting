@@ -107,6 +107,17 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   await expect(changesDialog).toBeHidden();
   await page.getByRole("button", { name: "Request changes" }).click();
   await requiredChanges.fill("Please add a second independent source.");
+  await page.route(`**/api/moderation/submissions/${submissionId}/decisions`, async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ detail: "Temporary decision failure." }),
+    });
+  });
+  await changesDialog.getByRole("button", { name: "Send change request" }).click();
+  await expect(changesDialog.getByRole("alert")).toHaveText("Temporary decision failure.");
+  await expect(page.locator(".moderation-card")).toHaveCount(1);
+  await page.unroute(`**/api/moderation/submissions/${submissionId}/decisions`);
   await changesDialog.getByRole("button", { name: "Send change request" }).click();
   await expect(page.getByText("The queue is clear.")).toBeVisible();
 
