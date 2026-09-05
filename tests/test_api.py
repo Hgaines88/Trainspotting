@@ -94,6 +94,9 @@ def test_only_anonymous_public_reads_are_shared_cacheable(public_client):
     collections_response = public_client.get(
         f"/collections?archive_version={version}"
     )
+    discovery_response = public_client.get(
+        f"/designers?search=McQueen&page=2&archive_version={version}"
+    )
     unversioned_response = public_client.get("/designers")
     stale_response = public_client.get(f"/designers?archive_version={version + 1}")
     authenticated_response = public_client.get(
@@ -106,6 +109,9 @@ def test_only_anonymous_public_reads_are_shared_cacheable(public_client):
         "public, max-age=0, s-maxage=30, stale-while-revalidate=60"
     )
     assert collections_response.headers["cache-control"] == (
+        "public, max-age=0, s-maxage=30, stale-while-revalidate=60"
+    )
+    assert discovery_response.headers["cache-control"] == (
         "public, max-age=0, s-maxage=30, stale-while-revalidate=60"
     )
     assert authenticated_response.headers["cache-control"] == "private, no-store"
@@ -288,13 +294,20 @@ def test_authenticated_admin_can_mutate_the_archive(public_client):
 
 
 def test_list_designers(client):
-    response = client.get("/designers")
+    response = client.get("/designers?page_size=50")
 
     assert response.status_code == 200
 
-    designers = response.json()
+    payload = response.json()
+    designers = payload["items"]
 
     assert len(designers) == 30
+    assert payload["pagination"] == {
+        "page": 1,
+        "page_size": 50,
+        "total": 30,
+        "total_pages": 1,
+    }
     designer_names = {
         designer["full_name"]
         for designer in designers
@@ -324,6 +337,130 @@ def test_list_designers(client):
         "John Elliott",
         "Haider Ackermann",
     } <= designer_names
+
+
+def test_designer_discovery_search_filters_and_paginates_stably(client):
+    search = client.get("/designers?search=Afro-Atlantic")
+    filtered = client.get(
+        "/designers?nationality=Japanese&sort=name&page_size=1"
+    )
+    second_page = client.get(
+        "/designers?nationality=Japanese&sort=name&page=2&page_size=1"
+    )
+
+    assert search.status_code == 200
+    assert [item["full_name"] for item in search.json()["items"]] == [
+        "Grace Wales Bonner"
+    ]
+    assert filtered.status_code == 200
+    assert filtered.json()["pagination"]["total"] >= 2
+    assert second_page.status_code == 200
+    assert filtered.json()["items"][0]["id"] != second_page.json()["items"][0]["id"]
+
+
+def test_discovery_equality_filters_are_case_insensitive_and_indexed(client):
+    designers = client.get("/designers?nationality=japanese&page_size=50")
+    collections = client.get(
+        "/collections?label=alexander%20mcqueen&season=spring%2Fsummer"
+    )
+
+    assert designers.status_code == 200
+    assert designers.json()["pagination"]["total"] > 0
+    assert all(
+        item["nationality"].lower() == "japanese"
+        for item in designers.json()["items"]
+    )
+    assert collections.status_code == 200
+    assert collections.json()["pagination"]["total"] >= 1
+
+    connection = database.connect()
+    try:
+        plans = (
+            connection.execute(
+                "EXPLAIN QUERY PLAN SELECT id FROM designers "
+                "WHERE nationality COLLATE NOCASE = ?",
+                ("japanese",),
+            ).fetchall(),
+            connection.execute(
+                "EXPLAIN QUERY PLAN SELECT id FROM collections "
+                "WHERE label COLLATE NOCASE = ?",
+                ("alexander mcqueen",),
+            ).fetchall(),
+            connection.execute(
+                "EXPLAIN QUERY PLAN SELECT id FROM collections "
+                "WHERE season COLLATE NOCASE = ?",
+                ("spring/summer",),
+            ).fetchall(),
+        )
+    finally:
+        connection.close()
+
+    assert "idx_designers_nationality" in plans[0][0]["detail"]
+    assert "idx_collections_label" in plans[1][0]["detail"]
+    assert "idx_collections_season" in plans[2][0]["detail"]
+
+
+def test_designer_newest_sort_defaults_to_descending(client):
+    older = client.post(
+        "/designers", json={"full_name": "Newest Default Test Older"}
+    ).json()
+    newer = client.post(
+        "/designers", json={"full_name": "Newest Default Test Newer"}
+    ).json()
+    collection_payload = {
+        "label": "Newest Default Test",
+        "season": "Ready-to-wear",
+        "status": "released",
+    }
+    assert client.post(
+        "/collections",
+        json={**collection_payload, "designer_id": older["id"], "release_year": 2001},
+    ).status_code == 201
+    assert client.post(
+        "/collections",
+        json={**collection_payload, "designer_id": newer["id"], "release_year": 2025},
+    ).status_code == 201
+
+    response = client.get("/designers?search=Newest%20Default%20Test&sort=newest")
+
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()["items"]] == [
+        newer["id"],
+        older["id"],
+    ]
+
+
+def test_collection_discovery_search_filters_and_paginates_stably(client):
+    response = client.get(
+        "/collections?search=No.%2013&status=archived&sort=label&page_size=5"
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["pagination"] == {
+        "page": 1,
+        "page_size": 5,
+        "total": 1,
+        "total_pages": 1,
+    }
+    assert payload["items"][0]["name"] == "No. 13"
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/designers?page=0",
+        "/designers?page_size=51",
+        "/designers?year=1899",
+        "/designers?status=unknown",
+        "/designers?sort=unknown",
+        "/collections?page_size=0",
+        "/collections?designer_id=0",
+        "/collections?direction=sideways",
+    ],
+)
+def test_archive_discovery_rejects_invalid_query_values(client, path):
+    assert client.get(path).status_code == 422
 
 
 def test_archive_option_search_is_filtered_and_bounded(client):
@@ -482,7 +619,7 @@ def test_designer_without_collections_is_listed_with_zero_count(client):
     )
     assert created.status_code == 201
 
-    designers = client.get("/designers").json()
+    designers = client.get("/designers?page_size=50").json()["items"]
     listed = next(
         designer
         for designer in designers
@@ -510,23 +647,23 @@ def test_list_collections_for_designer(client):
     } == {"Alexander McQueen", "Givenchy"}
 
 
-def test_every_seeded_designer_has_a_collection(client):
-    designers_response = client.get("/designers")
-    collections_response = client.get("/collections")
+def test_every_seeded_collection_has_a_designer(client):
+    designers_response = client.get("/designers?page_size=50")
+    collections_response = client.get("/collections?page_size=100")
 
     assert designers_response.status_code == 200
     assert collections_response.status_code == 200
 
     designer_ids = {
         designer["id"]
-        for designer in designers_response.json()
+        for designer in designers_response.json()["items"]
     }
     credited_designer_ids = {
         collection["designer_id"]
-        for collection in collections_response.json()
+        for collection in collections_response.json()["items"]
     }
 
-    assert designer_ids <= credited_designer_ids
+    assert credited_designer_ids <= designer_ids
 
 
 def test_collection_media_is_normalized_and_updated(client):
@@ -683,7 +820,7 @@ def test_updating_a_missing_designer_returns_404(client):
 
 
 def test_duplicate_designer_name_returns_409(client):
-    existing = client.get("/designers").json()[0]["full_name"]
+    existing = client.get("/designers").json()["items"][0]["full_name"]
 
     response = client.post("/designers", json={"full_name": existing})
 
@@ -694,7 +831,7 @@ def test_duplicate_designer_name_returns_409(client):
 
 
 def test_duplicate_collection_returns_409(client):
-    designers = client.get("/designers").json()
+    designers = client.get("/designers").json()["items"]
     designer_id = designers[0]["id"]
     payload = {
         "designer_id": designer_id,
@@ -728,7 +865,7 @@ def test_collection_for_unknown_designer_returns_404(client):
 
 
 def test_nested_collection_create_uses_path_designer(client):
-    designers = client.get("/designers").json()
+    designers = client.get("/designers").json()["items"]
     designer_id = designers[0]["id"]
 
     response = client.post(

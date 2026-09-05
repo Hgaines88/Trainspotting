@@ -82,7 +82,7 @@ FastAPI at `http://127.0.0.1:8000`.
 
 ## Run with Docker
 
-Build and start the API, React client, and persistent SQLite storage:
+Build and start the API, React client, and persistent MySQL service:
 
 ```bash
 docker compose up --build
@@ -90,10 +90,15 @@ docker compose up --build
 
 The React client is available at `http://localhost:5173`, and the FastAPI-served
 Vanilla client and API are available at `http://localhost:8000`. Archive changes
-are retained in the `archive-data` Docker volume when containers restart.
+are retained in the `trainspotting_mysql_data` Docker volume when containers
+restart. The Compose credentials are local-development defaults only.
 
-Stop the app with `docker compose down`. To also remove the persisted database
-and recreate it from `data/archive.json` on the next start, run:
+Stop the app with `docker compose down`. SQLite remains available for an
+explicit local fallback by setting `DATABASE_URL` to a SQLite URL before
+starting the stack.
+
+The following command permanently removes the local MySQL volume and its data;
+use it only when you intentionally want an empty database:
 
 ```bash
 docker compose down --volumes

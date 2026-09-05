@@ -1,5 +1,7 @@
 import os
+import math
 from contextlib import asynccontextmanager
+from typing import Literal
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import (
@@ -293,13 +295,100 @@ def current_user(
     )
     return sync_clerk_user_profile(identity.user_id)
 
+def pagination_payload(rows, *, page: int, page_size: int, total: int):
+    return {
+        "items": [dict(row) for row in rows],
+        "pagination": {
+            "page": page,
+            "page_size": page_size,
+            "total": total,
+            "total_pages": math.ceil(total / page_size) if total else 0,
+        },
+    }
+
+
+def case_insensitive_equality(connection, column: str) -> str:
+    if getattr(connection, "_backend", "sqlite") == "mysql":
+        return f"{column} = ?"
+    return f"{column} COLLATE NOCASE = ?"
+
+
 @app.get("/designers")
-def list_designers():
+def list_designers(
+    search: str = Query(default="", max_length=120),
+    nationality: str = Query(default="", max_length=120),
+    label: str = Query(default="", max_length=120),
+    season: str = Query(default="", max_length=100),
+    year: int | None = Query(default=None, ge=1900, le=2100),
+    status_filter: Literal["concept", "in-production", "released", "archived"] | None = Query(
+        default=None, alias="status"
+    ),
+    sort: Literal["name", "newest", "oldest", "collections"] = "name",
+    direction: Literal["asc", "desc"] | None = None,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=12, ge=1, le=50),
+):
     connection = connect()
 
     try:
+        clauses = []
+        parameters = []
+        normalized_search = search.strip()
+        if normalized_search:
+            pattern = f"%{normalized_search}%"
+            clauses.append(
+                "(LOWER(designers.full_name) LIKE LOWER(?) "
+                "OR LOWER(COALESCE(designers.nationality, '')) LIKE LOWER(?) "
+                "OR LOWER(COALESCE(designers.biography, '')) LIKE LOWER(?) "
+                "OR LOWER(collections.label) LIKE LOWER(?) "
+                "OR LOWER(COALESCE(collections.name, '')) LIKE LOWER(?) "
+                "OR LOWER(collections.season) LIKE LOWER(?) "
+                "OR CAST(collections.release_year AS CHAR) LIKE ? "
+                "OR LOWER(COALESCE(collections.description, '')) LIKE LOWER(?))"
+            )
+            parameters.extend([pattern] * 8)
+        for value, expression in (
+            (
+                nationality.strip(),
+                case_insensitive_equality(connection, "designers.nationality"),
+            ),
+            (label.strip(), case_insensitive_equality(connection, "collections.label")),
+            (season.strip(), case_insensitive_equality(connection, "collections.season")),
+        ):
+            if value:
+                clauses.append(expression)
+                parameters.append(value)
+        if year is not None:
+            clauses.append("collections.release_year = ?")
+            parameters.append(year)
+        if status_filter is not None:
+            clauses.append("collections.status = ?")
+            parameters.append(status_filter)
+
+        where_sql = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        total = connection.execute(
+            f"""SELECT COUNT(DISTINCT designers.id)
+                FROM designers
+                LEFT JOIN collections ON collections.designer_id = designers.id
+                {where_sql}""",
+            parameters,
+        ).fetchone()[0]
+
+        sort_expressions = {
+            "name": "LOWER(designers.full_name)",
+            "newest": "MAX(collections.release_year)",
+            "oldest": "MIN(collections.release_year)",
+            "collections": "collection_count",
+        }
+        default_direction = "desc" if sort in {"newest", "collections"} else "asc"
+        order_direction = (direction or default_direction).upper()
+        order_sql = (
+            f"{sort_expressions[sort]} {order_direction}, "
+            f"designers.id {order_direction}"
+        )
+        offset = (page - 1) * page_size
         rows = connection.execute(
-            """
+            f"""
             SELECT
                 designers.id,
                 designers.full_name,
@@ -307,16 +396,25 @@ def list_designers():
                 designers.birth_year,
                 designers.website,
                 designers.biography,
-                COUNT(collections.id) AS collection_count
+                COALESCE(MAX(collection_stats.collection_count), 0) AS collection_count
             FROM designers
             LEFT JOIN collections
                 ON collections.designer_id = designers.id
+            LEFT JOIN (
+                SELECT designer_id, COUNT(*) AS collection_count
+                FROM collections
+                GROUP BY designer_id
+            ) AS collection_stats
+                ON collection_stats.designer_id = designers.id
+            {where_sql}
             GROUP BY designers.id
-            ORDER BY designers.full_name
-            """
+            ORDER BY {order_sql}
+            LIMIT ? OFFSET ?
+            """,
+            (*parameters, page_size, offset),
         ).fetchall()
 
-        return [dict(row) for row in rows]
+        return pagination_payload(rows, page=page, page_size=page_size, total=total)
     finally:
         connection.close()
 
@@ -829,12 +927,78 @@ def delete_collection(collection_id: int):
 
 
 @app.get("/collections")
-def list_collections():
+def list_collections(
+    search: str = Query(default="", max_length=120),
+    designer_id: int | None = Query(default=None, ge=1),
+    nationality: str = Query(default="", max_length=120),
+    label: str = Query(default="", max_length=120),
+    season: str = Query(default="", max_length=100),
+    year: int | None = Query(default=None, ge=1900, le=2100),
+    status_filter: Literal["concept", "in-production", "released", "archived"] | None = Query(
+        default=None, alias="status"
+    ),
+    sort: Literal["newest", "oldest", "label", "designer"] = "newest",
+    direction: Literal["asc", "desc"] | None = None,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=24, ge=1, le=100),
+):
     connection = connect()
 
     try:
+        clauses = []
+        parameters = []
+        normalized_search = search.strip()
+        if normalized_search:
+            pattern = f"%{normalized_search}%"
+            clauses.append(
+                "(LOWER(designers.full_name) LIKE LOWER(?) "
+                "OR LOWER(collections.label) LIKE LOWER(?) "
+                "OR LOWER(COALESCE(collections.name, '')) LIKE LOWER(?) "
+                "OR LOWER(collections.season) LIKE LOWER(?) "
+                "OR CAST(collections.release_year AS CHAR) LIKE ? "
+                "OR LOWER(COALESCE(collections.description, '')) LIKE LOWER(?))"
+            )
+            parameters.extend([pattern] * 6)
+        if designer_id is not None:
+            clauses.append("collections.designer_id = ?")
+            parameters.append(designer_id)
+        for value, expression in (
+            (
+                nationality.strip(),
+                case_insensitive_equality(connection, "designers.nationality"),
+            ),
+            (label.strip(), case_insensitive_equality(connection, "collections.label")),
+            (season.strip(), case_insensitive_equality(connection, "collections.season")),
+        ):
+            if value:
+                clauses.append(expression)
+                parameters.append(value)
+        if year is not None:
+            clauses.append("collections.release_year = ?")
+            parameters.append(year)
+        if status_filter is not None:
+            clauses.append("collections.status = ?")
+            parameters.append(status_filter)
+
+        where_sql = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        total = connection.execute(
+            f"""SELECT COUNT(*)
+                FROM collections
+                JOIN designers ON designers.id = collections.designer_id
+                {where_sql}""",
+            parameters,
+        ).fetchone()[0]
+        sort_expressions = {
+            "newest": "collections.release_year",
+            "oldest": "collections.release_year",
+            "label": "LOWER(collections.label)",
+            "designer": "LOWER(designers.full_name)",
+        }
+        order_direction = (direction or ("desc" if sort == "newest" else "asc")).upper()
+        order_sql = f"{sort_expressions[sort]} {order_direction}, collections.id {order_direction}"
+        offset = (page - 1) * page_size
         rows = connection.execute(
-            """
+            f"""
             SELECT
                 collections.id,
                 collections.designer_id,
@@ -861,13 +1025,14 @@ def list_collections():
             FROM collections
             JOIN designers
                 ON designers.id = collections.designer_id
-            ORDER BY
-                collections.release_year DESC,
-                collections.label
-            """
+            {where_sql}
+            ORDER BY {order_sql}
+            LIMIT ? OFFSET ?
+            """,
+            (*parameters, page_size, offset),
         ).fetchall()
 
-        return [dict(row) for row in rows]
+        return pagination_payload(rows, page=page, page_size=page_size, total=total)
     finally:
         connection.close()
 

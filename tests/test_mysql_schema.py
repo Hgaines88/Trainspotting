@@ -2,7 +2,7 @@ import os
 import uuid
 
 import pytest
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, inspect, text
 
 from app.database import expected_alembic_revision
 
@@ -36,6 +36,18 @@ def test_mysql_schema_and_append_only_audit_guards():
                     "WHERE trigger_schema = DATABASE()"
                 )
             ).scalar_one() == 4
+
+            inspector = inspect(connection)
+            assert "idx_designers_nationality" in {
+                index["name"] for index in inspector.get_indexes("designers")
+            }
+            assert {
+                "idx_collections_label",
+                "idx_collections_season",
+                "idx_collections_year_status",
+            } <= {
+                index["name"] for index in inspector.get_indexes("collections")
+            }
 
             user_id = connection.execute(
                 text(
