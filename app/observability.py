@@ -49,6 +49,7 @@ class ServiceMetrics:
             self._transactions = Counter()
             self._transaction_duration_buckets = Counter()
             self._transaction_duration_sum_ms = Counter()
+            self._moderation_events = Counter()
             self._pool = {}
 
     def observe_request(
@@ -120,6 +121,12 @@ class ServiceMetrics:
                 self._transaction_duration_buckets,
                 ("backend", "outcome"),
             )
+            moderation_events = [
+                {"action": action, "outcome": outcome, "count": count}
+                for (action, outcome), count in sorted(
+                    self._moderation_events.items()
+                )
+            ]
             pool = dict(self._pool)
         return {
             "requests": requests,
@@ -128,6 +135,7 @@ class ServiceMetrics:
             "database_latency_ms": database_latency,
             "transactions": transactions,
             "transaction_duration_ms": transaction_latency,
+            "moderation_events": moderation_events,
             "connection_pool": pool,
         }
 
@@ -203,6 +211,11 @@ class ServiceMetrics:
                 "checked_out": checked_out,
                 "overflow": overflow,
             }
+
+    def observe_moderation_event(self, action: str, outcome: str) -> None:
+        """Count a completed workflow event using bounded, non-identifying labels."""
+        with self._lock:
+            self._moderation_events[(action, outcome)] += 1
 
 
 service_metrics = ServiceMetrics()

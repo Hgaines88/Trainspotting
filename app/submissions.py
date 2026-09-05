@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 
 from app.auth import ClerkIdentity, require_authenticated_user
+from app.observability import service_metrics
 from app.database import (
     DATABASE_INTEGRITY_ERRORS,
     bump_archive_version,
@@ -195,6 +196,7 @@ def create_draft(
         connection.execute("BEGIN IMMEDIATE")
         submission_id = create_submission_record(connection, payload, user, "draft")
         connection.commit()
+        service_metrics.observe_moderation_event("submission_created", "draft")
         return serialize_submission(connection, submission_id)
     except Exception:
         connection.rollback()
@@ -215,6 +217,7 @@ def create_ready_submission(
         ensure_target_exists(connection, payload)
         submission_id = create_submission_record(connection, payload, user, "submitted")
         connection.commit()
+        service_metrics.observe_moderation_event("submission_created", "submitted")
         return serialize_submission(connection, submission_id)
     except Exception:
         connection.rollback()
@@ -259,6 +262,7 @@ def update_draft(
             row["status"], row["status"], {"version": row["version"] + 1},
         )
         connection.commit()
+        service_metrics.observe_moderation_event("submission_updated", row["status"])
         return serialize_submission(connection, submission_id)
     except Exception:
         connection.rollback()
@@ -313,6 +317,7 @@ def submit_draft(submission_id: int, user: dict = Depends(authenticated_app_user
         )
         append_audit(connection, submission_id, user["id"], "submitted", row["status"], "submitted")
         connection.commit()
+        service_metrics.observe_moderation_event("submission_submitted", "submitted")
         return serialize_submission(connection, submission_id)
     except Exception:
         connection.rollback()
@@ -470,6 +475,9 @@ def decide_submission(
             raise HTTPException(status_code=403, detail="Reviewers cannot decide their own submissions.")
         if row["status"] == "approved" and payload.decision == "approve":
             connection.commit()
+            service_metrics.observe_moderation_event(
+                "moderation_decision", "approved_retry"
+            )
             return serialize_submission(connection, submission_id)
         target_status = {"approve": "approved", "reject": "rejected", "request_changes": "changes_requested"}[payload.decision]
         if target_status not in VALID_TRANSITIONS[row["status"]]:
@@ -488,6 +496,9 @@ def decide_submission(
         )
         append_audit(connection, submission_id, reviewer["id"], target_status, row["status"], target_status, {"notes": payload.notes})
         connection.commit()
+        service_metrics.observe_moderation_event(
+            "moderation_decision", target_status
+        )
         return serialize_submission(connection, submission_id)
     except DATABASE_INTEGRITY_ERRORS as error:
         connection.rollback()
@@ -574,6 +585,9 @@ def rollback_submission(
         )
         append_audit(connection, submission_id, admin["id"], "rolled_back", "approved", "rolled_back", {"reason": payload.reason})
         connection.commit()
+        service_metrics.observe_moderation_event(
+            "moderation_rollback", "rolled_back"
+        )
         return serialize_submission(connection, submission_id)
     except Exception:
         connection.rollback()

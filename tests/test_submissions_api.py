@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from app import database
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.main import app
+from app.observability import service_metrics
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -96,6 +97,44 @@ def test_only_canonical_promotion_and_rollback_increment_archive_version(client)
     )
     assert rolled_back.status_code == 200
     assert archive_version(client) == initial + 2
+
+    events = {
+        (item["action"], item["outcome"]): item["count"]
+        for item in service_metrics.snapshot()["moderation_events"]
+    }
+    assert events == {
+        ("submission_created", "submitted"): 1,
+        ("moderation_decision", "approved"): 1,
+        ("moderation_decision", "approved_retry"): 1,
+        ("moderation_rollback", "rolled_back"): 1,
+    }
+
+
+def test_failed_moderation_transition_is_not_counted_as_completed(client):
+    authenticate("user_metrics_submitter")
+    submission = client.post("/submissions", json=designer_submission()).json()
+    authenticate("user_metrics_moderator", "moderator")
+    assert client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "reject", "notes": "Insufficient evidence."},
+    ).status_code == 200
+    assert client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "approve"},
+    ).status_code == 409
+
+    assert service_metrics.snapshot()["moderation_events"] == [
+        {
+            "action": "moderation_decision",
+            "outcome": "rejected",
+            "count": 1,
+        },
+        {
+            "action": "submission_created",
+            "outcome": "submitted",
+            "count": 1,
+        },
+    ]
 
 
 def test_anonymous_users_cannot_create_submissions(client):

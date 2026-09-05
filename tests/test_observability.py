@@ -147,6 +147,7 @@ def test_metrics_endpoint_returns_aggregates_to_an_administrator(
         "database_latency_ms",
         "transactions",
         "transaction_duration_ms",
+        "moderation_events",
         "connection_pool",
     }
 
