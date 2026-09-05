@@ -111,8 +111,11 @@ human release action unless the repository plan or visibility changes.
    token, and immediately run the authenticated checks locally:
 
    ```bash
+   read -s -p "Clerk session token: " STAGING_SMOKE_BEARER_TOKEN; echo
    STAGING_BASE_URL=https://trainspotting-staging.example.com \
-     python -m scripts.smoke_staging --token '<fresh-token>' --require-token
+     STAGING_SMOKE_BEARER_TOKEN="$STAGING_SMOKE_BEARER_TOKEN" \
+     python -m scripts.smoke_staging --require-token
+   unset STAGING_SMOKE_BEARER_TOKEN
    ```
 
    Enter the token only in the current shell invocation. Do not save it in a
