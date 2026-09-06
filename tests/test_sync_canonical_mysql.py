@@ -155,6 +155,25 @@ def test_sync_reports_ambiguous_fallback_without_writing(tmp_path):
     connection.close()
 
 
+def test_sync_reserves_exact_rows_before_matching_same_year_fallbacks(tmp_path):
+    connection = database(tmp_path)
+    payload = copy.deepcopy(load_archive(DEFAULT_ARCHIVE))
+    existing = payload["collections"][0]
+    additional = copy.deepcopy(existing)
+    additional["key"] = f"{existing['key']}-additional-season"
+    additional["season"] = "Additional season"
+    payload["collections"].append(additional)
+
+    plan = build_plan(connection, payload)
+
+    assert not plan["conflicts"]
+    assert [item["key"] for item in plan["collection_inserts"]] == [
+        additional["key"]
+    ]
+    assert not plan["collection_updates"]
+    connection.close()
+
+
 def test_archive_validation_happens_before_database_changes(tmp_path):
     archive = tmp_path / "bad.json"
     payload = json.loads(DEFAULT_ARCHIVE.read_text())
