@@ -101,12 +101,18 @@ def build_plan(connection, payload: dict) -> dict:
     fallback: dict[tuple, list[dict]] = {}
     for row in db_collections:
         fallback.setdefault((row["designer_id"], row["label"], row["release_year"]), []).append(row)
-    canonical_fallback_counts: dict[tuple, int] = {}
+    reserved_exact_ids: set[int] = set()
+    fallback_demands: dict[tuple, int] = {}
     for item in payload["collections"]:
         did = designer_ids[item["designer_key"]]
         if did is not None:
-            key = (did, item["label"], item["release_year"])
-            canonical_fallback_counts[key] = canonical_fallback_counts.get(key, 0) + 1
+            identity = (did, item["label"], item["season"], item["release_year"])
+            current = exact.get(identity)
+            if current is not None:
+                reserved_exact_ids.add(current["id"])
+            else:
+                key = (did, item["label"], item["release_year"])
+                fallback_demands[key] = fallback_demands.get(key, 0) + 1
 
     inserts, updates, matched_ids, conflicts = [], [], set(), []
     for item in payload["collections"]:
@@ -117,8 +123,14 @@ def build_plan(connection, payload: dict) -> dict:
         identity = (did, item["label"], item["season"], item["release_year"])
         current = exact.get(identity)
         if current is None:
-            candidates = fallback.get((did, item["label"], item["release_year"]), [])
-            if len(candidates) == 1 and canonical_fallback_counts[(did, item["label"], item["release_year"])] == 1:
+            fallback_key = (did, item["label"], item["release_year"])
+            candidates = [
+                row
+                for row in fallback.get(fallback_key, [])
+                if row["id"] not in reserved_exact_ids
+                and row["id"] not in matched_ids
+            ]
+            if len(candidates) == 1 and fallback_demands[fallback_key] == 1:
                 current = candidates[0]
             elif candidates:
                 conflicts.append({"key": item["key"], "candidate_ids": [row["id"] for row in candidates]})
