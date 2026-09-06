@@ -377,6 +377,10 @@ def test_designer_alias_resolves_without_replacing_canonical_name(client):
     discovery = client.get("/designers?search=Tomoaki")
     options = client.get("/archive-options/designers?search=Nagao")
     detail = client.get(f"/designers/{designer_id}")
+    punctuation_discovery = client.get("/designers?search=%2A%2A%2A")
+    punctuation_options = client.get(
+        "/archive-options/designers?search=%2A%2A%2A"
+    )
 
     assert [item["full_name"] for item in discovery.json()["items"]] == ["Nigo"]
     assert [item["full_name"] for item in options.json()] == ["Nigo"]
@@ -386,6 +390,8 @@ def test_designer_alias_resolves_without_replacing_canonical_name(client):
         "alias_type": "legal-name",
         "source_url": "https://example.com/nigo",
     }]
+    assert punctuation_discovery.json()["pagination"]["total"] == 0
+    assert punctuation_options.json() == []
 
 
 def test_discovery_equality_filters_are_case_insensitive_and_indexed(client):

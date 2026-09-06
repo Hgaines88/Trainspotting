@@ -77,6 +77,37 @@ def test_archive_rejects_duplicate_normalized_designer_aliases(tmp_path):
         load_archive(archive)
 
 
+def test_archive_normalizes_alias_source_urls_before_planning(tmp_path):
+    payload = copy.deepcopy(load_archive(DEFAULT_ARCHIVE))
+    payload["designers"][0]["aliases"] = [{
+        "alias": "Documented Name",
+        "alias_type": "alternate-name",
+        "source_url": "  https://example.com/designer  ",
+    }]
+    archive = tmp_path / "normalized-alias-source.json"
+    archive.write_text(json.dumps(payload), encoding="utf-8")
+
+    loaded = load_archive(archive)
+
+    assert loaded["designers"][0]["aliases"][0]["source_url"] == (
+        "https://example.com/designer"
+    )
+
+    connection = database(tmp_path)
+    plan = build_plan(connection, loaded)
+    apply_plan(connection, loaded, plan)
+    stored_source = connection.execute(
+        """SELECT designer_aliases.source_url
+           FROM designer_aliases
+           JOIN designers ON designers.id = designer_aliases.designer_id
+           WHERE designers.full_name = ?""",
+        (loaded["designers"][0]["full_name"],),
+    ).fetchone()[0]
+    connection.close()
+
+    assert stored_source == "https://example.com/designer"
+
+
 def test_sync_updates_in_place_and_bumps_version_once(tmp_path):
     connection = database(tmp_path)
     payload = load_archive(DEFAULT_ARCHIVE)

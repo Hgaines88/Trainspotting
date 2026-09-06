@@ -538,12 +538,17 @@ def list_designers(
         normalized_search = search.strip()
         if normalized_search:
             pattern = f"%{normalized_search}%"
-            normalized_alias_pattern = f"%{normalized_search_name(normalized_search)}%"
+            normalized_alias = normalized_search_name(normalized_search)
+            alias_predicate = ""
+            if normalized_alias:
+                alias_predicate = (
+                    "OR EXISTS (SELECT 1 FROM designer_aliases "
+                    "WHERE designer_aliases.designer_id = designers.id "
+                    "AND designer_aliases.normalized_alias LIKE ?) "
+                )
             clauses.append(
                 "(LOWER(designers.full_name) LIKE LOWER(?) "
-                "OR EXISTS (SELECT 1 FROM designer_aliases "
-                "WHERE designer_aliases.designer_id = designers.id "
-                "AND designer_aliases.normalized_alias LIKE ?) "
+                f"{alias_predicate}"
                 "OR LOWER(COALESCE(designers.nationality, '')) LIKE LOWER(?) "
                 "OR LOWER(COALESCE(designers.biography, '')) LIKE LOWER(?) "
                 "OR LOWER(collections.label) LIKE LOWER(?) "
@@ -552,7 +557,10 @@ def list_designers(
                 "OR CAST(collections.release_year AS CHAR) LIKE ? "
                 "OR LOWER(COALESCE(collections.description, '')) LIKE LOWER(?))"
             )
-            parameters.extend([pattern, normalized_alias_pattern, *([pattern] * 7)])
+            parameters.append(pattern)
+            if normalized_alias:
+                parameters.append(f"%{normalized_alias}%")
+            parameters.extend([pattern] * 7)
         for value, expression in (
             (
                 nationality.strip(),
@@ -638,22 +646,30 @@ def designer_options(
     connection = connect()
     try:
         normalized_search = search.strip()
+        normalized_alias = normalized_search_name(normalized_search)
+        alias_predicate = ""
+        alias_parameters = []
+        if normalized_alias:
+            alias_predicate = (
+                "OR EXISTS ("
+                "SELECT 1 FROM designer_aliases "
+                "WHERE designer_aliases.designer_id = designers.id "
+                "AND designer_aliases.normalized_alias LIKE ?"
+                ")"
+            )
+            alias_parameters.append(f"%{normalized_alias}%")
         rows = connection.execute(
-            """SELECT id, full_name, nationality
+            f"""SELECT id, full_name, nationality
                FROM designers
                WHERE LOWER(full_name) LIKE LOWER(?)
                   OR LOWER(COALESCE(nationality, '')) LIKE LOWER(?)
-                  OR EXISTS (
-                      SELECT 1 FROM designer_aliases
-                      WHERE designer_aliases.designer_id = designers.id
-                        AND designer_aliases.normalized_alias LIKE ?
-                  )
+                  {alias_predicate}
                ORDER BY full_name
                LIMIT ?""",
             (
                 f"%{normalized_search}%",
                 f"%{normalized_search}%",
-                f"%{normalized_search_name(normalized_search)}%",
+                *alias_parameters,
                 limit,
             ),
         ).fetchall()

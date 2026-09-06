@@ -45,7 +45,9 @@ def load_archive(path: Path) -> dict:
                 raise ValueError(f"Incomplete designer alias for {key!r}")
             if alias["alias_type"] not in {"alternate-name", "former-name", "legal-name"}:
                 raise ValueError(f"Invalid designer alias type for {key!r}")
-            normalize_public_http_url(alias["source_url"], "Alias source URL")
+            alias["source_url"] = normalize_public_http_url(
+                alias["source_url"], "Alias source URL"
+            )
             normalized_alias = normalized_search_name(alias["alias"])
             if not normalized_alias or normalized_alias in normalized_aliases:
                 raise ValueError(f"Duplicate or empty normalized designer alias: {alias['alias']!r}")
