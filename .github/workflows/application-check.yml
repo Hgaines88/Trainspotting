@@ -24,7 +24,7 @@ jobs:
       mysql:
         image: mysql@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb # 8.4.11
         env:
-          MYSQL_DATABASE: trainspotting
+          MYSQL_DATABASE: trainspotting_test
           MYSQL_USER: trainspotting
           MYSQL_PASSWORD: trainspotting_ci_only
           MYSQL_ROOT_PASSWORD: trainspotting_root_ci_only
@@ -72,8 +72,8 @@ jobs:
 
       - name: Apply schema and run MySQL integration tests
         env:
-          DATABASE_URL: mysql+pymysql://trainspotting:trainspotting_ci_only@127.0.0.1:3306/trainspotting?charset=utf8mb4
-          MYSQL_TEST_DATABASE_URL: mysql+pymysql://trainspotting:trainspotting_ci_only@127.0.0.1:3306/trainspotting?charset=utf8mb4
+          DATABASE_URL: mysql+pymysql://trainspotting:trainspotting_ci_only@127.0.0.1:3306/trainspotting_test?charset=utf8mb4
+          MYSQL_TEST_DATABASE_URL: mysql+pymysql://trainspotting:trainspotting_ci_only@127.0.0.1:3306/trainspotting_test?charset=utf8mb4
         run: |
           .venv/bin/python -m scripts.migrate_database
           .venv/bin/python -m pytest -q tests/test_mysql_schema.py tests/test_mysql_runtime.py
