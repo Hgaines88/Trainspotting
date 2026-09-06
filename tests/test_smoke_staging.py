@@ -90,3 +90,25 @@ def test_release_smoke_rejects_the_legacy_unpaginated_designer_payload(monkeypat
 
     with pytest.raises(RuntimeError, match="Public read failed"):
         smoke_staging.run("https://staging.example.com")
+
+
+def test_release_smoke_rejects_a_designer_payload_without_pagination(monkeypatch):
+    def fake_request(_base_url, path, **kwargs):
+        if path == "/api/health":
+            return smoke_staging.Result(200, {}, {"status": "ok"})
+        if path == "/api/ready":
+            return smoke_staging.Result(
+                200,
+                {},
+                {"status": "ready", "database": "mysql", "revision": "0006"},
+            )
+        if path == "/api/archive-version":
+            return smoke_staging.Result(200, {}, {"version": 2})
+        if path.startswith("/api/designers?"):
+            return smoke_staging.Result(200, {}, {"items": []})
+        pytest.fail(f"Unexpected smoke request: {path} {kwargs}")
+
+    monkeypatch.setattr(smoke_staging, "request", fake_request)
+
+    with pytest.raises(RuntimeError, match="Public read failed"):
+        smoke_staging.run("https://staging.example.com")

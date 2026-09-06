@@ -105,8 +105,23 @@ def run(
         if isinstance(designers.payload, dict)
         else None
     )
+    pagination = (
+        designers.payload.get("pagination")
+        if isinstance(designers.payload, dict)
+        else None
+    )
+    valid_pagination = isinstance(pagination, dict) and all(
+        isinstance(pagination.get(field), int)
+        for field in ("page", "page_size", "total", "total_pages")
+    )
     require(
-        designers.status == 200 and isinstance(designer_items, list),
+        designers.status == 200
+        and isinstance(designer_items, list)
+        and valid_pagination
+        and pagination["page"] >= 1
+        and pagination["page_size"] >= 1
+        and pagination["total"] >= 0
+        and pagination["total_pages"] >= 0,
         "Public read failed",
     )
     require(
