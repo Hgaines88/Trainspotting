@@ -317,20 +317,18 @@ def test_demo_x03_expansion_has_sources_and_ordered_credits():
     }
     assert designer_keys <= archive_designer_keys
 
-    credited_collections = [
+    expanded_collections = [
         collection
         for collection in payload["collections"]
-        if designer_keys & {
-            credit["designer_key"]
-            for credit in collection.get("credits", [])
-        }
+        if collection["designer_key"] in designer_keys
     ]
-    assert credited_collections
-    assert all(collection["source_url"] for collection in credited_collections)
+    assert len(expanded_collections) == 50
+    assert all(collection.get("credits") for collection in expanded_collections)
+    assert all(collection["source_url"] for collection in expanded_collections)
     assert all(
         [credit["position"] for credit in collection["credits"]]
         == list(range(1, len(collection["credits"]) + 1))
-        for collection in credited_collections
+        for collection in expanded_collections
     )
 
     lv2 = next(
