@@ -289,6 +289,58 @@ Railway references:
 - [Cost control](https://docs.railway.com/pricing/cost-control) explains usage
   limits, resource limits, private networking, and serverless cost controls.
 
+## Data engineering skills demonstrated
+
+Trainspotting is not only a CRUD application. It demonstrates a controlled data
+lifecycle from researched input through validation, review, publication,
+serving, monitoring, backup, and recovery.
+
+| Competency | Evidence in Trainspotting |
+| --- | --- |
+| Relational data modeling | Normalized designers, collections, sources, users, submissions, decisions, ingestion ledgers, and audit records; a many-to-many junction table represents ordered designer credits and roles without duplicating entities. |
+| Schema evolution | Forward-only Alembic migrations upgrade both local and hosted MySQL. A Railway pre-deploy migration must pass before a new API deployment becomes active. |
+| Batch ingestion | The curated CSV pipeline reads structured source rows, retains their raw form, normalizes supported values, validates the contract, and produces a reconciliation result. |
+| Data quality | Deterministic checks identify invalid references, unsafe values, duplicate natural keys, taxonomy inconsistencies, and canonical/runtime drift instead of silently accepting questionable data. |
+| Idempotency and deduplication | SHA-256 fingerprints classify repeated ingestion rows as duplicates. Approval and synchronization paths are designed so retries do not create duplicate canonical records. |
+| Staging and promotion | Valid ingestion rows become reviewable submissions rather than direct writes. Member, moderator, and administrator boundaries separate proposed data from canonical publication. |
+| Transactional integrity | Canonical promotion, ordered credits, decisions, and audit events are committed as controlled units; failed validation or conflicting rollback does not leave partial state. |
+| Lineage and provenance | Source URLs, raw ingestion rows, batch records, proposer/reviewer actions, decisions, promotions, and append-only audit events show where data came from and how it changed. |
+| Database portability and migration | The project migrated from SQLite to MySQL while retaining SQLite as an explicit compatibility and recovery path. Reconciliation tests compare counts, relationships, canonical digests, and operational history. |
+| Query design and performance | Public discovery uses indexed filtering, stable sorting, API pagination, cache-aware versioning, and set-based aggregation for collection counts. |
+| Serving and cache consistency | Public responses use archive-version-aware caching. Canonical mutations increment the version so clients and shared caches cannot continue serving stale archive data. |
+| Orchestration and CI/CD | GitHub Actions runs application and database gates, validates immutable release tags, deploys services in dependency order, and executes post-deploy smoke checks. |
+| Infrastructure and environments | Docker Compose provides reproducible local web, API, and MySQL services; Railway provides an independently configured hosted staging environment with private service networking. |
+| Observability | Readiness and health endpoints expose database backend and migration revision; structured service metrics cover requests, database operations, connection pools, and moderation activity. |
+| Backup and disaster recovery | A scheduled worker creates encrypted MySQL backups in a private off-platform R2 bucket. Restore procedures validate schema revision, canonical data, relationships, and operational history. |
+| Security and governance | Least-public networking, scoped secrets, role-based authorization, append-only auditing, request limits, safe URL validation, and controlled rollback protect both data and operations. |
+
+### Sixty-second explanation
+
+> “Trainspotting demonstrates an end-to-end governed data pipeline. Researched
+> CSV rows enter a staged ingestion process where I preserve the raw input,
+> normalize and validate fields, reconcile references, and detect duplicate
+> rows with deterministic fingerprints. Valid candidates become moderated
+> submissions instead of writing directly to production tables. Approved data
+> is promoted transactionally into a normalized MySQL model with ordered
+> many-to-many credits, source provenance, and append-only audit history. I use
+> Alembic for schema evolution, indexed and paginated queries for serving,
+> archive-versioned cache invalidation for consistency, Docker for reproducible
+> local infrastructure, and tag-gated CI/CD for Railway staging. The operational
+> side includes health checks, database metrics, encrypted off-platform backups,
+> and a tested local fallback.”
+
+### What to show as proof
+
+If an instructor asks for concrete evidence, show these in this order:
+
+1. Prada Spring/Summer 2024 and its ordered junction-table credits.
+2. `examples/collection_ingestion.csv` and the non-destructive reconciliation
+   output: one valid, one invalid, and one duplicate.
+3. The moderation queue and audit history to show staged promotion and lineage.
+4. `alembic/versions/` and `/api/ready` to show controlled schema evolution.
+5. `.github/workflows/deploy-staging.yml` to show release orchestration.
+6. `Dockerfile.backup` and `docs/BACKUP_AND_RESTORE.md` to show recovery design.
+
 ## Instructor-ready answers
 
 **Why Railway if Docker already works?**
