@@ -262,3 +262,69 @@ def test_editorial_overlap_can_outrank_same_designer_and_label():
         "Shared material: denim, leather",
         "Shared color: black",
     ]
+
+
+def test_black_identity_language_is_not_inferred_as_a_color():
+    cultural_history = collection(
+        1,
+        description="The work honors Black American history, authorship, and cultural roots.",
+    )
+    black_clothing = collection(
+        2,
+        description="Black denim and sculpted black dresses shaped the collection.",
+    )
+
+    assert "color" not in editorial_facets(cultural_history)
+    assert editorial_facets(black_clothing)["color"] == {"black"}
+
+
+def test_diversity_prefers_a_different_house_within_relevance_window():
+    target = collection(1, description="Theatrical tailoring and glamour")
+    same_house_leader = collection(
+        2,
+        designer_id=2,
+        designer_name="House Designer One",
+        description="Theatrical tailoring and glamour",
+        release_year=2023,
+    )
+    same_house_neighbor = collection(
+        3,
+        designer_id=3,
+        designer_name="House Designer Two",
+        description="Theatrical tailoring and glamour",
+        release_year=2020,
+    )
+    cross_house_neighbor = collection(
+        4,
+        designer_id=4,
+        designer_name="Different Designer",
+        label="Different House",
+        description="Theatrical tailoring and glamour",
+        release_year=2020,
+    )
+
+    results = rank_related_collections(
+        target,
+        [same_house_neighbor, cross_house_neighbor, same_house_leader],
+        limit=2,
+    )
+
+    assert [result["id"] for result in results] == [2, 4]
+    assert [result["score"] for result in results] == sorted(
+        (result["score"] for result in results), reverse=True
+    )
+
+
+def test_duplicate_candidate_ids_are_never_returned():
+    target = collection(1, description="Sculptural tailoring")
+    duplicate = collection(
+        2,
+        designer_id=2,
+        designer_name="Different Designer",
+        label="Different House",
+        description="Sculptural tailoring",
+    )
+
+    results = rank_related_collections(target, [duplicate, duplicate], limit=4)
+
+    assert [result["id"] for result in results] == [2]

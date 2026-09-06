@@ -98,6 +98,17 @@ EDITORIAL_WEIGHTS = {
     "silhouette": 3,
 }
 
+DIVERSITY_SCORE_WINDOW = 2
+BLACK_COLOR_CONTEXT = re.compile(
+    r"(?:\bblack\b(?:\s+[a-z]+){0,2}\s+"
+    r"(?:coat|coats|denim|dress|dresses|fabric|fabrics|garment|garments|"
+    r"knit|knits|lace|latex|leather|silk|suit|suits|tailoring|textile|textiles|"
+    r"tulle|velvet|wool)\b|"
+    r"\b(?:coat|coats|denim|dress|dresses|fabric|fabrics|garment|garments|"
+    r"knit|knits|lace|latex|leather|silk|suit|suits|tailoring|textile|textiles|"
+    r"tulle|velvet|wool)(?:\s+[a-z]+){0,2}\s+black\b)"
+)
+
 
 def match_strength(score: int) -> str:
     """Translate a transparent relevance score into visitor-friendly language."""
@@ -145,13 +156,66 @@ def editorial_facets(collection: dict) -> dict[str, set[str]]:
             descriptor
             for descriptor, aliases in descriptors.items()
             if any(
-                re.search(rf"\b{re.escape(alias)}\b", normalized)
+                (
+                    BLACK_COLOR_CONTEXT.search(normalized)
+                    if category == "color" and descriptor == "black"
+                    else re.search(rf"\b{re.escape(alias)}\b", normalized)
+                )
                 for alias in aliases
             )
         }
         if matches:
             facets.setdefault(category, set()).update(matches)
     return facets
+
+
+def _diversify(ranked: list[dict], limit: int) -> list[dict]:
+    """Choose near-equal results without letting one house dominate the set."""
+    remaining = list(ranked)
+    selected = []
+    selected_labels: dict[str, int] = {}
+    selected_designers: dict[int, int] = {}
+    while remaining and len(selected) < limit:
+        best_score = remaining[0]["score"]
+        comparable = [
+            candidate
+            for candidate in remaining
+            if candidate["score"] >= best_score - DIVERSITY_SCORE_WINDOW
+        ]
+
+        def repetition(candidate):
+            label_repetitions = selected_labels.get(candidate["label"].casefold(), 0)
+            designer_repetitions = sum(
+                selected_designers.get(credit["designer_id"], 0)
+                for credit in candidate.get("credits", [])
+            )
+            return (
+                label_repetitions + designer_repetitions,
+                label_repetitions,
+                designer_repetitions,
+                -candidate["score"],
+                -candidate["release_year"],
+                candidate["id"],
+            )
+
+        chosen = min(comparable, key=repetition)
+        selected.append(chosen)
+        selected_labels[chosen["label"].casefold()] = (
+            selected_labels.get(chosen["label"].casefold(), 0) + 1
+        )
+        for credit in chosen.get("credits", []):
+            designer_id = credit["designer_id"]
+            selected_designers[designer_id] = selected_designers.get(designer_id, 0) + 1
+        remaining.remove(chosen)
+
+    selected.sort(
+        key=lambda collection: (
+            -collection["score"],
+            -collection["release_year"],
+            collection["id"],
+        )
+    )
+    return selected
 
 
 def editorial_search_terms(collection: dict) -> set[str]:
@@ -179,10 +243,12 @@ def rank_related_collections(
     target_terms = meaningful_terms(target)
     target_facets = editorial_facets(target)
     ranked = []
+    seen_ids = set()
 
     for candidate in candidates:
-        if candidate["id"] == target["id"]:
+        if candidate["id"] == target["id"] or candidate["id"] in seen_ids:
             continue
+        seen_ids.add(candidate["id"])
 
         score = 0
         reasons = []
@@ -269,4 +335,4 @@ def rank_related_collections(
             collection["id"],
         )
     )
-    return ranked[:limit]
+    return _diversify(ranked, limit)

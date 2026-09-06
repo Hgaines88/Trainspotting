@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "policy": {
+    "maximum_results": 4,
+    "minimum_distinct_labels": 4,
+    "prohibit_target": true,
+    "prohibit_duplicate_results": true
+  },
+  "journeys": [
+    {
+      "name": "primary-theatrical-tailoring",
+      "target_source_url": "https://www.vogue.com/fashion-shows/fall-1995-couture/mugler",
+      "expected_source_urls": [
+        "https://www.vogue.com/fashion-shows/spring-1992-ready-to-wear/mugler",
+        "https://www.vogue.com/fashion-shows/spring-1995-ready-to-wear/jean-paul-gaultier",
+        "https://www.vogue.com/fashion-shows/spring-2022-ready-to-wear/gucci",
+        "https://www.vogue.com/fashion-shows/spring-2018-ready-to-wear/vivienne-westwood"
+      ],
+      "required_reason_prefixes": ["Shared theme:", "Shared silhouette:"]
+    },
+    {
+      "name": "fallback-sculptural-materials",
+      "target_source_url": "https://www.loewe.com/int/en/stories-collection/ss22-women-runway.html",
+      "expected_source_urls": [
+        "https://www.vogue.com/fashion-shows/spring-2023-ready-to-wear/loewe",
+        "https://www.vogue.com/fashion-shows/fall-2022-ready-to-wear/j-w-anderson",
+        "https://www.vogue.com/fashion-shows/fall-2024-ready-to-wear/thom-browne",
+        "https://www.vogue.com/fashion-shows/spring-2023-ready-to-wear/tom-ford"
+      ],
+      "required_reason_prefixes": ["Shared material:", "Shared silhouette:"]
+    }
+  ],
+  "prohibited_inferences": [
+    {
+      "record_source_url": "https://www.vogue.com/fashion-shows/spring-2020-ready-to-wear/pyer-moss",
+      "category": "color",
+      "canonical_value": "black",
+      "reason": "Black describes cultural identity and history in this record, not garment color."
+    }
+  ]
+}
