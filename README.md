@@ -257,7 +257,9 @@ roadmap remains preserved in
 The exact credential-free presentation path and fallback are documented in
 [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md). The day-of endpoints,
 credentials checklist, release evidence, and Railway-to-Docker fallback are in
-[`docs/DEMO_REHEARSAL.md`](docs/DEMO_REHEARSAL.md).
+[`docs/DEMO_REHEARSAL.md`](docs/DEMO_REHEARSAL.md). Exact local server startup,
+Railway configuration, deployment operations, and instructor-ready architecture
+answers are in [`docs/DEMO_OPERATOR_GUIDE.md`](docs/DEMO_OPERATOR_GUIDE.md).
 
 # OnesToManys (ListDetails)
 
