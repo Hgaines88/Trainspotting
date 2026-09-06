@@ -160,6 +160,9 @@ Curated CSV ingestion is dry-run by default and can only create ordinary
 moderated submissions. See
 [`docs/CURATED_INGESTION.md`](docs/CURATED_INGESTION.md) for the contract,
 reconciliation workflow, and safe apply command.
+The evidence and automation boundary is documented in
+[`docs/SOURCE_REGISTRY_AND_LICENSING.md`](docs/SOURCE_REGISTRY_AND_LICENSING.md),
+with machine-checked coverage for every canonical source host.
 
 ## Preserve and restore archive content
 

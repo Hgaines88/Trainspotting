@@ -297,6 +297,11 @@ Railway references:
 
 ## Data engineering skills demonstrated
 
+The archive's source-governance boundary is documented in
+[`SOURCE_REGISTRY_AND_LICENSING.md`](SOURCE_REGISTRY_AND_LICENSING.md). The
+registry demonstrates that provenance and licensing are designed into
+ingestion decisions rather than treated as an afterthought.
+
 Trainspotting is not only a CRUD application. It demonstrates a controlled data
 lifecycle from researched input through validation, review, publication,
 serving, monitoring, backup, and recovery.
