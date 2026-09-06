@@ -100,7 +100,30 @@ def run(
 
     query = urlencode({"archive_version": version})
     designers = request(base_url, f"/api/designers?{query}")
-    require(designers.status == 200 and isinstance(designers.payload, list), "Public read failed")
+    designer_items = (
+        designers.payload.get("items")
+        if isinstance(designers.payload, dict)
+        else None
+    )
+    pagination = (
+        designers.payload.get("pagination")
+        if isinstance(designers.payload, dict)
+        else None
+    )
+    valid_pagination = isinstance(pagination, dict) and all(
+        isinstance(pagination.get(field), int)
+        for field in ("page", "page_size", "total", "total_pages")
+    )
+    require(
+        designers.status == 200
+        and isinstance(designer_items, list)
+        and valid_pagination
+        and pagination["page"] >= 1
+        and pagination["page_size"] >= 1
+        and pagination["total"] >= 0
+        and pagination["total_pages"] >= 0,
+        "Public read failed",
+    )
     require(
         designers.headers.get("cache-control")
         == "public, max-age=0, s-maxage=30, stale-while-revalidate=60",

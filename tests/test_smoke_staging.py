@@ -42,7 +42,15 @@ def test_automated_release_smoke_can_run_without_persisted_user_token(monkeypatc
                         "public, max-age=0, s-maxage=30, stale-while-revalidate=60"
                     )
                 },
-                [],
+                {
+                    "items": [],
+                    "pagination": {
+                        "page": 1,
+                        "page_size": 12,
+                        "total": 0,
+                        "total_pages": 0,
+                    },
+                },
             )
         if path == "/api/designers" and kwargs.get("method") == "POST":
             return smoke_staging.Result(401, {}, {"detail": "Not authenticated"})
@@ -60,3 +68,47 @@ def test_automated_release_smoke_can_run_without_persisted_user_token(monkeypatc
         "/api/designers?archive_version=1",
         "/api/designers",
     ]
+
+
+def test_release_smoke_rejects_the_legacy_unpaginated_designer_payload(monkeypatch):
+    def fake_request(_base_url, path, **kwargs):
+        if path == "/api/health":
+            return smoke_staging.Result(200, {}, {"status": "ok"})
+        if path == "/api/ready":
+            return smoke_staging.Result(
+                200,
+                {},
+                {"status": "ready", "database": "mysql", "revision": "0006"},
+            )
+        if path == "/api/archive-version":
+            return smoke_staging.Result(200, {}, {"version": 2})
+        if path.startswith("/api/designers?"):
+            return smoke_staging.Result(200, {}, [])
+        pytest.fail(f"Unexpected smoke request: {path} {kwargs}")
+
+    monkeypatch.setattr(smoke_staging, "request", fake_request)
+
+    with pytest.raises(RuntimeError, match="Public read failed"):
+        smoke_staging.run("https://staging.example.com")
+
+
+def test_release_smoke_rejects_a_designer_payload_without_pagination(monkeypatch):
+    def fake_request(_base_url, path, **kwargs):
+        if path == "/api/health":
+            return smoke_staging.Result(200, {}, {"status": "ok"})
+        if path == "/api/ready":
+            return smoke_staging.Result(
+                200,
+                {},
+                {"status": "ready", "database": "mysql", "revision": "0006"},
+            )
+        if path == "/api/archive-version":
+            return smoke_staging.Result(200, {}, {"version": 2})
+        if path.startswith("/api/designers?"):
+            return smoke_staging.Result(200, {}, {"items": []})
+        pytest.fail(f"Unexpected smoke request: {path} {kwargs}")
+
+    monkeypatch.setattr(smoke_staging, "request", fake_request)
+
+    with pytest.raises(RuntimeError, match="Public read failed"):
+        smoke_staging.run("https://staging.example.com")
