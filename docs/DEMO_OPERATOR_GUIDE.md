@@ -1,8 +1,10 @@
 # Trainspotting operator and architecture guide
 
 This credential-free guide is designed to be printed or kept open locally when
-AI assistance is unavailable. Never add real Clerk keys, Railway tokens,
-database passwords, session tokens, or user IDs to this file.
+AI assistance is unavailable. Never add real or hosted Clerk keys, Railway
+tokens, database credentials, session tokens, or user IDs to this file. Values
+explicitly labeled `local-development` are disposable defaults already defined
+in `compose.yaml`; they must never be reused outside the local Docker stack.
 
 ## The thirty-second architecture explanation
 
@@ -35,7 +37,7 @@ only one command window.
 2. Open Terminal and enter the repository:
 
    ```bash
-   cd /Users/hakeem/Projects/Trainspotting
+   cd /path/to/Trainspotting
    ```
 
 3. Confirm the branch and working tree:
@@ -91,7 +93,7 @@ uses the same database engine as staging.
 ### Terminal 1: MySQL and FastAPI
 
 ```bash
-cd /Users/hakeem/Projects/Trainspotting
+cd /path/to/Trainspotting
 docker compose up -d mysql
 source .venv/bin/activate
 set -a
@@ -108,7 +110,7 @@ The API listens on <http://localhost:8000>. Leave this terminal running.
 ### Terminal 2: React/Vite
 
 ```bash
-cd /Users/hakeem/Projects/Trainspotting
+cd /path/to/Trainspotting
 source .venv/bin/activate
 set -a
 source .env
@@ -124,7 +126,7 @@ FastAPI. Leave this terminal running.
 Stop each foreground server with `Control-C`, then stop MySQL with:
 
 ```bash
-cd /Users/hakeem/Projects/Trainspotting
+cd /path/to/Trainspotting
 docker compose stop mysql
 ```
 
@@ -137,9 +139,11 @@ Clerk key.
 Select an existing local member without printing the Clerk identifier:
 
 ```bash
-export DEMOID="$(docker compose exec -T mysql mysql -N -B \
-  -utrainspotting -ptrainspotting_dev_only trainspotting \
-  -e "SELECT clerk_user_id FROM users WHERE role = 'member' ORDER BY id LIMIT 1;")"
+export DEMOID="$(docker compose exec -T mysql \
+  sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" mysql -N -B \
+  -u"$MYSQL_USER" "$MYSQL_DATABASE" \
+  -e "SELECT clerk_user_id FROM users WHERE role = \
+  CHAR(109,101,109,98,101,114) ORDER BY id LIMIT 1;"')"
 test -n "$DEMOID" && echo "Demo identity ready" || echo "Demo identity missing"
 ```
 
@@ -266,11 +270,13 @@ compute is stopped.
    check pass.
 3. Redeploy the web service and open its public HTTPS domain.
 4. Restore the backup cron schedule if scheduled protection is desired.
-5. Run:
+5. Copy the current public web domain from Railway into a temporary shell
+   variable, then run the smoke check:
 
    ```bash
+   export STAGING_BASE_URL='https://your-current-domain.up.railway.app'
    python -m scripts.smoke_staging \
-     --base-url https://web-staging-9862.up.railway.app
+     --base-url "$STAGING_BASE_URL"
    ```
 
 6. Confirm the smoke report names MySQL and revision `0006` before presenting.
