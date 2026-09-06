@@ -79,6 +79,31 @@ test("homepage offers a self-guided path into collection discovery", async ({ pa
 });
 
 
+test("public collection explorer preserves discovery filters in a shareable URL", async ({ page }) => {
+  await page.goto("/collections");
+
+  await expect(page.getByRole("heading", { name: /What arrived/i })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Public archive" }).getByRole("link", { name: "Collections" })).toBeVisible();
+  await expect(page.locator(".collection-explorer-results > li").first()).toBeVisible();
+
+  await page.getByLabel("Search collections").fill("Prada");
+  await page.getByLabel("Season").fill("Spring/Summer");
+  await page.getByRole("button", { name: "Apply filters" }).click();
+  await expect(page).toHaveURL(/\/collections\?search=Prada&season=Spring%2FSummer$/);
+  await expect(page.getByText("Miuccia Prada + Raf Simons")).toBeVisible();
+
+  const collection = page.locator(".collection-explorer-results a").first();
+  await expect(collection).toHaveAttribute("href", /^\/collections\/\d+$/);
+  const destination = await collection.getAttribute("href");
+  if (!destination) throw new Error("Collection result is missing its destination");
+  const expectedUrl = new URL(destination, page.url()).toString();
+  await collection.click();
+  await expect(page).toHaveURL(expectedUrl);
+  await expect(page.getByRole("heading", { name: "Evidence" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Related collections" })).toBeVisible();
+});
+
+
 test("collection pages show ranked recommendations with visible reasons", async ({ page }) => {
   await page.goto("/collections/1");
 

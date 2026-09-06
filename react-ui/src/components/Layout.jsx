@@ -17,6 +17,10 @@ export default function Layout() {
           <span>TRAINSPOTTING</span>
           <small>FASHION HISTORY IN MOTION</small>
         </Link>
+        <nav className="archive-navigation" aria-label="Public archive">
+          <Link to="/">Designers</Link>
+          <Link to="/collections">Collections</Link>
+        </nav>
         <div className="signal-stack">
           <div className="auth-controls" aria-label="Account controls">
             <UserSync />

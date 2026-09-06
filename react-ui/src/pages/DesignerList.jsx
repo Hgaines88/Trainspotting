@@ -101,9 +101,9 @@ export default function DesignerList() {
       {!hasFilters && <section className="discovery-entry" aria-labelledby="discovery-heading">
         <div className="section-heading"><h2 id="discovery-heading">Start exploring</h2><span>Four ways into the archive</span></div>
         <nav className="discovery-links" aria-label="Archive discovery shortcuts">
-          <Link to="/?sort=newest&direction=desc"><strong>Latest collections</strong><span>Follow the timeline from newest to oldest</span></Link>
-          <Link to="/?label=Wales+Bonner"><strong>Browse a label</strong><span>See designers connected through a fashion house</span></Link>
-          <Link to="/?season=Spring%2FSummer"><strong>Explore a season</strong><span>Compare work from the same calendar moment</span></Link>
+          <Link to="/collections?sort=newest&direction=desc"><strong>Latest collections</strong><span>Follow the timeline from newest to oldest</span></Link>
+          <Link to="/collections?label=Wales+Bonner"><strong>Browse a label</strong><span>See collections connected through a fashion house</span></Link>
+          <Link to="/collections?season=Spring%2FSummer"><strong>Explore a season</strong><span>Compare work from the same calendar moment</span></Link>
           <Link to="/?sort=collections&direction=desc"><strong>Most documented</strong><span>Begin with the archive's richest profiles</span></Link>
         </nav>
         {recentCollections.length > 0 && <div className="recent-collections">
