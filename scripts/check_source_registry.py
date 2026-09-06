@@ -53,6 +53,9 @@ def validate_registry(archive: dict, registry: dict) -> dict:
 
     host_owners: dict[str, str] = {}
     for category_id, category in sorted(categories.items()):
+        if not isinstance(category, dict):
+            errors.append(f"category {category_id!r} must be an object")
+            continue
         missing = sorted(REQUIRED_FIELDS - set(category))
         if missing:
             errors.append(
@@ -61,19 +64,39 @@ def validate_registry(archive: dict, registry: dict) -> dict:
             continue
         if category["automation_status"] not in ALLOWED_AUTOMATION_STATUSES:
             errors.append(
-                f"category {category_id!r} has an unsupported automation status"
+                f"category {category_id!r} has unsupported automation status "
+                f"{category['automation_status']!r}; expected one of "
+                f"{', '.join(sorted(ALLOWED_AUTOMATION_STATUSES))}"
             )
-        for host in category["hosts"]:
-            normalized_host = str(host).strip().lower()
+        hosts = category["hosts"]
+        if not isinstance(hosts, list):
+            errors.append(f"category {category_id!r} hosts must be a list")
+            continue
+        for host in hosts:
+            if not isinstance(host, str):
+                errors.append(
+                    f"category {category_id!r} has a non-string host {host!r}"
+                )
+                continue
+            normalized_host = host.strip().lower()
             if not normalized_host or normalized_host != host:
                 errors.append(
                     f"category {category_id!r} has a noncanonical host {host!r}"
                 )
-            if normalized_host in host_owners:
+                continue
+            existing_owner = host_owners.get(normalized_host)
+            if existing_owner == category_id:
+                errors.append(
+                    f"host {normalized_host!r} is listed more than once in "
+                    f"category {category_id!r}"
+                )
+                continue
+            if existing_owner is not None:
                 errors.append(
                     f"host {normalized_host!r} belongs to both "
-                    f"{host_owners[normalized_host]!r} and {category_id!r}"
+                    f"{existing_owner!r} and {category_id!r}"
                 )
+                continue
             host_owners[normalized_host] = category_id
 
     current_hosts = canonical_source_hosts(archive)

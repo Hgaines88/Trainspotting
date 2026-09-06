@@ -33,3 +33,41 @@ def test_source_registry_rejects_missing_governance_and_host_coverage():
 
     assert any("licensing_position" in error for error in report["errors"])
     assert any("www.vogue.com" in error for error in report["errors"])
+
+
+def test_source_registry_reports_malformed_categories_without_crashing():
+    registry = copy.deepcopy(REGISTRY)
+    registry["categories"]["rights-holder"] = "not an object"
+
+    report = validate_registry(ARCHIVE, registry)
+
+    assert "category 'rights-holder' must be an object" in report["errors"]
+
+
+def test_source_registry_reports_invalid_automation_status_actionably():
+    registry = copy.deepcopy(REGISTRY)
+    registry["categories"]["rights-holder"]["automation_status"] = "scrape-all"
+
+    report = validate_registry(ARCHIVE, registry)
+
+    assert any(
+        "'scrape-all'" in error
+        and "embed-only, manual-only, review-gated" in error
+        for error in report["errors"]
+    )
+
+
+def test_source_registry_preserves_first_owner_and_ignores_invalid_hosts():
+    registry = copy.deepcopy(REGISTRY)
+    rights_holder_hosts = registry["categories"]["rights-holder"]["hosts"]
+    cultural_hosts = registry["categories"]["cultural-institution"]["hosts"]
+    cultural_hosts.append(cultural_hosts[0])
+    rights_holder_hosts.extend([cultural_hosts[0], "", 42])
+
+    report = validate_registry(ARCHIVE, registry)
+
+    assert report["registered_hosts"] == 48
+    assert any("listed more than once" in error for error in report["errors"])
+    assert any("belongs to both" in error for error in report["errors"])
+    assert any("noncanonical host ''" in error for error in report["errors"])
+    assert any("non-string host 42" in error for error in report["errors"])
