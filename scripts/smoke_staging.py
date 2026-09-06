@@ -100,7 +100,15 @@ def run(
 
     query = urlencode({"archive_version": version})
     designers = request(base_url, f"/api/designers?{query}")
-    require(designers.status == 200 and isinstance(designers.payload, list), "Public read failed")
+    designer_items = (
+        designers.payload.get("items")
+        if isinstance(designers.payload, dict)
+        else None
+    )
+    require(
+        designers.status == 200 and isinstance(designer_items, list),
+        "Public read failed",
+    )
     require(
         designers.headers.get("cache-control")
         == "public, max-age=0, s-maxage=30, stale-while-revalidate=60",
