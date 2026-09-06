@@ -88,8 +88,9 @@ export default function CollectionDetail() {
       <section className="section related-collections" aria-labelledby="related-collections-heading">
         <div className="section-heading">
           <h2 id="related-collections-heading">Related collections</h2>
-          <span>Explainable matches</span>
+          <span>Follow the connection</span>
         </div>
+        <p className="related-introduction">Explore connections through themes, motifs, materials, textures, color, and silhouette—with creative credits and archive context as supporting signals.</p>
         {related === null && !relatedError && <StatusMessage>Finding related collections…</StatusMessage>}
         {relatedError && <StatusMessage error>Related collections are temporarily unavailable.</StatusMessage>}
         {related?.length === 0 && <p className="meta">No strong metadata matches yet.</p>}
@@ -103,7 +104,7 @@ export default function CollectionDetail() {
                     <strong>{item.name || `${item.season} ${item.release_year}`}</strong>
                     <small>{item.label} · {item.season} {item.release_year}</small>
                   </span>
-                  <span className="related-score">Match {item.score}</span>
+                  <span className="related-score">{item.match_strength} match <small>Score {item.score}</small></span>
                 </Link>
                 <ul className="related-reasons" aria-label={`Why ${item.name || item.label} is related`}>
                   {item.reasons.map((reason) => <li key={reason}>{reason}</li>)}

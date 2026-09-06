@@ -135,6 +135,71 @@ evidence and explain how community evidence reaches the canonical archive.
 
 **Done when:** the demonstration tells one coherent story using verified data.
 
+## Approved pre-freeze extensions
+
+These P1 cards deepen the recommendation story without changing the protected
+P0 demo baseline. Complete them in order and defer any unfinished card at the
+September 16 feature-freeze boundary; they must never delay the release
+candidate.
+
+### DEMO-X04 — Editorial recommendation vocabulary and scoring
+
+**Priority:** P1 · **Size:** S · **Dependency:** DEMO-02
+
+- Define a small, transparent vocabulary for themes, motifs, materials,
+  textures, colors, and silhouettes, including deterministic aliases.
+- Infer descriptors only from existing curated public collection copy.
+- Weight editorial overlap above designer, label, season, and year proximity.
+- Keep archival attributes as useful fallback and supporting context.
+- Return visitor-friendly match strength, numeric score, and specific reasons.
+- Prove cross-label editorial matches can outrank same-house adjacency.
+
+**Excluded from this slice:** machine learning, image analysis, personalization,
+and claims that inferred descriptors are permanent canonical facts.
+
+**Done when:** a visitor can follow an explainable cross-label recommendation
+based primarily on editorial characteristics.
+
+### DEMO-X05 — Moderator-reviewed collection enrichment
+
+**Priority:** P1 · **Size:** M · **Dependency:** DEMO-X04
+
+- Enrich only a curated demonstration set using the controlled vocabulary.
+- Record descriptor category, canonical value, dominant/supporting strength,
+  evidence note, source, proposer, reviewer, and timestamps.
+- Reuse authenticated submission, review, decision, audit, and rollback
+  boundaries wherever possible.
+- Treat automated extraction as a suggestion that cannot publish itself.
+- Give moderators review responsibility and reserve taxonomy changes and final
+  canonical promotion for administrators.
+- Report enrichment completeness as guidance, never an insertion constraint.
+
+**Excluded from this slice:** bulk archive tagging, public free-form tags, a
+general taxonomy-management console, and mandatory tag-count database rules.
+
+**Done when:** an authorized reviewer can inspect evidence and approve or reject
+one suggested enrichment without bypassing audit history or altering unrelated
+collection data.
+
+### DEMO-X06 — Curated recommendation journeys and diversity
+
+**Priority:** P1 · **Size:** S · **Dependency:** DEMO-X05
+
+- Define a small editorial evaluation set covering several designers, labels,
+  decades, and relationship types.
+- Record expected useful connections and prohibited/self/duplicate outcomes.
+- Prefer a diverse result set when relevance is comparable so one label or
+  designer does not monopolize the journey.
+- Add deterministic relevance, explanation-integrity, diversity, and sparse-data
+  regressions.
+- Document one primary demo journey and one reliable fallback journey.
+
+**Excluded from this slice:** behavioral analytics, popularity signals, A/B
+testing infrastructure, and an organization-wide recommendation benchmark.
+
+**Done when:** the selected demo journey is editorially defensible, varied,
+repeatable, and protected by automated tests.
+
 ### DEMO-REL-01 — Feature freeze and release candidate
 
 **Priority:** P0 · **Size:** M · **Dependencies:** DEMO-01 through DEMO-06  
@@ -172,6 +237,8 @@ ready for a timed walkthrough.
 - If DEMO-03 is not stable by September 14, demonstrate the tested CLI dry run and
   reconciliation report; do not build ingestion UI.
 - DEMO-04 and DEMO-05 must reuse current schemas unless a migration is essential.
+- DEMO-X04 through DEMO-X06 are optional P1 extensions and are deferred intact
+  if they threaten the P0 baseline or cannot reach review before feature freeze.
 - September 16 ends feature development regardless of unused ideas.
 
 ## Post-demo work

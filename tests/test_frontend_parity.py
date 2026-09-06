@@ -131,8 +131,9 @@ def test_collection_page_exposes_explainable_related_collections():
     ).read_text(encoding="utf-8")
 
     assert "Related collections" in source
-    assert "Explainable matches" in source
+    assert "Follow the connection" in source
     assert "item.reasons.map" in source
+    assert "item.match_strength" in source
     assert "item.score" in source
 
 

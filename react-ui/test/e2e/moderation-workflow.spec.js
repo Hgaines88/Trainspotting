@@ -114,7 +114,7 @@ test("collection pages show ranked recommendations with visible reasons", async 
   await expect(recommendations.first()).toBeVisible();
   const recommendationCount = await recommendations.count();
   expect(recommendationCount).toBeLessThanOrEqual(4);
-  await expect(recommendations.first().locator(".related-score")).toContainText(/^Match \d+$/);
+  await expect(recommendations.first().locator(".related-score")).toContainText(/^(Strong|Notable|Contextual) match Score \d+$/);
   await expect(recommendations.first().locator(".related-reasons li").first()).toBeVisible();
 
   const destination = await recommendations.first().getByRole("link").getAttribute("href");

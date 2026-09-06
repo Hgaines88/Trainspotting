@@ -909,6 +909,10 @@ def test_related_collections_endpoint_is_public_explainable_and_bounded(client):
     assert len(results) <= 2
     assert all(result["id"] != target["id"] for result in results)
     assert all(result["score"] > 0 for result in results)
+    assert all(
+        result["match_strength"] in {"Strong", "Notable", "Contextual"}
+        for result in results
+    )
     assert all(result["reasons"] for result in results)
     assert [result["score"] for result in results] == sorted(
         (result["score"] for result in results), reverse=True
@@ -975,8 +979,8 @@ def test_related_collection_batches_do_not_discard_older_strong_matches(client):
 
     assert response.status_code == 200
     assert response.json()[0]["id"] == strong_id
-    assert response.json()[0]["reasons"][0] == (
-        f"Shared contributor: {target['lead_designer']}"
+    assert f"Shared contributor: {target['lead_designer']}" in (
+        response.json()[0]["reasons"]
     )
 
 

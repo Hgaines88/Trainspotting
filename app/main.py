@@ -29,7 +29,10 @@ from app.observability import (
 )
 from app.users import get_or_create_user, sync_clerk_user_profile
 from app.submissions import router as submissions_router
-from app.recommendations import meaningful_terms, rank_related_collections
+from app.recommendations import (
+    editorial_search_terms,
+    rank_related_collections,
+)
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
@@ -708,7 +711,7 @@ def related_collections(
             target["release_year"] + 2,
             collection_id,
         ]
-        for term in sorted(meaningful_terms(target))[:20]:
+        for term in sorted(editorial_search_terms(target))[:40]:
             clauses.append(
                 "(LOWER(COALESCE(collections.name, '')) LIKE ? "
                 "OR LOWER(COALESCE(collections.description, '')) LIKE ?)"
