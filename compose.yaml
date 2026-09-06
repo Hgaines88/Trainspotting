@@ -11,8 +11,6 @@ services:
       AUTO_MIGRATE_DATABASE: ${AUTO_MIGRATE_DATABASE:-true}
     ports:
       - "8000:8000"
-    volumes:
-      - archive-data:/app/data
     healthcheck:
       test:
         - CMD
@@ -66,5 +64,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  archive-data:
   trainspotting_mysql_data:
