@@ -43,6 +43,11 @@ collaboration.
    reason. Explain that editorial themes, motifs, materials, textures, colors,
    and silhouettes lead the ranking, while creative identity and archive
    context provide supporting signals—not an unexplained black box.
+   For a focused recommendation journey, open **Mugler — 20th Anniversary,
+   Fall/Winter Couture 1995**. Its theatricality, glamour, and tailoring lead
+   into a deliberately varied set spanning Mugler, Jean Paul Gaultier, Gucci,
+   and Vivienne Westwood. The deterministic evaluation fixture is recorded in
+   `docs/recommendation-evaluation.json`.
 5. **Ingestion:** In a prepared terminal, run the tracked CSV in dry-run mode:
 
    ```bash
@@ -96,3 +101,8 @@ Open the featured collection directly from a prepared browser bookmark. Show
 its two credits, Evidence section, and one explainable recommendation. Then show
 the saved dry-run output or tracked sample CSV. This path remains effective if
 authentication or staging writes are unavailable.
+
+If the featured Prada recommendation path is sparse, use **Loewe — A New
+Aesthetic, Spring/Summer 2022** as the recommendation fallback. Its material
+and sculptural connections produce a tested four-label journey through Loewe,
+JW Anderson, Thom Browne, and Tom Ford.
