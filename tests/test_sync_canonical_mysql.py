@@ -58,6 +58,25 @@ def test_sync_is_idempotent_and_preserves_operational_history(tmp_path):
     connection.close()
 
 
+def test_archive_rejects_duplicate_normalized_designer_aliases(tmp_path):
+    payload = copy.deepcopy(load_archive(DEFAULT_ARCHIVE))
+    payload["designers"][0]["aliases"] = [{
+        "alias": "Shared Name",
+        "alias_type": "alternate-name",
+        "source_url": "https://example.com/one",
+    }]
+    payload["designers"][1]["aliases"] = [{
+        "alias": "SHARED—NAME",
+        "alias_type": "former-name",
+        "source_url": "https://example.com/two",
+    }]
+    archive = tmp_path / "duplicate-aliases.json"
+    archive.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Duplicate or empty normalized"):
+        load_archive(archive)
+
+
 def test_sync_updates_in_place_and_bumps_version_once(tmp_path):
     connection = database(tmp_path)
     payload = load_archive(DEFAULT_ARCHIVE)

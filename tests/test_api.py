@@ -358,6 +358,36 @@ def test_designer_discovery_search_filters_and_paginates_stably(client):
     assert filtered.json()["items"][0]["id"] != second_page.json()["items"][0]["id"]
 
 
+def test_designer_alias_resolves_without_replacing_canonical_name(client):
+    connection = database.connect()
+    try:
+        designer_id = connection.execute(
+            "INSERT INTO designers (full_name) VALUES (?)", ("Nigo",)
+        ).lastrowid
+        connection.execute(
+            """INSERT INTO designer_aliases (
+                   designer_id, alias, normalized_alias, alias_type, source_url
+               ) VALUES (?, ?, ?, ?, ?)""",
+            (designer_id, "Tomoaki Nagao", "tomoaki nagao", "legal-name", "https://example.com/nigo"),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    discovery = client.get("/designers?search=Tomoaki")
+    options = client.get("/archive-options/designers?search=Nagao")
+    detail = client.get(f"/designers/{designer_id}")
+
+    assert [item["full_name"] for item in discovery.json()["items"]] == ["Nigo"]
+    assert [item["full_name"] for item in options.json()] == ["Nigo"]
+    assert detail.json()["full_name"] == "Nigo"
+    assert detail.json()["aliases"] == [{
+        "alias": "Tomoaki Nagao",
+        "alias_type": "legal-name",
+        "source_url": "https://example.com/nigo",
+    }]
+
+
 def test_discovery_equality_filters_are_case_insensitive_and_indexed(client):
     designers = client.get("/designers?nationality=japanese&page_size=50")
     collections = client.get(

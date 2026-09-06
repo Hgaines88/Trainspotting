@@ -58,6 +58,34 @@ designers = Table(
 Index("idx_designers_nationality", designers.c.nationality).ddl_if(
     dialect=("mysql", "mariadb")
 )
+
+designer_aliases = Table(
+    "designer_aliases",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column(
+        "designer_id",
+        Integer,
+        ForeignKey("designers.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("alias", String(255), nullable=False),
+    Column("normalized_alias", String(255), nullable=False, unique=True),
+    Column("alias_type", String(32), nullable=False),
+    Column("source_url", Text, nullable=False),
+    CheckConstraint("length(trim(alias)) > 0", name="alias_not_blank"),
+    CheckConstraint(
+        "length(trim(normalized_alias)) > 0",
+        name="normalized_alias_not_blank",
+    ),
+    CheckConstraint(
+        "alias_type IN ('alternate-name', 'former-name', 'legal-name')",
+        name="valid_alias_type",
+    ),
+    CheckConstraint("length(trim(source_url)) > 0", name="source_url_not_blank"),
+    UniqueConstraint("designer_id", "alias", name="uq_designer_alias"),
+)
+Index("idx_designer_aliases_designer", designer_aliases.c.designer_id)
 event.listen(
     designers,
     "after_create",

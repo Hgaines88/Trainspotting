@@ -11,6 +11,9 @@ import tempfile
 import unicodedata
 from pathlib import Path
 
+from app.naming import normalized_search_name
+from app.url_safety import normalize_public_http_url
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DATABASE = PROJECT_ROOT / "data" / "archive.db"
@@ -42,6 +45,14 @@ def database_archive(database_path: Path) -> dict:
             FROM designers
             ORDER BY full_name COLLATE NOCASE
             """
+        ).fetchall()
+        alias_rows = connection.execute(
+            """SELECT designers.full_name, designer_aliases.alias,
+                      designer_aliases.alias_type, designer_aliases.source_url
+               FROM designer_aliases
+               JOIN designers ON designers.id = designer_aliases.designer_id
+               ORDER BY designers.full_name COLLATE NOCASE,
+                        designer_aliases.alias COLLATE NOCASE"""
         ).fetchall()
         collection_rows = connection.execute(
             """
@@ -89,13 +100,20 @@ def database_archive(database_path: Path) -> dict:
 
     designers = []
     designer_keys = {}
+    aliases_by_designer = {}
+    for row in alias_rows:
+        alias = dict(row)
+        aliases_by_designer.setdefault(alias.pop("full_name"), []).append(alias)
     for row in designer_rows:
         record = dict(row)
         key = stable_key(record["full_name"])
         if key in designer_keys.values():
             raise ValueError(f"Duplicate stable designer key: {key}")
         designer_keys[record["full_name"]] = key
-        designers.append({"key": key, **record})
+        designer = {"key": key, **record}
+        if aliases_by_designer.get(record["full_name"]):
+            designer["aliases"] = aliases_by_designer[record["full_name"]]
+        designers.append(designer)
 
     collections = []
     seen_collection_keys = set()
@@ -218,6 +236,27 @@ def import_archive(
                 "SELECT id FROM designers WHERE full_name = ?",
                 (designer["full_name"],),
             ).fetchone()[0]
+            connection.execute(
+                "DELETE FROM designer_aliases WHERE designer_id = ?",
+                (designer_ids[designer["key"]],),
+            )
+            connection.executemany(
+                """INSERT INTO designer_aliases (
+                       designer_id, alias, normalized_alias, alias_type, source_url
+                   ) VALUES (?, ?, ?, ?, ?)""",
+                [
+                    (
+                        designer_ids[designer["key"]],
+                        alias["alias"],
+                        normalized_search_name(alias["alias"]),
+                        alias["alias_type"],
+                        normalize_public_http_url(
+                            alias["source_url"], "Alias source URL"
+                        ),
+                    )
+                    for alias in designer.get("aliases", [])
+                ],
+            )
 
         for collection in payload["collections"]:
             designer_id = designer_ids[collection["designer_key"]]

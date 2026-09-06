@@ -200,6 +200,37 @@ testing infrastructure, and an organization-wide recommendation benchmark.
 **Done when:** the selected demo journey is editorially defensible, varied,
 repeatable, and protected by automated tests.
 
+### DEMO-X07 — Designer aliases and normalized discovery
+
+**Priority:** P1 · **Size:** S · **Parent roadmap card:** DATA-05
+
+- Store sourced aliases as relational records without replacing preferred
+  display names.
+- Normalize aliases deterministically for accent- and punctuation-insensitive
+  discovery.
+- Resolve aliases through public search and administrator designer selection.
+- Display documented aliases and their evidence on designer profiles.
+
+**Excluded from this slice:** historical date precision, nationality modeling,
+label aliases, and public alias submissions.
+
+**Done when:** a legitimate alias resolves to the correct canonical designer,
+ambiguous normalized aliases are rejected, and SQLite/MySQL paths agree.
+
+### DEMO-X08 — Source registry and licensing policy
+
+**Priority:** P1 · **Size:** S · **Parent roadmap card:** INGEST-01
+
+- Inventory every source type currently used by curated archive and ingestion
+  workflows.
+- Record attribution expectations, access method, licensing considerations,
+  reliability, rate limits, and automation status.
+- Establish an explicit approval boundary before any source is automated.
+- Keep this slice documentation-focused; do not add scraping or external jobs.
+
+**Done when:** every automated or proposed source has a reviewable legal and
+technical basis and the current curated workflow remains unchanged.
+
 ### DEMO-REL-01 — Feature freeze and release candidate
 
 **Priority:** P0 · **Size:** M · **Dependencies:** DEMO-01 through DEMO-06  

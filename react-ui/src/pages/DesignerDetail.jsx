@@ -41,6 +41,7 @@ export default function DesignerDetail() {
     <>
       <p className="eyebrow">Designer profile / ID {String(designer.id).padStart(3, "0")}</p>
       <h1 className="profile-title">{flags && <span className="profile-flag" aria-label={`${designer.nationality} flag`}>{flags}</span>}{designer.full_name}</h1>
+      {designer.aliases?.length > 0 && <p className="meta">Also documented as {designer.aliases.map((alias, index) => <span key={alias.alias}>{index > 0 ? ", " : ""}<a href={alias.source_url} target="_blank" rel="noreferrer">{alias.alias}</a> <small>({alias.alias_type.replaceAll("-", " ")})</small></span>)}</p>}
       <div className="profile-intro"><p className="meta">{details.join(" · ") || "Additional details unavailable"}</p><p className="biography">{designer.biography || "No biography is available."}</p></div>
       <p className="external-link">{designer.website ? <a href={designer.website} target="_blank" rel="noreferrer">Official transmission ↗</a> : "No website is available."}</p>
       {isAdmin && <div className="actions"><Link className="button" to={`/designers/${designerId}/edit`}>Edit designer</Link><Link className="button secondary" to={`/designers/${designerId}/collections/new`}>Add a collection</Link><button className="danger" type="button" onClick={deleteDesigner}>Delete designer</button></div>}

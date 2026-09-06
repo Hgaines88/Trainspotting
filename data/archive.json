@@ -63,7 +63,14 @@
       "nationality": "American",
       "birth_year": 1944,
       "website": "https://www.dapperdanofharlem.com",
-      "biography": "Harlem designer Daniel 'Dapper Dan' Day pioneered a luxury streetwear language in the 1980s by translating European fashion symbols through custom garments for hip-hop artists, athletes, and neighborhood clients. His atelier-centered practice joined tailoring, logomania, and cultural authorship, later extending into sanctioned collaborations with Gucci, Gap, and Puma."
+      "biography": "Harlem designer Daniel 'Dapper Dan' Day pioneered a luxury streetwear language in the 1980s by translating European fashion symbols through custom garments for hip-hop artists, athletes, and neighborhood clients. His atelier-centered practice joined tailoring, logomania, and cultural authorship, later extending into sanctioned collaborations with Gucci, Gap, and Puma.",
+      "aliases": [
+        {
+          "alias": "Daniel Day",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Dapper_Dan_(designer)"
+        }
+      ]
     },
     {
       "key": "demna-gvasalia",
@@ -303,7 +310,14 @@
       "nationality": "Japanese",
       "birth_year": 1970,
       "website": "https://www.kenzo.com",
-      "biography": "Japanese designer and cultural producer Nigo founded A Bathing Ape in 1993 and later Human Made, building an influential bridge among streetwear, vintage Americana, music, collecting, and graphic identity. A co-founder of Billionaire Boys Club, he became artistic director of Kenzo in 2021 and reframed the house through Japanese craft and youth culture."
+      "biography": "Japanese designer and cultural producer Nigo founded A Bathing Ape in 1993 and later Human Made, building an influential bridge among streetwear, vintage Americana, music, collecting, and graphic identity. A co-founder of Billionaire Boys Club, he became artistic director of Kenzo in 2021 and reframed the house through Japanese craft and youth culture.",
+      "aliases": [
+        {
+          "alias": "Tomoaki Nagao",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Nigo"
+        }
+      ]
     },
     {
       "key": "olivier-rousteing",

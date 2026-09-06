@@ -12,6 +12,7 @@ EXPECTED_TABLES = {
     "collection_media",
     "collections",
     "designers",
+    "designer_aliases",
     "ingestion_batches",
     "ingestion_rows",
     "submission_audit",

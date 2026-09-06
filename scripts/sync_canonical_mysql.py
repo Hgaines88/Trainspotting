@@ -11,6 +11,8 @@ from sqlalchemy.engine import make_url
 
 from app.database import bump_archive_version, connect, select_for_update
 from app.database_url import normalize_database_url
+from app.naming import normalized_search_name
+from app.url_safety import normalize_public_http_url
 from scripts.archive_data import DEFAULT_ARCHIVE, stable_key
 
 
@@ -29,6 +31,7 @@ def load_archive(path: Path) -> dict:
 
     keys: set[str] = set()
     names: set[str] = set()
+    normalized_aliases: set[str] = set()
     for designer in designers:
         key, name = designer.get("key"), designer.get("full_name")
         if not key or not name or key != stable_key(name):
@@ -37,6 +40,16 @@ def load_archive(path: Path) -> dict:
             raise ValueError(f"Duplicate designer identity: {key!r} / {name!r}")
         keys.add(key)
         names.add(name)
+        for alias in designer.get("aliases", []):
+            if not all(alias.get(field) for field in ("alias", "alias_type", "source_url")):
+                raise ValueError(f"Incomplete designer alias for {key!r}")
+            if alias["alias_type"] not in {"alternate-name", "former-name", "legal-name"}:
+                raise ValueError(f"Invalid designer alias type for {key!r}")
+            normalize_public_http_url(alias["source_url"], "Alias source URL")
+            normalized_alias = normalized_search_name(alias["alias"])
+            if not normalized_alias or normalized_alias in normalized_aliases:
+                raise ValueError(f"Duplicate or empty normalized designer alias: {alias['alias']!r}")
+            normalized_aliases.add(normalized_alias)
 
     collection_keys: set[str] = set()
     identities: set[tuple] = set()
@@ -80,6 +93,15 @@ def build_plan(connection, payload: dict) -> dict:
         "FROM designers ORDER BY id",
     )
     by_name = {row["full_name"]: row for row in db_designers}
+    aliases_by_designer = {
+        row["id"]: _rows(
+            connection,
+            "SELECT alias, alias_type, source_url FROM designer_aliases "
+            "WHERE designer_id = ? ORDER BY alias",
+            (row["id"],),
+        )
+        for row in db_designers
+    }
     designer_ids: dict[str, int | None] = {}
     designer_inserts, designer_updates = [], []
     for designer in payload["designers"]:
@@ -89,8 +111,10 @@ def build_plan(connection, payload: dict) -> dict:
             designer_inserts.append(designer)
         else:
             changes = {field: designer.get(field) for field in DESIGNER_FIELDS if current[field] != designer.get(field)}
-            if changes:
-                designer_updates.append({"id": current["id"], "key": designer["key"], "changes": changes})
+            aliases = sorted(designer.get("aliases", []), key=lambda item: item["alias"])
+            aliases_changed = aliases_by_designer[current["id"]] != aliases
+            if changes or aliases_changed:
+                designer_updates.append({"id": current["id"], "key": designer["key"], "changes": changes, "aliases_changed": aliases_changed})
 
     db_collections = _rows(
         connection,
@@ -185,6 +209,36 @@ def apply_plan(connection, payload: dict, plan: dict) -> dict:
             d = by_key[update["key"]]
             connection.execute("UPDATE designers SET nationality = ?, birth_year = ?, website = ?, biography = ? WHERE id = ?", (*(d.get(f) for f in DESIGNER_FIELDS), update["id"]))
         designer_ids = {key: ids[d["full_name"]] for key, d in by_key.items()}
+        alias_keys = {
+            designer["key"] for designer in plan["designer_inserts"]
+        } | {
+            update["key"]
+            for update in plan["designer_updates"]
+            if update["aliases_changed"]
+        }
+        for designer_key in alias_keys:
+            designer_id = designer_ids[designer_key]
+            connection.execute(
+                "DELETE FROM designer_aliases WHERE designer_id = ?",
+                (designer_id,),
+            )
+        for designer in payload["designers"]:
+            if designer["key"] not in alias_keys:
+                continue
+            designer_id = designer_ids[designer["key"]]
+            connection.executemany(
+                "INSERT INTO designer_aliases (designer_id, alias, normalized_alias, alias_type, source_url) VALUES (?, ?, ?, ?, ?)",
+                [
+                    (
+                        designer_id,
+                        alias["alias"],
+                        normalized_search_name(alias["alias"]),
+                        alias["alias_type"],
+                        alias["source_url"],
+                    )
+                    for alias in designer.get("aliases", [])
+                ],
+            )
 
         collection_work = [(None, item) for item in plan["collection_inserts"]] + [(item["id"], item["record"]) for item in plan["collection_updates"]]
         for collection_id, item in collection_work:
