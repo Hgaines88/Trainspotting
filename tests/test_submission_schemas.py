@@ -7,6 +7,44 @@ from app.submission_schemas import (
 )
 
 
+def test_collection_enrichment_requires_controlled_vocabulary():
+    valid = submission_for_review_adapter.validate_python({
+        "record_type": "collection",
+        "proposal_kind": "enrichment",
+        "submission_type": "correction",
+        "target_id": 1,
+        "proposed_data": {
+            "category": " Material ",
+            "canonical_value": " Leather ",
+            "strength": "dominant",
+            "evidence_note": " Documented leather construction. ",
+        },
+        "explanation": "Add a sourced editorial descriptor.",
+        "sources": [{"url": "https://example.com/source"}],
+    })
+
+    assert valid.proposal_kind == "enrichment"
+    assert valid.proposed_data.category == "material"
+    assert valid.proposed_data.canonical_value == "leather"
+    assert valid.proposed_data.evidence_note == "Documented leather construction."
+
+    with pytest.raises(ValidationError, match="Unknown canonical editorial descriptor"):
+        submission_for_review_adapter.validate_python({
+            "record_type": "collection",
+            "proposal_kind": "enrichment",
+            "submission_type": "correction",
+            "target_id": 1,
+            "proposed_data": {
+                "category": "material",
+                "canonical_value": "free-form invention",
+                "strength": "supporting",
+                "evidence_note": "Unsupported taxonomy expansion.",
+            },
+            "explanation": "This must not pass.",
+            "sources": [{"url": "https://example.com/source"}],
+        })
+
+
 SOURCE = {"url": "https://example.com/archive", "title": "Archive source"}
 
 

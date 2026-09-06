@@ -192,6 +192,53 @@ collection_media = Table(
 )
 Index("idx_collection_media_collection_id", collection_media.c.collection_id)
 
+collection_descriptors = Table(
+    "collection_descriptors",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column(
+        "collection_id",
+        Integer,
+        ForeignKey("collections.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("category", String(32), nullable=False),
+    Column("canonical_value", String(64), nullable=False),
+    Column("strength", String(16), nullable=False),
+    Column("evidence_note", Text, nullable=False),
+    Column(
+        "source_submission_id",
+        Integer,
+        ForeignKey("submissions.id", ondelete="RESTRICT"),
+        nullable=False,
+        unique=True,
+    ),
+    Column("created_at", DateTime, nullable=False, server_default=func.current_timestamp()),
+    CheckConstraint(
+        "category IN ('theme', 'motif', 'material', 'texture', 'color', 'silhouette')",
+        name="valid_category",
+    ),
+    CheckConstraint(
+        "strength IN ('dominant', 'supporting')", name="valid_strength"
+    ),
+    CheckConstraint(
+        "length(trim(canonical_value)) > 0", name="canonical_value_not_blank"
+    ),
+    CheckConstraint(
+        "length(trim(evidence_note)) > 0", name="evidence_note_not_blank"
+    ),
+    UniqueConstraint(
+        "collection_id", "category", "canonical_value",
+        name="uq_collection_descriptor",
+    ),
+)
+Index("idx_collection_descriptors_collection", collection_descriptors.c.collection_id)
+Index(
+    "idx_collection_descriptors_lookup",
+    collection_descriptors.c.category,
+    collection_descriptors.c.canonical_value,
+)
+
 users = Table(
     "users",
     metadata,
@@ -218,6 +265,7 @@ submissions = Table(
         nullable=False,
     ),
     Column("record_type", String(32), nullable=False),
+    Column("proposal_kind", String(32), nullable=False, server_default="archive_record"),
     Column("submission_type", String(32), nullable=False),
     Column("target_id", Integer),
     Column("status", String(32), nullable=False, server_default="draft"),

@@ -6,6 +6,7 @@ from pydantic import ValidationError
 
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.observability import service_metrics
+from app.recommendations import EDITORIAL_FACETS
 from app.database import (
     DATABASE_INTEGRITY_ERRORS,
     bump_archive_version,
@@ -82,6 +83,14 @@ def require_admin(user: dict = Depends(authenticated_app_user)) -> dict:
     return user
 
 
+@router.get("/editorial-vocabulary")
+def editorial_vocabulary(_user: dict = Depends(authenticated_app_user)):
+    return {
+        category: sorted(descriptors)
+        for category, descriptors in EDITORIAL_FACETS.items()
+    }
+
+
 def json_text(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
@@ -113,6 +122,15 @@ def collection_snapshot(connection, collection_id):
     result["source_url"] = media.get("source")
     result["youtube_video_id"] = media.get("youtube")
     return result
+
+
+def enrichment_snapshot(connection, submission_id):
+    row = connection.execute(
+        """SELECT collection_id, category, canonical_value, strength, evidence_note
+           FROM collection_descriptors WHERE source_submission_id = ?""",
+        (submission_id,),
+    ).fetchone()
+    return dict(row) if row else None
 
 
 def serialize_audit(connection, submission_id: int) -> list[dict]:
@@ -214,11 +232,12 @@ def create_submission_record(connection, payload, user, initial_status):
     data = payload.proposed_data.model_dump(exclude_unset=True)
     cursor = connection.execute(
         """INSERT INTO submissions
-           (submitter_user_id, record_type, submission_type, target_id, status,
+           (submitter_user_id, record_type, proposal_kind, submission_type, target_id, status,
             proposed_data, explanation, submitted_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'submitted' THEN CURRENT_TIMESTAMP END)""",
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'submitted' THEN CURRENT_TIMESTAMP END)""",
         (
-            user["id"], payload.record_type, payload.submission_type, payload.target_id,
+            user["id"], payload.record_type, payload.proposal_kind,
+            payload.submission_type, payload.target_id,
             initial_status, json_text(data), payload.explanation, initial_status,
         ),
     )
@@ -304,11 +323,12 @@ def update_draft(
         if row["status"] not in {"draft", "changes_requested"}:
             raise HTTPException(status_code=409, detail="Submission can no longer be edited")
         connection.execute(
-            """UPDATE submissions SET record_type = ?, submission_type = ?, target_id = ?,
+            """UPDATE submissions SET record_type = ?, proposal_kind = ?, submission_type = ?, target_id = ?,
                proposed_data = ?, explanation = ?, version = version + 1,
                updated_at = CURRENT_TIMESTAMP WHERE id = ?""",
             (
-                payload.record_type, payload.submission_type, payload.target_id,
+                payload.record_type, payload.proposal_kind,
+                payload.submission_type, payload.target_id,
                 json_text(payload.proposed_data.model_dump(exclude_unset=True)),
                 payload.explanation, submission_id,
             ),
@@ -338,6 +358,7 @@ def review_payload_from_row(connection, row):
     ]
     return submission_for_review_adapter.validate_python({
         "record_type": row["record_type"],
+        "proposal_kind": row["proposal_kind"],
         "submission_type": row["submission_type"],
         "target_id": row["target_id"],
         "proposed_data": json.loads(row["proposed_data"]),
@@ -544,6 +565,28 @@ def promote_submission(connection, row, reviewer):
     if existing:
         return existing["canonical_record_id"]
     proposed = json.loads(row["proposed_data"])
+    if row["proposal_kind"] == "enrichment":
+        if collection_snapshot(connection, row["target_id"]) is None:
+            raise HTTPException(status_code=409, detail="Enrichment target no longer exists")
+        connection.execute(
+            """INSERT INTO collection_descriptors
+               (collection_id, category, canonical_value, strength, evidence_note,
+                source_submission_id) VALUES (?, ?, ?, ?, ?, ?)""",
+            (
+                row["target_id"], proposed["category"], proposed["canonical_value"],
+                proposed["strength"], proposed["evidence_note"], row["id"],
+            ),
+        )
+        after = enrichment_snapshot(connection, row["id"])
+        bump_archive_version(connection)
+        connection.execute(
+            """INSERT INTO submission_promotions
+               (submission_id, canonical_record_type, canonical_record_id,
+                before_snapshot, after_snapshot, promoted_by_user_id)
+               VALUES (?, 'collection', ?, NULL, ?, ?)""",
+            (row["id"], row["target_id"], json_text(after), reviewer["id"]),
+        )
+        return row["target_id"]
     snapshot = designer_snapshot if row["record_type"] == "designer" else collection_snapshot
     writer = write_designer if row["record_type"] == "designer" else write_collection
     before = snapshot(connection, row["target_id"]) if row["submission_type"] == "correction" else None
@@ -579,6 +622,15 @@ def decide_submission(
             raise HTTPException(status_code=404, detail="Submission not found")
         if row["submitter_user_id"] == reviewer["id"]:
             raise HTTPException(status_code=403, detail="Reviewers cannot decide their own submissions.")
+        if (
+            row["proposal_kind"] == "enrichment"
+            and payload.decision == "approve"
+            and reviewer["role"] != "admin"
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Administrator approval required for canonical enrichment.",
+            )
         if row["status"] == "approved" and payload.decision == "approve":
             connection.commit()
             service_metrics.observe_moderation_event(
@@ -652,14 +704,24 @@ def rollback_submission(
             raise HTTPException(status_code=404, detail="Approved submission not found")
         if row["status"] != "approved" or promotion["rolled_back_at"] is not None:
             raise HTTPException(status_code=409, detail="Submission cannot be rolled back")
+        record_id = promotion["canonical_record_id"]
+        enrichment = row["proposal_kind"] == "enrichment"
         snapshot = designer_snapshot if row["record_type"] == "designer" else collection_snapshot
         writer = write_designer if row["record_type"] == "designer" else write_collection
-        record_id = promotion["canonical_record_id"]
-        current = snapshot(connection, record_id)
+        current = (
+            enrichment_snapshot(connection, submission_id)
+            if enrichment
+            else snapshot(connection, record_id)
+        )
         if current != json.loads(promotion["after_snapshot"]):
             raise HTTPException(status_code=409, detail="Canonical record changed after approval")
         before = json.loads(promotion["before_snapshot"]) if promotion["before_snapshot"] else None
-        if before is None:
+        if enrichment:
+            connection.execute(
+                "DELETE FROM collection_descriptors WHERE source_submission_id = ?",
+                (submission_id,),
+            )
+        elif before is None:
             if row["record_type"] == "designer" and connection.execute(
                 "SELECT 1 FROM collections WHERE designer_id = ? LIMIT 1", (record_id,)
             ).fetchone():

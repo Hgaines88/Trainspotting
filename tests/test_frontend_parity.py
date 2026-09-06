@@ -137,6 +137,32 @@ def test_collection_page_exposes_explainable_related_collections():
     assert "item.score" in source
 
 
+def test_react_exposes_guarded_collection_enrichment_workflow():
+    app_source = (PROJECT_ROOT / "react-ui" / "src" / "App.jsx").read_text(
+        encoding="utf-8"
+    )
+    collection_source = (
+        PROJECT_ROOT / "react-ui" / "src" / "pages" / "CollectionDetail.jsx"
+    ).read_text(encoding="utf-8")
+    form_source = (
+        PROJECT_ROOT / "react-ui" / "src" / "pages" / "EnrichmentSubmissionForm.jsx"
+    ).read_text(encoding="utf-8")
+    queue_source = (
+        PROJECT_ROOT / "react-ui" / "src" / "pages" / "ModerationQueue.jsx"
+    ).read_text(encoding="utf-8")
+
+    assert 'path="/collections/:collectionId/enrichment/new"' in app_source
+    assert 'path="/submissions/:submissionId/enrichment/edit"' in app_source
+    assert "<RequireAuthenticated><EnrichmentSubmissionForm" in app_source
+    assert "Suggest enrichment" in collection_source
+    assert 'proposal_kind: "enrichment"' in form_source
+    assert 'authorizedRequest("/editorial-vocabulary")' in form_source
+    assert '`/submission-drafts/${submissionId}`' in form_source
+    assert '`/submissions/${submissionId}/submit`' in form_source
+    assert 'appUser?.role === "admin"' in queue_source
+    assert "Administrator approval is required for canonical promotion." in queue_source
+
+
 def test_react_uses_clerk_without_exposing_the_secret_key():
     main_source = (
         PROJECT_ROOT / "react-ui" / "src" / "main.jsx"

@@ -14,6 +14,7 @@ import SubmissionForm from "./pages/SubmissionForm";
 import SubmissionDetail from "./pages/SubmissionDetail";
 import MySubmissions from "./pages/MySubmissions";
 import ModerationQueue from "./pages/ModerationQueue";
+import EnrichmentSubmissionForm from "./pages/EnrichmentSubmissionForm";
 import "./App.css";
 
 export default function App() {
@@ -28,6 +29,8 @@ export default function App() {
       <Route path="/designers/:designerId/collections/new" element={<RequireAdmin><CollectionForm /></RequireAdmin>} />
       <Route path="/collections/:collectionId/edit" element={<RequireAdmin><CollectionForm /></RequireAdmin>} />
       <Route path="/submissions/new" element={<RequireAuthenticated><SubmissionForm /></RequireAuthenticated>} />
+      <Route path="/collections/:collectionId/enrichment/new" element={<RequireAuthenticated><EnrichmentSubmissionForm /></RequireAuthenticated>} />
+      <Route path="/submissions/:submissionId/enrichment/edit" element={<RequireAuthenticated><EnrichmentSubmissionForm /></RequireAuthenticated>} />
       <Route path="/submissions/:submissionId/edit" element={<RequireAuthenticated><SubmissionForm /></RequireAuthenticated>} />
       <Route path="/submissions/:submissionId" element={<RequireAuthenticated><SubmissionDetail /></RequireAuthenticated>} />
       <Route path="/submissions/mine" element={<RequireAuthenticated><MySubmissions /></RequireAuthenticated>} />

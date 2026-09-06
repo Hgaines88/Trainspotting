@@ -135,6 +135,11 @@ def editorial_facets(collection: dict) -> dict[str, set[str]]:
     ).casefold()
     normalized = re.sub(r"[^a-z0-9]+", " ", text).strip()
     facets: dict[str, set[str]] = {}
+    for descriptor in collection.get("descriptors", []):
+        category = descriptor.get("category")
+        value = descriptor.get("canonical_value")
+        if category in EDITORIAL_FACETS and value in EDITORIAL_FACETS[category]:
+            facets.setdefault(category, set()).add(value)
     for category, descriptors in EDITORIAL_FACETS.items():
         matches = {
             descriptor
@@ -145,7 +150,7 @@ def editorial_facets(collection: dict) -> dict[str, set[str]]:
             )
         }
         if matches:
-            facets[category] = matches
+            facets.setdefault(category, set()).update(matches)
     return facets
 
 

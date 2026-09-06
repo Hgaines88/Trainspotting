@@ -256,7 +256,7 @@ def public_provenance(
 
 
 def collection_payloads(connection, rows) -> list[dict]:
-    """Attach ordered contributor credits without issuing one query per row."""
+    """Attach ordered credits and reviewed descriptors in bounded queries."""
     payloads = [dict(row) for row in rows]
     if not payloads:
         return payloads
@@ -285,8 +285,61 @@ def collection_payloads(connection, rows) -> list[dict]:
         credit_payload = dict(credit)
         collection_id = credit_payload.pop("collection_id")
         credits_by_collection[collection_id].append(credit_payload)
+
+    descriptor_rows = connection.execute(
+        f"""
+        SELECT
+            collection_descriptors.collection_id,
+            collection_descriptors.category,
+            collection_descriptors.canonical_value,
+            collection_descriptors.strength,
+            collection_descriptors.evidence_note,
+            collection_descriptors.source_submission_id AS submission_id,
+            collection_descriptors.created_at,
+            submissions.created_at AS proposed_at,
+            submissions.reviewed_at
+        FROM collection_descriptors
+        JOIN submissions
+            ON submissions.id = collection_descriptors.source_submission_id
+        JOIN submission_promotions
+            ON submission_promotions.submission_id = submissions.id
+           AND submission_promotions.rolled_back_at IS NULL
+        WHERE collection_descriptors.collection_id IN ({placeholders})
+        ORDER BY collection_descriptors.collection_id,
+                 collection_descriptors.category,
+                 collection_descriptors.canonical_value
+        """,
+        collection_ids,
+    ).fetchall()
+    descriptors_by_collection = {collection_id: [] for collection_id in collection_ids}
+    submission_ids = []
+    for descriptor in descriptor_rows:
+        descriptor_payload = dict(descriptor)
+        collection_id = descriptor_payload.pop("collection_id")
+        submission_ids.append(descriptor_payload["submission_id"])
+        descriptor_payload["sources"] = []
+        descriptors_by_collection[collection_id].append(descriptor_payload)
+
+    sources_by_submission = {submission_id: [] for submission_id in submission_ids}
+    if submission_ids:
+        source_placeholders = ", ".join("?" for _ in submission_ids)
+        source_rows = connection.execute(
+            f"""SELECT submission_id, url, title
+                FROM submission_sources
+                WHERE submission_id IN ({source_placeholders})
+                ORDER BY submission_id, id""",
+            submission_ids,
+        ).fetchall()
+        for source in source_rows:
+            sources_by_submission[source["submission_id"]].append(
+                {"url": source["url"], "title": source["title"]}
+            )
     for payload in payloads:
         payload["credits"] = credits_by_collection[payload["id"]]
+        payload["descriptors"] = descriptors_by_collection[payload["id"]]
+        for descriptor in payload["descriptors"]:
+            descriptor["sources"] = sources_by_submission[descriptor["submission_id"]]
+            descriptor.pop("submission_id")
     return payloads
 
 
@@ -717,6 +770,18 @@ def related_collections(
                 "OR LOWER(COALESCE(collections.description, '')) LIKE ?)"
             )
             parameters.extend((f"%{term}%", f"%{term}%"))
+        for descriptor in target.get("descriptors", []):
+            clauses.append(
+                """EXISTS (
+                    SELECT 1 FROM collection_descriptors
+                    WHERE collection_descriptors.collection_id = collections.id
+                      AND collection_descriptors.category = ?
+                      AND collection_descriptors.canonical_value = ?
+                )"""
+            )
+            parameters.extend(
+                (descriptor["category"], descriptor["canonical_value"])
+            )
         ranked = []
         last_id = 0
         batch_size = 200

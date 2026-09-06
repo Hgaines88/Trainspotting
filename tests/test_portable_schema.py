@@ -8,6 +8,7 @@ from app.schema import metadata
 EXPECTED_TABLES = {
     "archive_state",
     "collection_credits",
+    "collection_descriptors",
     "collection_media",
     "collections",
     "designers",

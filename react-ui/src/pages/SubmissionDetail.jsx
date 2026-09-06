@@ -40,6 +40,9 @@ export default function SubmissionDetail() {
   const editable = ["draft", "changes_requested"].includes(submission.status)
     && submission.submitter_clerk_user_id === appUser?.clerk_user_id;
   const archivePath = canonicalPath(submission);
+  const editPath = submission.proposal_kind === "enrichment"
+    ? `/submissions/${submission.id}/enrichment/edit`
+    : `/submissions/${submission.id}/edit`;
 
   return <>
     <div className="page-heading"><div><p className="eyebrow">Submission #{submission.id} · version {submission.version}</p><h1>{statusLabel}</h1></div><Link className="button secondary" to="/submissions/mine">All submissions</Link></div>
@@ -49,7 +52,7 @@ export default function SubmissionDetail() {
       <dl><div><dt>Record</dt><dd>{submission.record_type} {submission.submission_type}</dd></div><div><dt>Current status</dt><dd>{submission.status.replaceAll("_", " ")}</dd></div></dl>
     </section>
     <div className="actions">
-      {editable && <Link className="button" to={`/submissions/${submission.id}/edit`}>{submission.status === "changes_requested" ? "Revise and resubmit" : "Continue draft"}</Link>}
+      {editable && <Link className="button" to={editPath}>{submission.status === "changes_requested" ? "Revise and resubmit" : "Continue draft"}</Link>}
       {archivePath && submission.status === "approved" && <Link className="button" to={archivePath}>View published record</Link>}
     </div>
     <section className="section"><h2>Proposal</h2><p>{submission.explanation || "An explanation has not been added to this draft."}</p><SubmissionComparison submission={submission} /></section>

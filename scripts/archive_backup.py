@@ -28,6 +28,7 @@ COUNTED_TABLES = (
     "collections",
     "collection_credits",
     "collection_media",
+    "collection_descriptors",
     "users",
     "submissions",
     "submission_sources",
