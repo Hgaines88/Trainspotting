@@ -14,6 +14,9 @@ for moderator review. It does not change canonical archive records.
 | Sources | Optional | At least one valid HTTP(S) URL | Evidence for moderator review |
 | Submitter | From authenticated session | From authenticated session | Never accepted from request data |
 
+`proposal_kind` defaults to `archive_record`. The bounded `enrichment` kind is
+valid only for a correction targeting an existing collection.
+
 ## Proposed designer data
 
 | Field | Addition submitted for review | Correction submitted for review |
@@ -47,6 +50,25 @@ for moderator review. It does not change canonical archive records.
 - An empty correction is invalid when submitted for review.
 - Approval will apply the proposed patch transactionally; merely submitting a
   proposal will never update the canonical archive.
+
+## Proposed collection enrichment
+
+An enrichment proposal contains exactly one controlled descriptor:
+
+| Field | Requirement |
+|---|---|
+| Category | One of theme, motif, material, texture, color, or silhouette |
+| Canonical value | Must already exist in the server-controlled vocabulary |
+| Strength | `dominant` or `supporting` |
+| Evidence note | Required, non-blank explanation of what the source supports |
+| Target | Existing collection ID |
+| Source | At least one valid HTTP(S) submission source |
+
+Members may propose enrichment. Moderators may inspect evidence, request
+changes, or reject. Final canonical enrichment approval and rollback are
+administrator-only. Approval inserts only the normalized descriptor and never
+rewrites unrelated collection fields. Completeness is guidance, not a database
+insertion rule, and free-form taxonomy expansion is outside this workflow.
 
 Drafts may be incomplete, but basic type, length, range, and URL checks still
 apply to any values they contain. Promotion to the review queue applies all

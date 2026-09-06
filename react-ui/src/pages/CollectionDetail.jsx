@@ -11,7 +11,7 @@ function labelMonogram(label) {
 export default function CollectionDetail() {
   const { collectionId } = useParams();
   const navigate = useNavigate();
-  const { authorizedRequest, isAdmin } = useApplicationUser();
+  const { authorizedRequest, isAdmin, isSignedIn } = useApplicationUser();
   const [collection, setCollection] = useState(null);
   const [related, setRelated] = useState(null);
   const [relatedError, setRelatedError] = useState("");
@@ -62,7 +62,12 @@ export default function CollectionDetail() {
         <div><dt>Piece count</dt><dd>{collection.piece_count ?? "Unavailable"}</dd></div>
       </dl>
       <p>{collection.description || "No description is available."}</p>
-      {isAdmin && <div className="actions"><Link className="button" to={`/collections/${collectionId}/edit`}>Edit collection</Link><button className="danger" type="button" onClick={deleteCollection}>Delete collection</button></div>}
+      <div className="actions">{isSignedIn && <Link className="button secondary" to={`/collections/${collectionId}/enrichment/new`}>Suggest enrichment</Link>}{isAdmin && <><Link className="button" to={`/collections/${collectionId}/edit`}>Edit collection</Link><button className="danger" type="button" onClick={deleteCollection}>Delete collection</button></>}</div>
+
+      <section className="section" aria-labelledby="editorial-descriptors-heading">
+        <div className="section-heading"><h2 id="editorial-descriptors-heading">Editorial descriptors</h2><span>Reviewed vocabulary</span></div>
+        {collection.descriptors.length === 0 ? <p className="meta">This collection has not been manually enriched yet.</p> : <dl className="details">{collection.descriptors.map((descriptor) => <div key={`${descriptor.category}-${descriptor.canonical_value}`}><dt>{descriptor.category}</dt><dd><strong>{descriptor.canonical_value}</strong> · {descriptor.strength}<small>{descriptor.evidence_note}</small>{descriptor.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.title || "Supporting source"} ↗</a>)}</dd></div>)}</dl>}
+      </section>
 
       {collection.youtube_video_id && (
         <section className="section media-section">

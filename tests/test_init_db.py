@@ -55,6 +55,7 @@ def test_fresh_initialization_uses_canonical_archive(tmp_path, monkeypatch):
         "collections",
         "collection_credits",
         "collection_media",
+        "collection_descriptors",
         "ingestion_batches",
         "ingestion_rows",
         "users",

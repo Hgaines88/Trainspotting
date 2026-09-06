@@ -40,8 +40,9 @@ collaboration.
    Explain that approved community sources appear here without exposing private
    moderation notes or reviewer identity.
 4. **Recommendations:** Follow one related collection and read one visible
-   reason. Explain that the ranking uses shared contributors, labels, seasons,
-   nearby years, and descriptive terms—not an unexplained black box.
+   reason. Explain that editorial themes, motifs, materials, textures, colors,
+   and silhouettes lead the ranking, while creative identity and archive
+   context provide supporting signals—not an unexplained black box.
 5. **Ingestion:** In a prepared terminal, run the tracked CSV in dry-run mode:
 
    ```bash
@@ -58,10 +59,29 @@ collaboration.
    rollback. If demonstrating a live write, use a disposable staging submission
    and end by rejecting or rolling it back.
 
+## Optional enrichment walkthrough (about two minutes)
+
+1. Sign in as a member, open a collection, and choose **Suggest enrichment**.
+2. Select one controlled descriptor and its dominant or supporting strength.
+   Add a concise evidence note and an HTTP(S) source, then submit it.
+3. Open the review queue as a moderator. Inspect the proposed value, evidence,
+   submitter, source, and audit event. Show that a moderator may request changes
+   or reject, but cannot publish a canonical descriptor.
+4. As an administrator, approve the proposal. Reopen the collection and show
+   the reviewed descriptor and evidence. Point out that recommendations can now
+   use the normalized value even when collection prose uses different wording.
+5. If this is a disposable demonstration record, roll it back as the
+   administrator and confirm the collection itself is unchanged.
+
+Automated extraction may eventually suggest the same proposal shape, but it
+never bypasses this review and promotion boundary.
+
 ## Pre-demo data check
 
 - Confirm the featured record has two ordered credits and a visible source.
 - Confirm related collections load and show reasons.
+- Confirm the enrichment vocabulary loads for an authenticated member and that
+  moderator-only accounts do not receive an approval control for enrichment.
 - Run the ingestion sample in dry-run mode and confirm `1 valid`, `1 invalid`,
   and `1 duplicate` with no new batch or submission.
 - Confirm the moderation queue contains no temporary workflow-test records.

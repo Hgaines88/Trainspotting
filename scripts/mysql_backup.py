@@ -21,6 +21,7 @@ REQUIRED_TABLES = {
     "alembic_version",
     "archive_state",
     "collection_credits",
+    "collection_descriptors",
     "collection_media",
     "collections",
     "designers",

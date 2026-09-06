@@ -153,6 +153,7 @@ CREATE TABLE submissions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     submitter_user_id INTEGER NOT NULL,
     record_type TEXT NOT NULL CHECK (record_type IN ('designer', 'collection')),
+    proposal_kind TEXT NOT NULL DEFAULT 'archive_record',
     submission_type TEXT NOT NULL CHECK (submission_type IN ('addition', 'correction')),
     target_id INTEGER CHECK (target_id IS NULL OR target_id > 0),
     status TEXT NOT NULL DEFAULT 'draft'
@@ -167,6 +168,27 @@ CREATE TABLE submissions (
     FOREIGN KEY (submitter_user_id) REFERENCES users(id) ON DELETE RESTRICT,
     CHECK ((submission_type = 'addition' AND target_id IS NULL) OR submission_type = 'correction')
 );
+
+CREATE TABLE collection_descriptors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    collection_id INTEGER NOT NULL,
+    category TEXT NOT NULL CHECK (
+        category IN ('theme', 'motif', 'material', 'texture', 'color', 'silhouette')
+    ),
+    canonical_value TEXT NOT NULL CHECK (length(trim(canonical_value)) > 0),
+    strength TEXT NOT NULL CHECK (strength IN ('dominant', 'supporting')),
+    evidence_note TEXT NOT NULL CHECK (length(trim(evidence_note)) > 0),
+    source_submission_id INTEGER NOT NULL UNIQUE,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE CASCADE,
+    FOREIGN KEY (source_submission_id) REFERENCES submissions(id) ON DELETE RESTRICT,
+    UNIQUE (collection_id, category, canonical_value)
+);
+
+CREATE INDEX idx_collection_descriptors_collection
+    ON collection_descriptors(collection_id);
+CREATE INDEX idx_collection_descriptors_lookup
+    ON collection_descriptors(category, canonical_value);
 
 CREATE INDEX idx_submissions_submitter ON submissions(submitter_user_id);
 CREATE INDEX idx_submissions_queue ON submissions(status, submitted_at);

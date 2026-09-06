@@ -571,3 +571,174 @@ def test_rejected_submission_cannot_later_be_approved(client):
 
     assert response.status_code == 409
     assert count_rows("submission_promotions") == 0
+
+
+def enrichment_submission():
+    return {
+        "record_type": "collection",
+        "proposal_kind": "enrichment",
+        "submission_type": "correction",
+        "target_id": 1,
+        "proposed_data": {
+            "category": "material",
+            "canonical_value": "leather",
+            "strength": "dominant",
+            "evidence_note": "The source documents leather construction.",
+        },
+        "explanation": "Add a reviewed material descriptor.",
+        "sources": [SOURCE],
+    }
+
+
+def test_editorial_vocabulary_requires_authentication_and_is_controlled(client):
+    assert client.get("/editorial-vocabulary").status_code == 401
+    authenticate("user_enrichment_vocabulary")
+
+    response = client.get("/editorial-vocabulary")
+
+    assert response.status_code == 200
+    vocabulary = response.json()
+    assert set(vocabulary) == {
+        "theme", "motif", "material", "texture", "color", "silhouette"
+    }
+    assert "leather" in vocabulary["material"]
+    assert all(values == sorted(values) for values in vocabulary.values())
+
+
+def test_enrichment_requires_admin_promotion_and_is_idempotent(client):
+    authenticate("user_enrichment_submitter")
+    submission = client.post("/submissions", json=enrichment_submission())
+    assert submission.status_code == 201
+    submission = submission.json()
+    version_before = archive_version(client)
+
+    authenticate("user_enrichment_moderator", "moderator")
+    forbidden = client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "approve", "notes": "Evidence reviewed."},
+    )
+    assert forbidden.status_code == 403
+    assert count_rows("collection_descriptors") == 0
+
+    authenticate("user_enrichment_admin", "admin")
+    first = client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "approve", "notes": "Canonical value verified."},
+    )
+    retry = client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "approve", "notes": "Safe retry."},
+    )
+
+    assert first.status_code == retry.status_code == 200
+    assert first.json()["promotion"] == retry.json()["promotion"]
+    assert archive_version(client) == version_before + 1
+    assert count_rows("collection_descriptors") == 1
+    assert count_rows("submission_decisions") == 1
+    collection_payload = client.get("/collections/1").json()
+    descriptor = collection_payload["descriptors"][0]
+    assert descriptor["category"] == "material"
+    assert descriptor["canonical_value"] == "leather"
+    assert descriptor["strength"] == "dominant"
+    assert descriptor["evidence_note"] == "The source documents leather construction."
+    assert descriptor["sources"] == [SOURCE]
+    assert descriptor["reviewed_at"]
+    assert "submission_id" not in descriptor
+    assert "proposer_display_name" not in descriptor
+    assert "reviewer_display_name" not in descriptor
+
+
+def test_enrichment_rollback_removes_only_the_promoted_descriptor(client):
+    authenticate("user_enrichment_rollback_submitter")
+    submission = client.post("/submissions", json=enrichment_submission()).json()
+    connection = database.connect()
+    try:
+        collection_before = dict(connection.execute(
+            "SELECT * FROM collections WHERE id = 1"
+        ).fetchone())
+    finally:
+        connection.close()
+
+    authenticate("user_enrichment_rollback_admin", "admin")
+    assert client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "approve"},
+    ).status_code == 200
+    rolled_back = client.post(
+        f"/moderation/submissions/{submission['id']}/rollback",
+        json={"reason": "Descriptor evidence was withdrawn."},
+    )
+
+    assert rolled_back.status_code == 200
+    assert rolled_back.json()["status"] == "rolled_back"
+    assert count_rows("collection_descriptors") == 0
+    connection = database.connect()
+    try:
+        collection_after = dict(connection.execute(
+            "SELECT * FROM collections WHERE id = 1"
+        ).fetchone())
+    finally:
+        connection.close()
+    assert collection_after == collection_before
+
+
+def test_enrichment_request_changes_can_be_revised_and_resubmitted(client):
+    authenticate("user_enrichment_revision_submitter")
+    submission = client.post("/submissions", json=enrichment_submission()).json()
+
+    authenticate("user_enrichment_revision_moderator", "moderator")
+    requested = client.post(
+        f"/moderation/submissions/{submission['id']}/decisions",
+        json={"decision": "request_changes", "notes": "Clarify the evidence."},
+    )
+    assert requested.status_code == 200
+    assert requested.json()["status"] == "changes_requested"
+
+    authenticate("user_enrichment_revision_submitter")
+    revised_payload = enrichment_submission()
+    revised_payload["proposed_data"]["evidence_note"] = "The source explicitly documents leather construction."
+    updated = client.put(
+        f"/submission-drafts/{submission['id']}", json=revised_payload
+    )
+    assert updated.status_code == 200
+    assert updated.json()["version"] == 2
+    resubmitted = client.post(f"/submissions/{submission['id']}/submit")
+    assert resubmitted.status_code == 200
+    assert resubmitted.json()["status"] == "submitted"
+
+
+def test_duplicate_enrichment_approval_preserves_second_submission(client):
+    authenticate("user_enrichment_duplicate_first")
+    first = client.post("/submissions", json=enrichment_submission()).json()
+    authenticate("user_enrichment_duplicate_admin", "admin")
+    assert client.post(
+        f"/moderation/submissions/{first['id']}/decisions",
+        json={"decision": "approve"},
+    ).status_code == 200
+
+    authenticate("user_enrichment_duplicate_second")
+    second = client.post("/submissions", json=enrichment_submission()).json()
+    authenticate("user_enrichment_duplicate_admin", "admin")
+    conflict = client.post(
+        f"/moderation/submissions/{second['id']}/decisions",
+        json={"decision": "approve"},
+    )
+
+    assert conflict.status_code == 409
+    assert count_rows("collection_descriptors") == 1
+    connection = database.connect()
+    try:
+        preserved = connection.execute(
+            "SELECT status FROM submissions WHERE id = ?", (second["id"],)
+        ).fetchone()
+        decision = connection.execute(
+            "SELECT 1 FROM submission_decisions WHERE submission_id = ?", (second["id"],)
+        ).fetchone()
+        promotion = connection.execute(
+            "SELECT 1 FROM submission_promotions WHERE submission_id = ?", (second["id"],)
+        ).fetchone()
+    finally:
+        connection.close()
+    assert preserved["status"] == "submitted"
+    assert decision is None
+    assert promotion is None

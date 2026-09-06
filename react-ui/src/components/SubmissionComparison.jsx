@@ -14,6 +14,10 @@ const FIELD_LABELS = {
   status: "Status",
   website: "Website",
   youtube_video_id: "YouTube video ID",
+  category: "Descriptor category",
+  canonical_value: "Canonical descriptor",
+  strength: "Descriptor strength",
+  evidence_note: "Evidence note",
 };
 
 function displayValue(value, emptyLabel) {
@@ -25,11 +29,12 @@ export default function SubmissionComparison({ submission }) {
   const proposed = submission.proposed_data;
   const historicalBefore = submission.promotion?.before_snapshot;
   const current = historicalBefore ?? submission.current_data;
-  const addition = submission.submission_type === "addition";
+  const enrichment = submission.proposal_kind === "enrichment";
+  const addition = submission.submission_type === "addition" || enrichment;
 
   return <div className="comparison-wrap">
     <table className="comparison-table">
-      <caption>{addition ? "Proposed archive record" : "Proposed field changes"}</caption>
+      <caption>{enrichment ? "Proposed editorial enrichment" : (addition ? "Proposed archive record" : "Proposed field changes")}</caption>
       <thead><tr><th scope="col">Field</th>{!addition && <th scope="col">Current</th>}<th scope="col">Proposed</th></tr></thead>
       <tbody>{Object.entries(proposed).map(([field, value]) => <tr key={field}>
         <th scope="row">{FIELD_LABELS[field] || field.replaceAll("_", " ")}</th>

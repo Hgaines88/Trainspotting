@@ -3,6 +3,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
 from app.schemas import CollectionStatus
+from app.recommendations import EDITORIAL_FACETS
 from app.url_safety import normalize_public_http_url
 
 
@@ -93,18 +94,47 @@ class SubmissionDraftBase(SubmissionModel):
 
 class DesignerSubmissionDraft(SubmissionDraftBase):
     record_type: Literal["designer"]
+    proposal_kind: Literal["archive_record"] = "archive_record"
     proposed_data: DesignerProposal = Field(default_factory=DesignerProposal)
 
 
 class CollectionSubmissionDraft(SubmissionDraftBase):
     record_type: Literal["collection"]
+    proposal_kind: Literal["archive_record"] = "archive_record"
     proposed_data: CollectionProposal = Field(default_factory=CollectionProposal)
 
 
-SubmissionDraft = Annotated[
-    DesignerSubmissionDraft | CollectionSubmissionDraft,
-    Field(discriminator="record_type"),
-]
+class CollectionEnrichmentProposal(SubmissionModel):
+    category: str = Field(max_length=32)
+    canonical_value: str = Field(max_length=64)
+    strength: Literal["dominant", "supporting"]
+    evidence_note: str = Field(min_length=1, max_length=2000)
+
+    @model_validator(mode="after")
+    def descriptor_must_use_controlled_vocabulary(self):
+        self.category = self.category.strip().casefold()
+        self.canonical_value = self.canonical_value.strip().casefold()
+        self.evidence_note = self.evidence_note.strip()
+        descriptors = EDITORIAL_FACETS.get(self.category)
+        if descriptors is None:
+            raise ValueError("Unknown editorial descriptor category")
+        if self.canonical_value not in descriptors:
+            raise ValueError("Unknown canonical editorial descriptor")
+        return self
+
+
+class CollectionEnrichmentSubmissionDraft(SubmissionDraftBase):
+    record_type: Literal["collection"]
+    proposal_kind: Literal["enrichment"]
+    submission_type: Literal["correction"]
+    proposed_data: CollectionEnrichmentProposal
+
+
+SubmissionDraft = (
+    DesignerSubmissionDraft
+    | CollectionSubmissionDraft
+    | CollectionEnrichmentSubmissionDraft
+)
 submission_draft_adapter = TypeAdapter(SubmissionDraft)
 
 
@@ -131,6 +161,7 @@ class ReviewSubmissionBase(SubmissionDraftBase):
 
 class DesignerSubmissionForReview(ReviewSubmissionBase):
     record_type: Literal["designer"]
+    proposal_kind: Literal["archive_record"] = "archive_record"
     proposed_data: DesignerProposal
 
     @model_validator(mode="after")
@@ -147,6 +178,7 @@ class DesignerSubmissionForReview(ReviewSubmissionBase):
 
 class CollectionSubmissionForReview(ReviewSubmissionBase):
     record_type: Literal["collection"]
+    proposal_kind: Literal["archive_record"] = "archive_record"
     proposed_data: CollectionProposal
 
     @model_validator(mode="after")
@@ -181,10 +213,19 @@ class CollectionSubmissionForReview(ReviewSubmissionBase):
         return self
 
 
-SubmissionForReview = Annotated[
-    DesignerSubmissionForReview | CollectionSubmissionForReview,
-    Field(discriminator="record_type"),
-]
+class CollectionEnrichmentSubmissionForReview(ReviewSubmissionBase):
+    record_type: Literal["collection"]
+    proposal_kind: Literal["enrichment"]
+    submission_type: Literal["correction"]
+    target_id: int = Field(ge=1)
+    proposed_data: CollectionEnrichmentProposal
+
+
+SubmissionForReview = (
+    DesignerSubmissionForReview
+    | CollectionSubmissionForReview
+    | CollectionEnrichmentSubmissionForReview
+)
 submission_for_review_adapter = TypeAdapter(SubmissionForReview)
 
 
