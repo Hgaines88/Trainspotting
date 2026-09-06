@@ -138,6 +138,14 @@
       "biography": "Designer who began his career at Comme des Garçons and launched his namesake line within the house."
     },
     {
+      "key": "kerby-jean-raymond",
+      "full_name": "Kerby Jean-Raymond",
+      "nationality": "American",
+      "birth_year": null,
+      "website": "https://pyermoss.com",
+      "biography": "Haitian-American designer Kerby Jean-Raymond founded Pyer Moss in New York in 2013. His work uses fashion, music, art, and performance to center Black history and contemporary American life, notably through the three-part American, Also series."
+    },
+    {
       "key": "kim-jones",
       "full_name": "Kim Jones",
       "nationality": "British",
@@ -272,6 +280,14 @@
       "birth_year": 1962,
       "website": "https://www.rickowens.eu",
       "biography": "California-born designer who founded his independent namesake label in 1994 and later established it in Paris."
+    },
+    {
+      "key": "samuel-ross",
+      "full_name": "Samuel Ross",
+      "nationality": "British",
+      "birth_year": null,
+      "website": "https://www.a-cold-wall.com",
+      "biography": "British designer and artist Samuel Ross founded A-COLD-WALL* in 2015 after working with Virgil Abloh. His practice examines British class, architecture, industrial materials, and social environments across fashion, objects, and public art."
     },
     {
       "key": "sarah-burton",
@@ -1972,6 +1988,32 @@
       "youtube_video_id": "vQCKQaweG3M"
     },
     {
+      "key": "kerby-jean-raymond-pyer-moss-spring-summer-ready-to-wear-2019",
+      "designer_key": "kerby-jean-raymond",
+      "label": "Pyer Moss",
+      "name": "American, Also. Lesson 2",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2019,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The second chapter of Pyer Moss's American, Also series centered everyday Black American life and the history of the Negro Motorist Green Book, incorporating commissioned paintings by Derrick Adams.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-ready-to-wear/pyer-moss",
+      "youtube_video_id": null
+    },
+    {
+      "key": "kerby-jean-raymond-pyer-moss-spring-summer-ready-to-wear-2020",
+      "designer_key": "kerby-jean-raymond",
+      "label": "Pyer Moss",
+      "name": "Sister",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2020,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The final chapter of the American, Also trilogy honored Sister Rosetta Tharpe and the obscured Black roots of rock and roll through fashion, music, and a large-scale performance at Brooklyn's Kings Theatre.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2020-ready-to-wear/pyer-moss",
+      "youtube_video_id": null
+    },
+    {
       "key": "kim-jones-dunhill-spring-summer-menswear-2010",
       "designer_key": "kim-jones",
       "label": "Dunhill",
@@ -3595,6 +3637,32 @@
       "piece_count": null,
       "description": "An extreme play of shoulders, transparency, and elongated form delivered glamour as both armor and provocation.",
       "source_url": "https://www.vogue.com/fashion-shows/spring-2023-menswear/rick-owens",
+      "youtube_video_id": null
+    },
+    {
+      "key": "samuel-ross-a-cold-wall-spring-summer-menswear-2019",
+      "designer_key": "samuel-ross",
+      "label": "A-COLD-WALL*",
+      "name": null,
+      "season": "Spring/Summer Menswear",
+      "release_year": 2019,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Samuel Ross examined social mobility and the built environment through industrial construction, protective layers, distressed surfaces, and a performance that physically broke apart the show's set.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-menswear/a-cold-wall",
+      "youtube_video_id": null
+    },
+    {
+      "key": "samuel-ross-a-cold-wall-spring-summer-menswear-2020",
+      "designer_key": "samuel-ross",
+      "label": "A-COLD-WALL*",
+      "name": "A Material Study for Social Architecture",
+      "season": "Spring/Summer Menswear",
+      "release_year": 2020,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Presented at Printworks in London, the collection developed Ross's study of social architecture through material experimentation, workwear-derived forms, tailoring, and industrial references.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2020-menswear/a-cold-wall",
       "youtube_video_id": null
     },
     {

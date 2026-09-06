@@ -17,16 +17,16 @@ def test_canonical_audit_is_deterministic_and_separates_optional_absence():
     report = audit_archive(canonical_payload())
 
     assert report == audit_archive(canonical_payload())
-    assert report["counts"]["designers"] == 46
-    assert report["counts"]["collections"] == 373
+    assert report["counts"]["designers"] == 48
+    assert report["counts"]["collections"] == 377
     assert report["counts"]["errors"] == 0
     assert report["counts"]["findings"] == (
         report["counts"]["warnings"] + report["counts"]["review"]
     )
     assert report["optional_missing"] == {
-        "name": 183,
-        "piece_count": 344,
-        "youtube_video_id": 315,
+        "name": 184,
+        "piece_count": 348,
+        "youtube_video_id": 319,
     }
 
 
