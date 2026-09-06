@@ -55,7 +55,7 @@ finally:
     connection.close()
 
 
-from app import main as main_module  # noqa: E402
+from app import main as main_module, submissions as submissions_module  # noqa: E402
 from app.users import get_or_create_user  # noqa: E402
 
 
@@ -79,6 +79,12 @@ def sync_e2e_user_profile(clerk_user_id: str) -> dict:
     return get_or_create_user(clerk_user_id)
 
 
+def skip_e2e_rate_limit(*_args, **_kwargs) -> None:
+    """Keep the isolated workflow deterministic; limiter behavior has unit coverage."""
+
+
 main_module.sync_clerk_user_profile = sync_e2e_user_profile
+main_module.enforce_identity_rate_limit = skip_e2e_rate_limit
+submissions_module.enforce_identity_rate_limit = skip_e2e_rate_limit
 main_module.app.dependency_overrides[require_authenticated_user] = require_e2e_identity
 app = main_module.app

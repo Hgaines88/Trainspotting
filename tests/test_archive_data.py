@@ -296,3 +296,71 @@ def test_new_designer_profiles_have_expected_career_records():
         + luka_collections
         + haider_collections
     )
+
+
+def test_demo_x03_expansion_has_sources_and_ordered_credits():
+    payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
+    designer_keys = {
+        "christian-dior",
+        "cristobal-balenciaga",
+        "dapper-dan",
+        "elsa-schiaparelli",
+        "helmut-lang",
+        "iris-van-herpen",
+        "jean-paul-gaultier",
+        "nigo",
+        "phoebe-philo",
+        "thierry-mugler",
+    }
+    archive_designer_keys = {
+        designer["key"] for designer in payload["designers"]
+    }
+    assert designer_keys <= archive_designer_keys
+
+    expanded_collections = [
+        collection
+        for collection in payload["collections"]
+        if collection["designer_key"] in designer_keys
+    ]
+    assert len(expanded_collections) == 50
+    assert all(collection.get("credits") for collection in expanded_collections)
+    assert all(collection["source_url"] for collection in expanded_collections)
+    assert all(
+        [credit["position"] for credit in collection["credits"]]
+        == list(range(1, len(collection["credits"]) + 1))
+        for collection in expanded_collections
+    )
+
+    lv2 = next(
+        collection
+        for collection in payload["collections"]
+        if collection["key"] == "virgil-abloh-louis-vuitton-pre-fall-2020"
+    )
+    assert [
+        (credit["designer_key"], credit["role"], credit["position"])
+        for credit in lv2["credits"]
+    ] == [
+        ("virgil-abloh", "lead", 1),
+        ("nigo", "collaborator", 2),
+    ]
+
+    expected_collaborations = {
+        "dapper-dan-gucci-dapper-dan-pre-fall-2018": [
+            ("dapper-dan", "lead", 1),
+            ("alessandro-michele", "collaborator", 2),
+        ],
+        "pharrell-williams-louis-vuitton-fall-winter-menswear-2025": [
+            ("pharrell-williams", "lead", 1),
+            ("nigo", "co-designer", 2),
+        ],
+    }
+    for collection_key, expected_credits in expected_collaborations.items():
+        collection = next(
+            item
+            for item in payload["collections"]
+            if item["key"] == collection_key
+        )
+        assert [
+            (credit["designer_key"], credit["role"], credit["position"])
+            for credit in collection["credits"]
+        ] == expected_credits

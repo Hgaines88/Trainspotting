@@ -302,7 +302,10 @@ test("critical moderation workflow is isolated, authorized, idempotent, and reve
   expect(duplicateApproval.status).toBe(200);
   expect(duplicateApproval.body.status).toBe("approved");
 
-  const approvedDesigners = await apiRequest(page, "/designers");
+  const approvedDesigners = await apiRequest(
+    page,
+    `/designers?search=${encodeURIComponent(DESIGNER_NAME)}`,
+  );
   expect(
     approvedDesigners.body.items.filter(
       (item) => item.full_name === DESIGNER_NAME,

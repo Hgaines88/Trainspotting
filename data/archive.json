@@ -26,6 +26,14 @@
       "biography": "Chitose Abe (née Sakai) is a Japanese fashion designer and the founder of the luxury label Sacai. Launched in Tokyo in 1999, her brand is globally renowned for its signature \"hybrid\" aesthetic, which splices contrasting fabrics, utility wear, and classic tailoring into cohesive, multi-dimensional garments."
     },
     {
+      "key": "christian-dior",
+      "full_name": "Christian Dior",
+      "nationality": "French",
+      "birth_year": 1905,
+      "website": "https://www.dior.com",
+      "biography": "French couturier Christian Dior founded his Paris house in 1946 and transformed postwar fashion with the sculpted shoulders, narrow waist, and expansive skirts of his 1947 debut. Through a succession of named lines, he continually revised proportion while rebuilding Paris haute couture as an international cultural and commercial force."
+    },
+    {
       "key": "craig-green",
       "full_name": "Craig Green",
       "nationality": "British",
@@ -34,12 +42,28 @@
       "biography": "London designer Craig Green founded his label in 2012 after completing the Central Saint Martins MA. Beginning with workwear, uniforms, and the worker jacket, he constructs deeply emotional menswear around protection, restraint, vulnerability, ritual, and collective movement. His processions often combine highly wearable garments with sculptural structures that resemble flags, shelters, machines, or devotional objects."
     },
     {
+      "key": "cristobal-balenciaga",
+      "full_name": "Cristóbal Balenciaga",
+      "nationality": "Spanish",
+      "birth_year": 1895,
+      "website": "https://www.cristobalbalenciagamuseoa.com",
+      "biography": "Spanish couturier Cristóbal Balenciaga opened his first house in San Sebastián before establishing his Paris maison in 1937. Celebrated for technical mastery, architectural cutting, and an exact understanding of fabric, he progressively released the body through tunic, sack, baby-doll, and other abstract silhouettes that reshaped twentieth-century couture."
+    },
+    {
       "key": "dao-yi-chow",
       "full_name": "Dao-Yi Chow",
       "nationality": "American",
       "birth_year": null,
       "website": "https://www.publicschoolnewyork.com",
       "biography": "New York designer Dao-Yi Chow co-founded Public School with Maxwell Osborne. Together they developed a distinctly New York approach to sportswear, tailoring, street culture, and uniform, and received major American menswear honors for their work."
+    },
+    {
+      "key": "dapper-dan",
+      "full_name": "Dapper Dan",
+      "nationality": "American",
+      "birth_year": 1944,
+      "website": "https://www.dapperdanofharlem.com",
+      "biography": "Harlem designer Daniel 'Dapper Dan' Day pioneered a luxury streetwear language in the 1980s by translating European fashion symbols through custom garments for hip-hop artists, athletes, and neighborhood clients. His atelier-centered practice joined tailoring, logomania, and cultural authorship, later extending into sanctioned collaborations with Gucci, Gap, and Puma."
     },
     {
       "key": "demna-gvasalia",
@@ -66,6 +90,14 @@
       "biography": "California designer, photographer, filmmaker, and artist Eli Russell Linnetz founded ERL in Venice Beach. His work turns Southern California archetypes—skaters, surfers, prom, Hollywood fantasy, and handcraft—into emotionally heightened fashion images and garments. In 2022 he guest-designed Dior Men's Spring 2023 collection with Kim Jones."
     },
     {
+      "key": "elsa-schiaparelli",
+      "full_name": "Elsa Schiaparelli",
+      "nationality": "Italian",
+      "birth_year": 1890,
+      "website": "https://www.schiaparelli.com",
+      "biography": "Italian-born Paris couturière Elsa Schiaparelli fused fashion with Surrealism, modern art, wit, and technological experimentation. Working with artists including Salvador Dalí and Jean Cocteau, she organized theatrical thematic collections and used shocking pink, trompe-l'œil, unusual fastenings, and imagery to challenge the boundaries between dress and art."
+    },
+    {
       "key": "gosha-rubchinskiy",
       "full_name": "Gosha Rubchinskiy",
       "nationality": "Russian",
@@ -90,12 +122,36 @@
       "biography": "Colombian-born, Antwerp-trained designer Haider Ackermann launched his namesake label in 2001 and developed a distinctive language of fluid tailoring, rich color, layered draping, and sensual restraint. His career includes creative leadership at Berluti and Tom Ford, as well as a celebrated one-season haute couture collaboration with Jean Paul Gaultier."
     },
     {
+      "key": "helmut-lang",
+      "full_name": "Helmut Lang",
+      "nationality": "Austrian",
+      "birth_year": 1956,
+      "website": "https://www.helmutlang.com",
+      "biography": "Austrian designer Helmut Lang built a radically modern wardrobe from precise tailoring, denim, military utility, technical textiles, and controlled sensuality. After founding his label in Vienna, he moved its center to New York and helped reset the fashion calendar and visual language of the 1990s before leaving fashion in 2005 to pursue art."
+    },
+    {
+      "key": "iris-van-herpen",
+      "full_name": "Iris van Herpen",
+      "nationality": "Dutch",
+      "birth_year": 1984,
+      "website": "https://www.irisvanherpen.com",
+      "biography": "Dutch couturier Iris van Herpen founded her Amsterdam-based house in 2007. Her practice combines meticulous handwork with digital fabrication, material science, architecture, dance, and natural systems, producing sculptural garments that test how technology and the living world can reshape the movement and perception of the body."
+    },
+    {
       "key": "issey-miyake",
       "full_name": "Issey Miyake",
       "nationality": "Japanese",
       "birth_year": 1938,
       "website": "https://www.isseymiyake.com",
       "biography": "Japanese designer Issey Miyake founded the Miyake Design Studio in 1970 and built a practice around the relationship between cloth, technology, movement, and everyday life. Rather than treating fashion as surface decoration, he pursued new systems of making—from a single piece of cloth to garment pleating after construction. This profile focuses on work created during Miyake's own design tenure, keeping later collections by Naoki Takizawa, Dai Fujiwara, Yoshiyuki Miyamae, and Satoshi Kondo distinct."
+    },
+    {
+      "key": "jean-paul-gaultier",
+      "full_name": "Jean Paul Gaultier",
+      "nationality": "French",
+      "birth_year": 1952,
+      "website": "https://www.jeanpaulgaultier.com",
+      "biography": "French designer Jean Paul Gaultier launched his label in 1976 and became fashion's enfant terrible through gender-fluid casting, corsetry, Breton stripes, street references, and virtuosic tailoring. He consistently elevated vernacular dress and challenged conventions of age, size, gender, and beauty across ready-to-wear and haute couture."
     },
     {
       "key": "jil-sander",
@@ -242,6 +298,14 @@
       "biography": "Designer and creative director of Prada and Miu Miu."
     },
     {
+      "key": "nigo",
+      "full_name": "Nigo",
+      "nationality": "Japanese",
+      "birth_year": 1970,
+      "website": "https://www.kenzo.com",
+      "biography": "Japanese designer and cultural producer Nigo founded A Bathing Ape in 1993 and later Human Made, building an influential bridge among streetwear, vintage Americana, music, collecting, and graphic identity. A co-founder of Billionaire Boys Club, he became artistic director of Kenzo in 2021 and reframed the house through Japanese craft and youth culture."
+    },
+    {
       "key": "olivier-rousteing",
       "full_name": "Olivier Rousteing",
       "nationality": "French",
@@ -256,6 +320,14 @@
       "birth_year": 1973,
       "website": "https://www.louisvuitton.com",
       "biography": "American musician, producer, entrepreneur, and designer Pharrell Williams co-founded Billionaire Boys Club and Icecream with Nigo in 2003, bringing music, skateboarding, and Japanese streetwear production into a global lifestyle project. A longtime fashion collaborator, he became Louis Vuitton men's creative director in 2023, using spectacle, community, tailoring, and the house's travel codes to define his tenure."
+    },
+    {
+      "key": "phoebe-philo",
+      "full_name": "Phoebe Philo",
+      "nationality": "British",
+      "birth_year": 1973,
+      "website": "https://www.phoebephilo.com",
+      "biography": "British designer Phoebe Philo reshaped modern womenswear through influential creative tenures at Chloé and Céline. Her work centers lived experience, autonomy, intelligent proportion, tactile material, and a tension between pragmatism and eccentricity; in 2023 she launched her independent namesake house."
     },
     {
       "key": "pierpaolo-piccioli",
@@ -328,6 +400,14 @@
       "birth_year": 1985,
       "website": "https://telfar.net",
       "biography": "Liberian-American designer Telfar Clemens founded his eponymous New York label in 2005, building a radically inclusive, unisex wardrobe around familiar American clothing. Across runway collections, performance-led presentations, democratic accessories, uniforms, sportswear, and collaborations, Telfar has made accessibility and community central to luxury fashion. His practice encompasses the long-running TELFAR main line, the Shopping Bag, White Castle uniforms and capsules, Liberia's Olympic uniforms, and projects with UGG, Converse, and Moose Knuckles."
+    },
+    {
+      "key": "thierry-mugler",
+      "full_name": "Thierry Mugler",
+      "nationality": "French",
+      "birth_year": 1948,
+      "website": "https://fashion.mugler.com",
+      "biography": "French designer Manfred Thierry Mugler founded his label in the 1970s and developed an unmistakable vocabulary of aerodynamic tailoring, corseted bodies, theatrical glamour, and science-fiction fantasy. His spectacular runway productions joined fashion, performance, celebrity, and image-making while celebrating transformation through exaggerated silhouette."
     },
     {
       "key": "thom-browne",
@@ -599,6 +679,111 @@
       "youtube_video_id": "nW2laq9XPdc"
     },
     {
+      "key": "christian-dior-christian-dior-spring-summer-couture-1947",
+      "designer_key": "christian-dior",
+      "label": "Christian Dior",
+      "name": "Corolle and En 8",
+      "season": "Spring/Summer Couture",
+      "release_year": 1947,
+      "status": "archived",
+      "piece_count": 90,
+      "description": "Dior's debut established the rounded shoulders, emphatic waist, and expansive skirt associated with the New Look while presenting the contrasting Corolle and En 8 lines.",
+      "source_url": "https://www.dior.com/en_int/one/the-new-look",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of the House of Dior.",
+          "designer_key": "christian-dior"
+        }
+      ]
+    },
+    {
+      "key": "christian-dior-christian-dior-fall-winter-couture-1948",
+      "designer_key": "christian-dior",
+      "label": "Christian Dior",
+      "name": "Zig-Zag",
+      "season": "Fall/Winter Couture",
+      "release_year": 1948,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The Zig-Zag line sharpened Dior's exploration of directional structure and animated contour within the disciplined construction of haute couture.",
+      "source_url": "https://www.vogue.com/article/christian-dior-archival-looks",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of the House of Dior.",
+          "designer_key": "christian-dior"
+        }
+      ]
+    },
+    {
+      "key": "christian-dior-christian-dior-spring-summer-couture-1948",
+      "designer_key": "christian-dior",
+      "label": "Christian Dior",
+      "name": "Envol",
+      "season": "Spring/Summer Couture",
+      "release_year": 1948,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The Envol line developed Dior's postwar silhouette through lighter movement and wing-like construction while preserving the house's exacting couture architecture.",
+      "source_url": "https://www.vogue.com/article/christian-dior-archival-looks",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of the House of Dior.",
+          "designer_key": "christian-dior"
+        }
+      ]
+    },
+    {
+      "key": "christian-dior-christian-dior-fall-winter-couture-1954",
+      "designer_key": "christian-dior",
+      "label": "Christian Dior",
+      "name": "H-Line",
+      "season": "Fall/Winter Couture",
+      "release_year": 1954,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Dior's H-Line deemphasized the waist through a straighter, elongated geometry, demonstrating his continual revision of the silhouette he had popularized.",
+      "source_url": "https://www.vogue.com/article/christian-dior-archival-looks",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of the House of Dior.",
+          "designer_key": "christian-dior"
+        }
+      ]
+    },
+    {
+      "key": "christian-dior-christian-dior-spring-summer-couture-1955",
+      "designer_key": "christian-dior",
+      "label": "Christian Dior",
+      "name": "A-Line",
+      "season": "Spring/Summer Couture",
+      "release_year": 1955,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The A-Line organized narrow shoulders and a widening hem into a clear graphic silhouette whose name became part of fashion's permanent vocabulary.",
+      "source_url": "https://www.vogue.com/article/christian-dior-archival-looks",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of the House of Dior.",
+          "designer_key": "christian-dior"
+        }
+      ]
+    },
+    {
       "key": "craig-green-craig-green-spring-summer-menswear-2013",
       "designer_key": "craig-green",
       "label": "Craig Green",
@@ -701,6 +886,111 @@
       "description": "Beatles-era psychedelia, gardening, fringed textile forms, transformed parkas, and floral prints created a wistful meditation on youthful creative intensity.",
       "source_url": "https://www.vogue.com/fashion-shows/spring-2026-menswear/craig-green",
       "youtube_video_id": null
+    },
+    {
+      "key": "cristobal-balenciaga-balenciaga-fall-winter-couture-1937",
+      "designer_key": "cristobal-balenciaga",
+      "label": "Balenciaga",
+      "name": "Paris Debut",
+      "season": "Fall/Winter Couture",
+      "release_year": 1937,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Balenciaga's first Paris collection introduced the technical authority and Spanish-inflected rigor that established his couture house at 10 Avenue George V.",
+      "source_url": "https://www.balenciaga.com/en-us/cristobal",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of Balenciaga.",
+          "designer_key": "cristobal-balenciaga"
+        }
+      ]
+    },
+    {
+      "key": "cristobal-balenciaga-balenciaga-fall-winter-couture-1939",
+      "designer_key": "cristobal-balenciaga",
+      "label": "Balenciaga",
+      "name": "Infanta Line",
+      "season": "Fall/Winter Couture",
+      "release_year": 1939,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The Infanta line transformed references to Spanish court dress through sculptural volume, historic form, and Balenciaga's modern command of construction.",
+      "source_url": "https://www.balenciaga.com/en-us/cristobal",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of Balenciaga.",
+          "designer_key": "cristobal-balenciaga"
+        }
+      ]
+    },
+    {
+      "key": "cristobal-balenciaga-balenciaga-fall-winter-couture-1955",
+      "designer_key": "cristobal-balenciaga",
+      "label": "Balenciaga",
+      "name": "Tunic Dress",
+      "season": "Fall/Winter Couture",
+      "release_year": 1955,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The tunic dress loosened couture from a fixed waist and advanced Balenciaga's architectural approach to volume, balance, and movement around the body.",
+      "source_url": "https://www.balenciaga.com/en-us/cristobal",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of Balenciaga.",
+          "designer_key": "cristobal-balenciaga"
+        }
+      ]
+    },
+    {
+      "key": "cristobal-balenciaga-balenciaga-fall-winter-couture-1957",
+      "designer_key": "cristobal-balenciaga",
+      "label": "Balenciaga",
+      "name": "Sack Dress",
+      "season": "Fall/Winter Couture",
+      "release_year": 1957,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The sack dress replaced the fitted waist with an autonomous line falling from the shoulders, radically revising the dominant hourglass ideal of the decade.",
+      "source_url": "https://www.cristobalbalenciagamuseoa.com/en/discover/collection-/collections/",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of Balenciaga.",
+          "designer_key": "cristobal-balenciaga"
+        }
+      ]
+    },
+    {
+      "key": "cristobal-balenciaga-balenciaga-spring-summer-couture-1958",
+      "designer_key": "cristobal-balenciaga",
+      "label": "Balenciaga",
+      "name": "Baby-Doll Dress",
+      "season": "Spring/Summer Couture",
+      "release_year": 1958,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The baby-doll dress suspended volume from a raised line, combining apparent simplicity with precise internal control and further freeing couture from the natural waist.",
+      "source_url": "https://www.cristobalbalenciagamuseoa.com/en/discover/collection-/collections/",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier of Balenciaga.",
+          "designer_key": "cristobal-balenciaga"
+        }
+      ]
     },
     {
       "key": "dao-yi-chow-public-school-fall-winter-ready-to-wear-2016",
@@ -834,6 +1124,138 @@
           "position": 2,
           "attribution_note": "Public School co-founder.",
           "designer_key": "maxwell-osborne"
+        }
+      ]
+    },
+    {
+      "key": "dapper-dan-gucci-dapper-dan-pre-fall-2018",
+      "designer_key": "dapper-dan",
+      "label": "Gucci-Dapper Dan",
+      "name": "The Collection",
+      "season": "Pre-Fall",
+      "release_year": 2018,
+      "status": "archived",
+      "piece_count": null,
+      "description": "A special ready-to-wear and accessories collection reworked Dapper Dan's Harlem archive through Gucci materials, late-1980s washes, tracksuits, tailoring, and GG canvas.",
+      "source_url": "https://www.gucci.com/us/en/st/stories/article/pre-fall-2018-dapper-dan-collection-shoppable",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Harlem designer and source of the collection's archival design language.",
+          "designer_key": "dapper-dan"
+        },
+        {
+          "role": "collaborator",
+          "position": 2,
+          "attribution_note": "Gucci creative director and design collaborator.",
+          "designer_key": "alessandro-michele"
+        }
+      ]
+    },
+    {
+      "key": "dapper-dan-puma-x-dapper-dan-fall-winter-capsule-2022",
+      "designer_key": "dapper-dan",
+      "label": "Puma x Dapper Dan",
+      "name": "Kith Exclusive",
+      "season": "Fall/Winter Capsule",
+      "release_year": 2022,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The first Puma x Dapper Dan release translated pre-game style through elevated sportswear, knitwear, tailoring, color, and Harlem-rooted luxury codes.",
+      "source_url": "https://about.puma.com/en/newsroom/news/puma-presents-futrograde",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Design collaborator with Puma.",
+          "designer_key": "dapper-dan"
+        }
+      ]
+    },
+    {
+      "key": "dapper-dan-dap-gap-spring-summer-capsule-2022",
+      "designer_key": "dapper-dan",
+      "label": "DAP GAP",
+      "name": "Harlem Tailor Hoodie",
+      "season": "Spring/Summer Capsule",
+      "release_year": 2022,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The special-edition DAP GAP hoodie recast Gap's arch logo around Dapper Dan's Harlem identity and effort to reclaim the hoodie as an object of pride.",
+      "source_url": "https://www.gapinc.com/fr-ca/articles/2022/03/gap-s-spring-campaign-champions-individuality-and",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Designer of the Dapper Dan and Gap capsule.",
+          "designer_key": "dapper-dan"
+        }
+      ]
+    },
+    {
+      "key": "dapper-dan-puma-x-dapper-dan-fall-winter-capsule-2023",
+      "designer_key": "dapper-dan",
+      "label": "Puma x Dapper Dan",
+      "name": "Pre-Game",
+      "season": "Fall/Winter Capsule",
+      "release_year": 2023,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The third collaboration marked hip-hop's fiftieth anniversary through a new monogram, velour T7 pieces, tailored sportswear, and reworked Clyde sneakers.",
+      "source_url": "https://about.puma.com/en/newsroom/news/puma-and-dapper-dan-reunite-pre-game-capsule-collection",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Design collaborator with Puma.",
+          "designer_key": "dapper-dan"
+        }
+      ]
+    },
+    {
+      "key": "dapper-dan-puma-x-dapper-dan-spring-summer-capsule-2023",
+      "designer_key": "dapper-dan",
+      "label": "Puma x Dapper Dan",
+      "name": "Drop 2",
+      "season": "Spring/Summer Capsule",
+      "release_year": 2023,
+      "status": "archived",
+      "piece_count": 5,
+      "description": "A five-piece capsule combined the Clyde, T7 sportswear, padded outerwear, rhinestones, and monogram graphics in a reflection on Harlem self-expression.",
+      "source_url": "https://www.about.puma.com/en/newsroom/news/puma-and-dapper-dan-reflect-meaningful-expression-drop-2-their-collaboration",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Design collaborator with Puma.",
+          "designer_key": "dapper-dan"
+        }
+      ]
+    },
+    {
+      "key": "dapper-dan-dap-gap-spring-summer-capsule-2024",
+      "designer_key": "dapper-dan",
+      "label": "DAP GAP",
+      "name": "Spring Western",
+      "season": "Spring/Summer Capsule",
+      "release_year": 2024,
+      "status": "archived",
+      "piece_count": 22,
+      "description": "A 22-piece Western denim capsule expanded DAP GAP into a head-to-toe wardrobe connecting Black cowboy history, Harlem community, and accessible American sportswear.",
+      "source_url": "https://www.gapinc.com/en-us/articles/2024/02/gap-and-dapper-dan-reveal-new-spring-western-inspi",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Designer of the Dapper Dan and Gap capsule.",
+          "designer_key": "dapper-dan"
         }
       ]
     },
@@ -1203,6 +1625,111 @@
       "youtube_video_id": null
     },
     {
+      "key": "elsa-schiaparelli-schiaparelli-fall-winter-couture-1935",
+      "designer_key": "elsa-schiaparelli",
+      "label": "Schiaparelli",
+      "name": "Stop, Look and Listen",
+      "season": "Fall/Winter Couture",
+      "release_year": 1935,
+      "status": "archived",
+      "piece_count": null,
+      "description": "An early thematic collection that treated couture as visual communication, joining Schiaparelli's wit, modern materials, and Surrealist instinct.",
+      "source_url": "https://www.metmuseum.org/essays/elsa-schiaparelli-1890-1973",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière of Schiaparelli.",
+          "designer_key": "elsa-schiaparelli"
+        }
+      ]
+    },
+    {
+      "key": "elsa-schiaparelli-schiaparelli-spring-summer-couture-1937",
+      "designer_key": "elsa-schiaparelli",
+      "label": "Schiaparelli",
+      "name": "Music",
+      "season": "Spring/Summer Couture",
+      "release_year": 1937,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Musical notation, instruments, and rhythmic graphic motifs turned garments and accessories into playful compositions.",
+      "source_url": "https://www.metmuseum.org/essays/elsa-schiaparelli-1890-1973",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière of Schiaparelli.",
+          "designer_key": "elsa-schiaparelli"
+        }
+      ]
+    },
+    {
+      "key": "elsa-schiaparelli-schiaparelli-fall-winter-couture-1938",
+      "designer_key": "elsa-schiaparelli",
+      "label": "Schiaparelli",
+      "name": "Pagan",
+      "season": "Fall/Winter Couture",
+      "release_year": 1938,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Botanical forms, Botticelli references, and imagery of nature shaped an earthy counterpoint to Schiaparelli's more mechanical Surrealism.",
+      "source_url": "https://www.metmuseum.org/essays/elsa-schiaparelli-1890-1973",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière of Schiaparelli.",
+          "designer_key": "elsa-schiaparelli"
+        }
+      ]
+    },
+    {
+      "key": "elsa-schiaparelli-schiaparelli-spring-summer-couture-1938",
+      "designer_key": "elsa-schiaparelli",
+      "label": "Schiaparelli",
+      "name": "Circus",
+      "season": "Spring/Summer Couture",
+      "release_year": 1938,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Acrobats, animals, spectacle, and trompe-l'œil transformed couture into a vivid Surrealist performance, including celebrated collaborations with Salvador Dalí.",
+      "source_url": "https://www.metmuseum.org/essays/elsa-schiaparelli-1890-1973",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière; artist collaborations are described without assigning collection-level co-design credit.",
+          "designer_key": "elsa-schiaparelli"
+        }
+      ]
+    },
+    {
+      "key": "elsa-schiaparelli-schiaparelli-spring-summer-couture-1939",
+      "designer_key": "elsa-schiaparelli",
+      "label": "Schiaparelli",
+      "name": "Commedia dell'Arte",
+      "season": "Spring/Summer Couture",
+      "release_year": 1939,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Commedia dell'Arte characters and theatrical motifs extended Schiaparelli's practice of treating a couture collection as a complete narrative world.",
+      "source_url": "https://www.metmuseum.org/essays/elsa-schiaparelli-1890-1973",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière of Schiaparelli.",
+          "designer_key": "elsa-schiaparelli"
+        }
+      ]
+    },
+    {
       "key": "gosha-rubchinskiy-gosha-rubchinskiy-spring-summer-menswear-2009",
       "designer_key": "gosha-rubchinskiy",
       "label": "Gosha Rubchinskiy",
@@ -1489,6 +2016,216 @@
       "youtube_video_id": null
     },
     {
+      "key": "helmut-lang-helmut-lang-spring-summer-ready-to-wear-1992",
+      "designer_key": "helmut-lang",
+      "label": "Helmut Lang",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 1992,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Lean tailoring, transparent layers, workwear, and restrained utility established Lang's influential alternative to decorative early-1990s fashion.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1992-ready-to-wear/helmut-lang",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "helmut-lang"
+        }
+      ]
+    },
+    {
+      "key": "helmut-lang-helmut-lang-fall-winter-ready-to-wear-1995",
+      "designer_key": "helmut-lang",
+      "label": "Helmut Lang",
+      "name": null,
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 1995,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Military references, severe suiting, lingerie, and tactile contrasts made subversion feel precise, urban, and immediately wearable.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-1995-ready-to-wear/helmut-lang",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "helmut-lang"
+        }
+      ]
+    },
+    {
+      "key": "helmut-lang-helmut-lang-fall-winter-ready-to-wear-1997",
+      "designer_key": "helmut-lang",
+      "label": "Helmut Lang",
+      "name": null,
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 1997,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Protective outerwear, narrow tailoring, denim, and technical detail distilled late-1990s metropolitan dress into Lang's rigorous system.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-1997-ready-to-wear/helmut-lang",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "helmut-lang"
+        }
+      ]
+    },
+    {
+      "key": "helmut-lang-helmut-lang-spring-summer-ready-to-wear-1998",
+      "designer_key": "helmut-lang",
+      "label": "Helmut Lang",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 1998,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Lang combined spare suiting, straps, sheer layers, and utilitarian garments in a wardrobe whose tension came from proportion and material rather than ornament.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1998-ready-to-wear/helmut-lang",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "helmut-lang"
+        }
+      ]
+    },
+    {
+      "key": "helmut-lang-helmut-lang-spring-summer-ready-to-wear-2000",
+      "designer_key": "helmut-lang",
+      "label": "Helmut Lang",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2000,
+      "status": "archived",
+      "piece_count": null,
+      "description": "At the turn of the millennium, Lang refined his vocabulary of technical utility, body-conscious layers, exact tailoring, and deliberately ordinary wardrobe pieces.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2000-ready-to-wear/helmut-lang",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "helmut-lang"
+        }
+      ]
+    },
+    {
+      "key": "iris-van-herpen-iris-van-herpen-fall-winter-couture-2022",
+      "designer_key": "iris-van-herpen",
+      "label": "Iris van Herpen",
+      "name": "Meta Morphism",
+      "season": "Fall/Winter Couture",
+      "release_year": 2022,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Meta Morphism considered identity and transformation through fluid construction, engineered surfaces, and the interdependence of physical and digital bodies.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2022-couture/iris-van-herpen",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière.",
+          "designer_key": "iris-van-herpen"
+        }
+      ]
+    },
+    {
+      "key": "iris-van-herpen-iris-van-herpen-fall-winter-couture-2023",
+      "designer_key": "iris-van-herpen",
+      "label": "Iris van Herpen",
+      "name": "Architectonics",
+      "season": "Fall/Winter Couture",
+      "release_year": 2023,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Aquatic architecture, floating habitats, and oceanic systems informed layered geometries that treated the garment as a responsive structure around the body.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2023-couture/iris-van-herpen",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière.",
+          "designer_key": "iris-van-herpen"
+        }
+      ]
+    },
+    {
+      "key": "iris-van-herpen-iris-van-herpen-spring-summer-couture-2023",
+      "designer_key": "iris-van-herpen",
+      "label": "Iris van Herpen",
+      "name": "Carte Blanche",
+      "season": "Spring/Summer Couture",
+      "release_year": 2023,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Created with freediver and filmmaker Julie Gautier, Carte Blanche placed couture underwater to connect movement, female resistance, and environmental perspective.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2023-couture/iris-van-herpen",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière; the presentation film was created with Julie Gautier.",
+          "designer_key": "iris-van-herpen"
+        }
+      ]
+    },
+    {
+      "key": "iris-van-herpen-iris-van-herpen-fall-winter-couture-2024",
+      "designer_key": "iris-van-herpen",
+      "label": "Iris van Herpen",
+      "name": "Hybrid Show",
+      "season": "Fall/Winter Couture",
+      "release_year": 2024,
+      "status": "archived",
+      "piece_count": 5,
+      "description": "Five garments emerged from canvas-like installations in a hybrid fashion-and-art presentation exploring suspended time, sculpture, and bodily movement.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2024-couture/iris-van-herpen",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière.",
+          "designer_key": "iris-van-herpen"
+        }
+      ]
+    },
+    {
+      "key": "iris-van-herpen-iris-van-herpen-fall-winter-couture-2025",
+      "designer_key": "iris-van-herpen",
+      "label": "Iris van Herpen",
+      "name": "Sympoiesis",
+      "season": "Fall/Winter Couture",
+      "release_year": 2025,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Bioluminescent algae, biomaterials, coral-like metal mesh, and ocean research framed couture as symbiotic creation across species and disciplines.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2025-couture/iris-van-herpen",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturière.",
+          "designer_key": "iris-van-herpen"
+        }
+      ]
+    },
+    {
       "key": "issey-miyake-issey-miyake-spring-summer-1976",
       "designer_key": "issey-miyake",
       "label": "Issey Miyake",
@@ -1591,6 +2328,111 @@
       "description": "A-POC—A Piece of Cloth—used computer-guided industrial knitting to produce continuous tubes from which wearers could cut finished garments, rethinking production and authorship.",
       "source_url": "https://www.moma.org/collection/works/100300",
       "youtube_video_id": null
+    },
+    {
+      "key": "jean-paul-gaultier-jean-paul-gaultier-spring-summer-ready-to-wear-1994",
+      "designer_key": "jean-paul-gaultier",
+      "label": "Jean Paul Gaultier",
+      "name": "Les Tatouages",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 1994,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Tattoo-print mesh, global references, exposed construction, and fluid casting made the body itself the collection's shifting surface.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1994-ready-to-wear/jean-paul-gaultier",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "jean-paul-gaultier"
+        }
+      ]
+    },
+    {
+      "key": "jean-paul-gaultier-jean-paul-gaultier-spring-summer-ready-to-wear-1995",
+      "designer_key": "jean-paul-gaultier",
+      "label": "Jean Paul Gaultier",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 1995,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Gaultier mixed exact tailoring, lingerie codes, street observation, and gender play in a characteristically inclusive fashion spectacle.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1995-ready-to-wear/jean-paul-gaultier",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "jean-paul-gaultier"
+        }
+      ]
+    },
+    {
+      "key": "jean-paul-gaultier-jean-paul-gaultier-spring-summer-couture-1997",
+      "designer_key": "jean-paul-gaultier",
+      "label": "Jean Paul Gaultier",
+      "name": "Couture Debut",
+      "season": "Spring/Summer Couture",
+      "release_year": 1997,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Gaultier's couture debut applied atelier technique to androgyny, denim, corsetry, and menswear, expanding the social and material vocabulary of haute couture.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1997-couture/jean-paul-gaultier",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier.",
+          "designer_key": "jean-paul-gaultier"
+        }
+      ]
+    },
+    {
+      "key": "jean-paul-gaultier-jean-paul-gaultier-spring-summer-ready-to-wear-1997",
+      "designer_key": "jean-paul-gaultier",
+      "label": "Jean Paul Gaultier",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 1997,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Convertible garments, trompe-l'œil suiting, lingerie exposure, and Breton signatures joined technical ingenuity with deliberate provocation.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1997-ready-to-wear/jean-paul-gaultier",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "jean-paul-gaultier"
+        }
+      ]
+    },
+    {
+      "key": "jean-paul-gaultier-jean-paul-gaultier-spring-summer-couture-2020",
+      "designer_key": "jean-paul-gaultier",
+      "label": "Jean Paul Gaultier",
+      "name": "50th Anniversary Farewell",
+      "season": "Spring/Summer Couture",
+      "release_year": 2020,
+      "status": "archived",
+      "piece_count": null,
+      "description": "A career-spanning farewell transformed archival materials through upcycling, corsetry, tailoring, Breton stripes, performance, and an expansive multigenerational cast.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2020-couture/jean-paul-gaultier",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier.",
+          "designer_key": "jean-paul-gaultier"
+        }
+      ]
     },
     {
       "key": "jil-sander-jil-sander-spring-summer-1992",
@@ -3101,6 +3943,90 @@
       "youtube_video_id": null
     },
     {
+      "key": "nigo-kenzo-fall-winter-ready-to-wear-2022",
+      "designer_key": "nigo",
+      "label": "Kenzo",
+      "name": "Kenzo Debut",
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 2022,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Nigo's Kenzo debut joined Japanese denim, post-Ivy uniforms, workwear, and respectful study of Kenzo Takada's archive in the Galerie Vivienne.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2022-ready-to-wear/kenzo",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Kenzo artistic director.",
+          "designer_key": "nigo"
+        }
+      ]
+    },
+    {
+      "key": "nigo-kenzo-fall-winter-menswear-2023",
+      "designer_key": "nigo",
+      "label": "Kenzo",
+      "name": null,
+      "season": "Fall/Winter Menswear",
+      "release_year": 2023,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Mod culture, Beatles references, Japanese tailoring, kimono construction, and English country codes marked a more personal chapter in Nigo's Kenzo tenure.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2023-menswear/kenzo",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Kenzo artistic director.",
+          "designer_key": "nigo"
+        }
+      ]
+    },
+    {
+      "key": "nigo-kenzo-spring-summer-ready-to-wear-2023",
+      "designer_key": "nigo",
+      "label": "Kenzo",
+      "name": "Class of 2023",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2023,
+      "status": "archived",
+      "piece_count": null,
+      "description": "A graduation theme unified Japanese denim, naval dress, school uniforms, Americana, and revived Kenzo archive graphics into a cross-generational wardrobe.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2023-ready-to-wear/kenzo",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Kenzo artistic director.",
+          "designer_key": "nigo"
+        }
+      ]
+    },
+    {
+      "key": "nigo-kenzo-spring-summer-menswear-2024",
+      "designer_key": "nigo",
+      "label": "Kenzo",
+      "name": null,
+      "season": "Spring/Summer Menswear",
+      "release_year": 2024,
+      "status": "archived",
+      "piece_count": null,
+      "description": "City-pop memory connected Japanese tailoring, hakama-derived proportion, denim, and Kenzo archive motifs, with graphic contributions from Verdy.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2024-menswear/kenzo",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Kenzo artistic director; Verdy contributed collection graphics.",
+          "designer_key": "nigo"
+        }
+      ]
+    },
+    {
       "key": "olivier-rousteing-balmain-spring-summer-2012",
       "designer_key": "olivier-rousteing",
       "label": "Balmain",
@@ -3257,6 +4183,33 @@
       "youtube_video_id": null
     },
     {
+      "key": "pharrell-williams-louis-vuitton-fall-winter-menswear-2025",
+      "designer_key": "pharrell-williams",
+      "label": "Louis Vuitton",
+      "name": "Remember the Future",
+      "season": "Fall/Winter Menswear",
+      "release_year": 2025,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Pharrell Williams and Nigo co-designed a collection shaped by their shared history, Japanese craft and workwear references, Louis Vuitton travel codes, and decades of creative exchange.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2025-menswear/louis-vuitton",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Louis Vuitton men's creative director and co-designer.",
+          "designer_key": "pharrell-williams"
+        },
+        {
+          "role": "co-designer",
+          "position": 2,
+          "attribution_note": "Guest co-designer and longtime creative partner.",
+          "designer_key": "nigo"
+        }
+      ]
+    },
+    {
       "key": "pharrell-williams-louis-vuitton-spring-summer-menswear-2025",
       "designer_key": "pharrell-williams",
       "label": "Louis Vuitton",
@@ -3268,6 +4221,111 @@
       "description": "A global diplomatic wardrobe used skin-tone gradients, travel tailoring, and collective spectacle to argue for connection across difference.",
       "source_url": "https://www.vogue.com/fashion-shows/spring-2025-menswear/louis-vuitton",
       "youtube_video_id": null
+    },
+    {
+      "key": "phoebe-philo-celine-fall-winter-ready-to-wear-2010",
+      "designer_key": "phoebe-philo",
+      "label": "Celine",
+      "name": null,
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 2010,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Disciplined outerwear, leather, knitwear, and exact proportions extended Philo's proposition for an intelligent, functional modern wardrobe.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2010-ready-to-wear/celine",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Celine creative director.",
+          "designer_key": "phoebe-philo"
+        }
+      ]
+    },
+    {
+      "key": "phoebe-philo-celine-spring-summer-ready-to-wear-2010",
+      "designer_key": "phoebe-philo",
+      "label": "Celine",
+      "name": "Celine Debut",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2010,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Philo's Celine runway debut reset luxury womenswear through clean neutrals, assured daywear, precise separates, and a pragmatic form of sensuality.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2010-ready-to-wear/celine",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Celine creative director.",
+          "designer_key": "phoebe-philo"
+        }
+      ]
+    },
+    {
+      "key": "phoebe-philo-celine-spring-summer-ready-to-wear-2013",
+      "designer_key": "phoebe-philo",
+      "label": "Celine",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2013,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Unfinished silks, intuitive draping, relaxed confidence, and fur-lined sandals moved Philo's work beyond reductive minimalism toward tactile eccentricity.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2013-ready-to-wear/celine",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Celine creative director.",
+          "designer_key": "phoebe-philo"
+        }
+      ]
+    },
+    {
+      "key": "phoebe-philo-celine-spring-summer-ready-to-wear-2014",
+      "designer_key": "phoebe-philo",
+      "label": "Celine",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2014,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Brassaï-inspired brushstroke graphics, asymmetric pleating, strong color, and energized movement made this a defining expression of Philo's instinctive modernism.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2014-ready-to-wear/celine",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Celine creative director.",
+          "designer_key": "phoebe-philo"
+        }
+      ]
+    },
+    {
+      "key": "phoebe-philo-celine-fall-winter-ready-to-wear-2016",
+      "designer_key": "phoebe-philo",
+      "label": "Celine",
+      "name": null,
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 2016,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Elongated fit-and-flare silhouettes, layered trousers, practical sandals, and unexpected lightness grew from Philo's lived, wearer-centered design process.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2016-ready-to-wear/celine",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Celine creative director.",
+          "designer_key": "phoebe-philo"
+        }
+      ]
     },
     {
       "key": "pierpaolo-piccioli-valentino-spring-summer-2017",
@@ -4675,6 +5733,111 @@
       "youtube_video_id": "2qo76POnvVE"
     },
     {
+      "key": "thierry-mugler-mugler-spring-summer-ready-to-wear-1992",
+      "designer_key": "thierry-mugler",
+      "label": "Mugler",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 1992,
+      "status": "archived",
+      "piece_count": null,
+      "description": "A Western-themed spectacle transformed motorcycle hardware, body armor, corsetry, and aerodynamic tailoring into Mugler's assertive superhero silhouette.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1992-ready-to-wear/mugler",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and creative director.",
+          "designer_key": "thierry-mugler"
+        }
+      ]
+    },
+    {
+      "key": "thierry-mugler-mugler-fall-winter-couture-1995",
+      "designer_key": "thierry-mugler",
+      "label": "Mugler",
+      "name": "20th Anniversary",
+      "season": "Fall/Winter Couture",
+      "release_year": 1995,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Mugler's anniversary spectacle assembled supermodels, celebrity performance, fetishized tailoring, robots, insects, and Hollywood glamour into monumental fashion theater.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-1995-couture/mugler",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier.",
+          "designer_key": "thierry-mugler"
+        }
+      ]
+    },
+    {
+      "key": "thierry-mugler-mugler-fall-winter-couture-1997",
+      "designer_key": "thierry-mugler",
+      "label": "Mugler",
+      "name": "Les Chimères",
+      "season": "Fall/Winter Couture",
+      "release_year": 1997,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The Les Chimères collection pushed couture into mythic creature-making through corsetry, feathers, scales, embroidery, and extreme anatomical transformation.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-1997-couture/mugler",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier.",
+          "designer_key": "thierry-mugler"
+        }
+      ]
+    },
+    {
+      "key": "thierry-mugler-mugler-spring-summer-couture-1997",
+      "designer_key": "thierry-mugler",
+      "label": "Mugler",
+      "name": null,
+      "season": "Spring/Summer Couture",
+      "release_year": 1997,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Sculpted tailoring and fantastical evening forms turned bodies into assertive hybrids of couture craft, machinery, and performance.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1997-couture/mugler",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier.",
+          "designer_key": "thierry-mugler"
+        }
+      ]
+    },
+    {
+      "key": "thierry-mugler-mugler-spring-summer-couture-1998",
+      "designer_key": "thierry-mugler",
+      "label": "Mugler",
+      "name": null,
+      "season": "Spring/Summer Couture",
+      "release_year": 1998,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Fluid draping, crystal surfaces, denim, metal, feathers, and strategically exposed anatomy brought unexpected classicism to Mugler's transformative couture.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-1998-couture/mugler",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Founder and couturier.",
+          "designer_key": "thierry-mugler"
+        }
+      ]
+    },
+    {
       "key": "thom-browne-thom-browne-fall-winter-menswear-2009",
       "designer_key": "thom-browne",
       "label": "Thom Browne",
@@ -4985,6 +6148,33 @@
       "description": "A study of contemporary work and male dress codes, moving from commuter layering and reorganized bags into clouds, stars, and eveningwear.",
       "source_url": "https://www.vogue.com/fashion-shows/fall-2020-menswear/louis-vuitton",
       "youtube_video_id": null
+    },
+    {
+      "key": "virgil-abloh-louis-vuitton-pre-fall-2020",
+      "designer_key": "virgil-abloh",
+      "label": "Louis Vuitton",
+      "name": "LV²",
+      "season": "Pre-Fall",
+      "release_year": 2020,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Virgil Abloh and Nigo combined Louis Vuitton's Damier and tailoring with Japanese denim, British dandyism, and playful graphics in their first LV² capsule.",
+      "source_url": "https://www.vogue.com/slideshow/louis-vuitton-lv2-virgil-abloh-nigo-collaboration",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Louis Vuitton men's artistic director.",
+          "designer_key": "virgil-abloh"
+        },
+        {
+          "role": "collaborator",
+          "position": 2,
+          "attribution_note": "LV² guest co-designer.",
+          "designer_key": "nigo"
+        }
+      ]
     },
     {
       "key": "virgil-abloh-louis-vuitton-spring-summer-menswear-2020",
