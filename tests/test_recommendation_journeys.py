@@ -17,6 +17,7 @@ EVALUATION_PATH = PROJECT_ROOT / "docs" / "recommendation-evaluation.json"
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     database_path = tmp_path / "journeys.db"
+    monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.setattr(database, "DATABASE_PATH", database_path)
     import_archive(database_path, PROJECT_ROOT / "data" / "archive.json", replace=True)
     with TestClient(app) as test_client:
@@ -77,7 +78,9 @@ def test_curated_recommendation_journeys_are_reproducible_and_diverse(client):
 def test_curated_evaluation_blocks_known_editorial_false_positives(client):
     for prohibited in evaluation()["prohibited_inferences"]:
         collection_id = collection_id_for_source(prohibited["record_source_url"])
-        collection = client.get(f"/collections/{collection_id}").json()
+        response = client.get(f"/collections/{collection_id}")
+        assert response.status_code == 200, response.text
+        collection = response.json()
 
         facets = editorial_facets(collection)
 
