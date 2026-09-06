@@ -296,3 +296,52 @@ def test_new_designer_profiles_have_expected_career_records():
         + luka_collections
         + haider_collections
     )
+
+
+def test_demo_x03_expansion_has_sources_and_ordered_credits():
+    payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
+    designer_keys = {
+        "christian-dior",
+        "cristobal-balenciaga",
+        "dapper-dan",
+        "elsa-schiaparelli",
+        "helmut-lang",
+        "iris-van-herpen",
+        "jean-paul-gaultier",
+        "nigo",
+        "phoebe-philo",
+        "thierry-mugler",
+    }
+    archive_designer_keys = {
+        designer["key"] for designer in payload["designers"]
+    }
+    assert designer_keys <= archive_designer_keys
+
+    credited_collections = [
+        collection
+        for collection in payload["collections"]
+        if designer_keys & {
+            credit["designer_key"]
+            for credit in collection.get("credits", [])
+        }
+    ]
+    assert credited_collections
+    assert all(collection["source_url"] for collection in credited_collections)
+    assert all(
+        [credit["position"] for credit in collection["credits"]]
+        == list(range(1, len(collection["credits"]) + 1))
+        for collection in credited_collections
+    )
+
+    lv2 = next(
+        collection
+        for collection in payload["collections"]
+        if collection["key"] == "virgil-abloh-louis-vuitton-pre-fall-2020"
+    )
+    assert [
+        (credit["designer_key"], credit["role"], credit["position"])
+        for credit in lv2["credits"]
+    ] == [
+        ("virgil-abloh", "lead", 1),
+        ("nigo", "collaborator", 2),
+    ]
