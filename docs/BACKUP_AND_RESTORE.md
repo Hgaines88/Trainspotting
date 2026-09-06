@@ -63,9 +63,12 @@ It preserves matched record IDs, bumps the public archive version only when
 content changes, and is safe to rerun. If the database changes after planning,
 the apply operation rolls back and requires a new dry run.
 
-For local Docker, run the command inside the API container so it uses the private
-MySQL `DATABASE_URL`. For Railway, use a one-off API service command with the same
-private database reference. Do not expose MySQL publicly merely to run a sync.
+For local Docker, rebuild the API image after pulling canonical changes, then run
+the command inside the API container so it uses that image's reviewed archive and
+the private MySQL `DATABASE_URL`. The Compose API service must not mount a volume
+over `/app/data`, because that would hide the Git-tracked archive copied into the
+image. For Railway, use a one-off API service command with the same private
+database reference. Do not expose MySQL publicly merely to run a sync.
 
 If verification fails after an applied synchronization, stop writes and restore
 the encrypted backup using the procedure below. Never attempt to repair partial
