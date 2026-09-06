@@ -74,7 +74,11 @@ def _rows(connection, sql: str, parameters=()) -> list[dict]:
 
 
 def build_plan(connection, payload: dict) -> dict:
-    db_designers = _rows(connection, "SELECT id, full_name, nationality, birth_year, website, biography FROM designers")
+    db_designers = _rows(
+        connection,
+        "SELECT id, full_name, nationality, birth_year, website, biography "
+        "FROM designers ORDER BY id",
+    )
     by_name = {row["full_name"]: row for row in db_designers}
     designer_ids: dict[str, int | None] = {}
     designer_inserts, designer_updates = [], []
@@ -88,7 +92,11 @@ def build_plan(connection, payload: dict) -> dict:
             if changes:
                 designer_updates.append({"id": current["id"], "key": designer["key"], "changes": changes})
 
-    db_collections = _rows(connection, "SELECT id, designer_id, label, name, season, release_year, status, piece_count, description FROM collections")
+    db_collections = _rows(
+        connection,
+        "SELECT id, designer_id, label, name, season, release_year, status, "
+        "piece_count, description FROM collections ORDER BY id",
+    )
     exact = {(r["designer_id"], r["label"], r["season"], r["release_year"]): r for r in db_collections}
     fallback: dict[tuple, list[dict]] = {}
     for row in db_collections:

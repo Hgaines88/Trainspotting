@@ -112,6 +112,28 @@ def test_sync_rejects_stale_plan(tmp_path):
     connection.close()
 
 
+def test_plan_runtime_only_records_have_deterministic_id_order(tmp_path):
+    connection = database(tmp_path)
+    connection.execute(
+        "INSERT INTO designers (full_name) VALUES (?)",
+        ("Runtime-only second",),
+    )
+    second_id = connection.execute("SELECT last_insert_rowid()").fetchone()[0]
+    connection.execute(
+        "INSERT INTO designers (full_name) VALUES (?)",
+        ("Runtime-only third",),
+    )
+    third_id = connection.execute("SELECT last_insert_rowid()").fetchone()[0]
+    connection.commit()
+
+    plan = build_plan(connection, load_archive(DEFAULT_ARCHIVE))
+
+    runtime_ids = [record["id"] for record in plan["runtime_only_designers"]]
+    assert runtime_ids[-2:] == [second_id, third_id]
+    assert runtime_ids == sorted(runtime_ids)
+    connection.close()
+
+
 def test_sync_reports_ambiguous_fallback_without_writing(tmp_path):
     connection = database(tmp_path)
     payload = copy.deepcopy(load_archive(DEFAULT_ARCHIVE))
