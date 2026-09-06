@@ -1,4 +1,8 @@
-from app.recommendations import editorial_facets, rank_related_collections
+from app.recommendations import (
+    editorial_facets,
+    editorial_search_terms,
+    rank_related_collections,
+)
 
 
 def collection(
@@ -195,6 +199,37 @@ def test_editorial_aliases_normalize_to_a_controlled_explanation():
         "material": {"knitwear", "wool"},
         "texture": {"layered", "sheer"},
         "silhouette": {"oversized"},
+    }
+
+
+def test_editorial_search_terms_expand_only_detected_controlled_aliases():
+    terms = editorial_search_terms(
+        collection(
+            1,
+            description="Futuristic woollen knits use transparent layers and oversize forms",
+        )
+    )
+
+    assert terms == {
+        "future",
+        "futurism",
+        "futurist",
+        "futuristic",
+        "knit",
+        "knits",
+        "knitted",
+        "knitwear",
+        "layered",
+        "layering",
+        "layers",
+        "oversize",
+        "oversized",
+        "sheer",
+        "transparency",
+        "transparent",
+        "wool",
+        "woolen",
+        "woollen",
     }
 
 

@@ -151,10 +151,11 @@ def editorial_facets(collection: dict) -> dict[str, set[str]]:
 
 def editorial_search_terms(collection: dict) -> set[str]:
     """Return aliases that can retrieve normalized editorial matches in SQL."""
+    facets = editorial_facets(collection)
     return {
         alias
         for category, descriptors in EDITORIAL_FACETS.items()
-        for descriptor in editorial_facets(collection).get(category, set())
+        for descriptor in facets.get(category, set())
         for alias in descriptors[descriptor]
     }
 
