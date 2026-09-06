@@ -35,6 +35,42 @@ python -m scripts.mysql_backup create backups/trainspotting-YYYYMMDD.sql.enc
 python -m scripts.mysql_backup verify backups/trainspotting-YYYYMMDD.sql.enc
 ```
 
+## Synchronize reviewed canonical JSON into MySQL
+
+Create and verify a current encrypted backup before synchronizing staging or any
+other persistent database. The command is dry-run-only unless `--apply` is
+explicitly supplied:
+
+```bash
+python -m scripts.sync_canonical_mysql
+```
+
+Review all reported inserts, updates, runtime-only records, and conflicts.
+Runtime-only records are deliberately retained because they may have been created
+through the moderated application workflow. Any ambiguous identity stops the
+operation and must be resolved before continuing.
+
+After reviewing the dry run, apply the same canonical archive in one transaction:
+
+```bash
+python -m scripts.sync_canonical_mysql --apply
+```
+
+The synchronizer updates only public archive tables and `archive_state`. It never
+deletes designers or collections and never writes users, roles, submissions,
+sources, decisions, promotions, ingestion history, or append-only audit records.
+It preserves matched record IDs, bumps the public archive version only when
+content changes, and is safe to rerun. If the database changes after planning,
+the apply operation rolls back and requires a new dry run.
+
+For local Docker, run the command inside the API container so it uses the private
+MySQL `DATABASE_URL`. For Railway, use a one-off API service command with the same
+private database reference. Do not expose MySQL publicly merely to run a sync.
+
+If verification fails after an applied synchronization, stop writes and restore
+the encrypted backup using the procedure below. Never attempt to repair partial
+results: apply is transactional, so a reported failure has already rolled back.
+
 Credentials are supplied to MySQL through a temporary owner-only option file,
 not command arguments. Plaintext SQL is held in process memory and is never
 written to disk. The current implementation is appropriate for the small
