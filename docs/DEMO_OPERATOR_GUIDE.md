@@ -65,7 +65,7 @@ only one command window.
    ```
 
    The response must include `"status":"ready"`, `"database":"mysql"`, and
-   `"revision":"0006"`.
+   `"revision":"0007"`.
 
 7. Open <http://localhost:5173>.
 
@@ -248,7 +248,7 @@ explicit release action:
    authorization smoke checks.
 
 Release candidate `v0.1.5` successfully exercised this entire path and reported
-MySQL revision `0006`.
+MySQL revision `0007`.
 
 ## Stop Railway without deleting configuration or data
 
@@ -279,7 +279,7 @@ compute is stopped.
      --base-url "$STAGING_BASE_URL"
    ```
 
-6. Confirm the smoke report names MySQL and revision `0006` before presenting.
+6. Confirm the smoke report names MySQL and revision `0007` before presenting.
 
 The first request after a restart can briefly return `502` while private
 services become ready. Start or resume the environment well before a live demo.
@@ -541,7 +541,7 @@ available offline in [`DEMO_REHEARSAL.md`](DEMO_REHEARSAL.md).
 
 - [ ] Docker Engine is running.
 - [ ] `docker compose ps` shows MySQL and API healthy and web running.
-- [ ] Local `/api/ready` reports MySQL revision `0006`.
+- [ ] Local `/api/ready` reports MySQL revision `0007`.
 - [ ] Railway is online only if the hosted demonstration will be used.
 - [ ] Prada Spring/Summer 2024 shows Miuccia Prada and Raf Simons.
 - [ ] Evidence and related-collection reasons load.

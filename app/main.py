@@ -14,6 +14,7 @@ from app.database import (
     is_unique_violation,
 )
 from app.schemas import CollectionCreate, DesignerCreate
+from app.naming import normalized_search_name
 from app.request_limits import RequestSizeLimitMiddleware
 from app.rate_limits import (
     ACCOUNT_SYNC_LIMIT,
@@ -501,6 +502,19 @@ def case_insensitive_equality(connection, column: str) -> str:
     return f"{column} COLLATE NOCASE = ?"
 
 
+def public_designer_aliases(connection, designer_id: int) -> list[dict]:
+    return [
+        dict(alias)
+        for alias in connection.execute(
+            """SELECT alias, alias_type, source_url
+               FROM designer_aliases
+               WHERE designer_id = ?
+               ORDER BY alias""",
+            (designer_id,),
+        ).fetchall()
+    ]
+
+
 @app.get("/designers")
 def list_designers(
     search: str = Query(default="", max_length=120),
@@ -524,8 +538,17 @@ def list_designers(
         normalized_search = search.strip()
         if normalized_search:
             pattern = f"%{normalized_search}%"
+            normalized_alias = normalized_search_name(normalized_search)
+            alias_predicate = ""
+            if normalized_alias:
+                alias_predicate = (
+                    "OR EXISTS (SELECT 1 FROM designer_aliases "
+                    "WHERE designer_aliases.designer_id = designers.id "
+                    "AND designer_aliases.normalized_alias LIKE ?) "
+                )
             clauses.append(
                 "(LOWER(designers.full_name) LIKE LOWER(?) "
+                f"{alias_predicate}"
                 "OR LOWER(COALESCE(designers.nationality, '')) LIKE LOWER(?) "
                 "OR LOWER(COALESCE(designers.biography, '')) LIKE LOWER(?) "
                 "OR LOWER(collections.label) LIKE LOWER(?) "
@@ -534,7 +557,10 @@ def list_designers(
                 "OR CAST(collections.release_year AS CHAR) LIKE ? "
                 "OR LOWER(COALESCE(collections.description, '')) LIKE LOWER(?))"
             )
-            parameters.extend([pattern] * 8)
+            parameters.append(pattern)
+            if normalized_alias:
+                parameters.append(f"%{normalized_alias}%")
+            parameters.extend([pattern] * 7)
         for value, expression in (
             (
                 nationality.strip(),
@@ -619,14 +645,33 @@ def designer_options(
 ):
     connection = connect()
     try:
+        normalized_search = search.strip()
+        normalized_alias = normalized_search_name(normalized_search)
+        alias_predicate = ""
+        alias_parameters = []
+        if normalized_alias:
+            alias_predicate = (
+                "OR EXISTS ("
+                "SELECT 1 FROM designer_aliases "
+                "WHERE designer_aliases.designer_id = designers.id "
+                "AND designer_aliases.normalized_alias LIKE ?"
+                ")"
+            )
+            alias_parameters.append(f"%{normalized_alias}%")
         rows = connection.execute(
-            """SELECT id, full_name, nationality
+            f"""SELECT id, full_name, nationality
                FROM designers
                WHERE LOWER(full_name) LIKE LOWER(?)
                   OR LOWER(COALESCE(nationality, '')) LIKE LOWER(?)
+                  {alias_predicate}
                ORDER BY full_name
                LIMIT ?""",
-            (f"%{search.strip()}%", f"%{search.strip()}%", limit),
+            (
+                f"%{normalized_search}%",
+                f"%{normalized_search}%",
+                *alias_parameters,
+                limit,
+            ),
         ).fetchall()
         return [dict(row) for row in rows]
     finally:
@@ -660,6 +705,7 @@ def get_designer(designer_id: int):
             )
 
         payload = dict(row)
+        payload["aliases"] = public_designer_aliases(connection, designer_id)
         payload["provenance"] = public_provenance(connection, "designer", designer_id)
         return payload
     finally:
@@ -848,6 +894,7 @@ def create_designer(payload: DesignerCreate):
         ).fetchone()
 
         result = dict(row)
+        result["aliases"] = public_designer_aliases(connection, result["id"])
         result["provenance"] = public_provenance(
             connection, "designer", result["id"]
         )
@@ -927,6 +974,7 @@ def update_designer(designer_id: int, payload: DesignerCreate):
         ).fetchone()
 
         result = dict(updated_designer)
+        result["aliases"] = public_designer_aliases(connection, designer_id)
         result["provenance"] = public_provenance(
             connection, "designer", designer_id
         )

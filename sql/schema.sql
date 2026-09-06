@@ -70,6 +70,22 @@ CREATE INDEX idx_collections_designer_id
     ON collections(designer_id);
 CREATE INDEX idx_designers_nationality
     ON designers(nationality COLLATE NOCASE);
+
+CREATE TABLE designer_aliases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    designer_id INTEGER NOT NULL,
+    alias TEXT NOT NULL CHECK (length(trim(alias)) > 0),
+    normalized_alias TEXT NOT NULL UNIQUE
+        CHECK (length(trim(normalized_alias)) > 0),
+    alias_type TEXT NOT NULL
+        CHECK (alias_type IN ('alternate-name', 'former-name', 'legal-name')),
+    source_url TEXT NOT NULL CHECK (length(trim(source_url)) > 0),
+    FOREIGN KEY (designer_id) REFERENCES designers(id) ON DELETE CASCADE,
+    UNIQUE (designer_id, alias)
+);
+
+CREATE INDEX idx_designer_aliases_designer
+    ON designer_aliases(designer_id);
 CREATE INDEX idx_collections_label
     ON collections(label COLLATE NOCASE);
 CREATE INDEX idx_collections_season

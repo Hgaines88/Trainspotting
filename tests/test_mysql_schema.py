@@ -29,7 +29,7 @@ def test_mysql_schema_and_append_only_audit_guards():
                     "WHERE table_schema = DATABASE() "
                     "AND table_name <> 'alembic_version'"
                 )
-            ).scalar_one() == 14
+            ).scalar_one() == 15
             assert connection.execute(
                 text(
                     "SELECT COUNT(*) FROM information_schema.triggers "
@@ -40,6 +40,10 @@ def test_mysql_schema_and_append_only_audit_guards():
             inspector = inspect(connection)
             assert "idx_designers_nationality" in {
                 index["name"] for index in inspector.get_indexes("designers")
+            }
+            assert "idx_designer_aliases_designer" in {
+                index["name"]
+                for index in inspector.get_indexes("designer_aliases")
             }
             assert {
                 "idx_collections_label",

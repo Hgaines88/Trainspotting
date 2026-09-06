@@ -16,6 +16,7 @@ def archive_counts(database_path):
             connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
             for table in (
                 "designers",
+                "designer_aliases",
                 "collections",
                 "collection_credits",
                 "collection_media",
@@ -49,6 +50,24 @@ def test_merge_import_is_idempotent(tmp_path):
     import_archive(database, archive)
 
     assert archive_counts(database) == initial_counts
+
+
+def test_canonical_aliases_round_trip_with_sources(tmp_path):
+    database = tmp_path / "aliases.db"
+    exported = tmp_path / "aliases.json"
+
+    import_archive(database, ARCHIVE, replace=True)
+    export_archive(database, exported)
+
+    designers = {
+        designer["key"]: designer
+        for designer in json.loads(exported.read_text())["designers"]
+    }
+    assert designers["nigo"]["aliases"] == [{
+        "alias": "Tomoaki Nagao",
+        "alias_type": "legal-name",
+        "source_url": "https://en.wikipedia.org/wiki/Nigo",
+    }]
 
 
 def test_demo_collaborations_have_ordered_credits_and_sources():

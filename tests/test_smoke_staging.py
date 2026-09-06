@@ -78,7 +78,7 @@ def test_release_smoke_rejects_the_legacy_unpaginated_designer_payload(monkeypat
             return smoke_staging.Result(
                 200,
                 {},
-                {"status": "ready", "database": "mysql", "revision": "0006"},
+                {"status": "ready", "database": "mysql", "revision": "0007"},
             )
         if path == "/api/archive-version":
             return smoke_staging.Result(200, {}, {"version": 2})
@@ -100,7 +100,7 @@ def test_release_smoke_rejects_a_designer_payload_without_pagination(monkeypatch
             return smoke_staging.Result(
                 200,
                 {},
-                {"status": "ready", "database": "mysql", "revision": "0006"},
+                {"status": "ready", "database": "mysql", "revision": "0007"},
             )
         if path == "/api/archive-version":
             return smoke_staging.Result(200, {}, {"version": 2})
