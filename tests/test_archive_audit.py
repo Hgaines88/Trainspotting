@@ -1,5 +1,6 @@
 import copy
 import json
+from collections import Counter
 from pathlib import Path
 
 from scripts.audit_archive import audit_archive
@@ -17,17 +18,37 @@ def test_canonical_audit_is_deterministic_and_separates_optional_absence():
     report = audit_archive(canonical_payload())
 
     assert report == audit_archive(canonical_payload())
-    assert report["counts"]["designers"] == 48
-    assert report["counts"]["collections"] == 377
+    assert report["counts"]["designers"] == 50
+    assert report["counts"]["collections"] == 390
     assert report["counts"]["errors"] == 0
     assert report["counts"]["findings"] == (
         report["counts"]["warnings"] + report["counts"]["review"]
     )
     assert report["optional_missing"] == {
-        "name": 184,
-        "piece_count": 348,
-        "youtube_video_id": 319,
+        "name": 195,
+        "piece_count": 361,
+        "youtube_video_id": 332,
     }
+
+
+def test_every_canonical_designer_has_at_least_five_credited_collections():
+    payload = canonical_payload()
+    credited_collection_counts = Counter()
+    for collection in payload["collections"]:
+        credits = collection.get("credits") or [
+            {"designer_key": collection["designer_key"]}
+        ]
+        credited_collection_counts.update(
+            credit["designer_key"] for credit in credits
+        )
+
+    underrepresented_designers = {
+        designer["key"]: credited_collection_counts[designer["key"]]
+        for designer in payload["designers"]
+        if credited_collection_counts[designer["key"]] < 5
+    }
+
+    assert underrepresented_designers == {}
 
 
 def test_audit_identifies_source_season_and_primary_credit_review_candidates():
