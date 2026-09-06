@@ -345,3 +345,24 @@ def test_demo_x03_expansion_has_sources_and_ordered_credits():
         ("virgil-abloh", "lead", 1),
         ("nigo", "collaborator", 2),
     ]
+
+    expected_collaborations = {
+        "dapper-dan-gucci-dapper-dan-pre-fall-2018": [
+            ("dapper-dan", "lead", 1),
+            ("alessandro-michele", "collaborator", 2),
+        ],
+        "pharrell-williams-louis-vuitton-fall-winter-menswear-2025": [
+            ("pharrell-williams", "lead", 1),
+            ("nigo", "co-designer", 2),
+        ],
+    }
+    for collection_key, expected_credits in expected_collaborations.items():
+        collection = next(
+            item
+            for item in payload["collections"]
+            if item["key"] == collection_key
+        )
+        assert [
+            (credit["designer_key"], credit["role"], credit["position"])
+            for credit in collection["credits"]
+        ] == expected_credits

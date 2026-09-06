@@ -1128,6 +1128,33 @@
       ]
     },
     {
+      "key": "dapper-dan-gucci-dapper-dan-pre-fall-2018",
+      "designer_key": "dapper-dan",
+      "label": "Gucci-Dapper Dan",
+      "name": "The Collection",
+      "season": "Pre-Fall",
+      "release_year": 2018,
+      "status": "archived",
+      "piece_count": null,
+      "description": "A special ready-to-wear and accessories collection reworked Dapper Dan's Harlem archive through Gucci materials, late-1980s washes, tracksuits, tailoring, and GG canvas.",
+      "source_url": "https://www.gucci.com/us/en/st/stories/article/pre-fall-2018-dapper-dan-collection-shoppable",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Harlem designer and source of the collection's archival design language.",
+          "designer_key": "dapper-dan"
+        },
+        {
+          "role": "collaborator",
+          "position": 2,
+          "attribution_note": "Gucci creative director and design collaborator.",
+          "designer_key": "alessandro-michele"
+        }
+      ]
+    },
+    {
       "key": "dapper-dan-puma-x-dapper-dan-fall-winter-capsule-2022",
       "designer_key": "dapper-dan",
       "label": "Puma x Dapper Dan",
@@ -4154,6 +4181,33 @@
       "description": "Pharrell’s Louis Vuitton debut transformed the Pont Neuf into a celebration of community, Damier, tailoring, and Black cultural visibility.",
       "source_url": "https://www.vogue.com/fashion-shows/spring-2024-menswear/louis-vuitton",
       "youtube_video_id": null
+    },
+    {
+      "key": "pharrell-williams-louis-vuitton-fall-winter-menswear-2025",
+      "designer_key": "pharrell-williams",
+      "label": "Louis Vuitton",
+      "name": "Remember the Future",
+      "season": "Fall/Winter Menswear",
+      "release_year": 2025,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Pharrell Williams and Nigo co-designed a collection shaped by their shared history, Japanese craft and workwear references, Louis Vuitton travel codes, and decades of creative exchange.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2025-menswear/louis-vuitton",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Louis Vuitton men's creative director and co-designer.",
+          "designer_key": "pharrell-williams"
+        },
+        {
+          "role": "co-designer",
+          "position": 2,
+          "attribution_note": "Guest co-designer and longtime creative partner.",
+          "designer_key": "nigo"
+        }
+      ]
     },
     {
       "key": "pharrell-williams-louis-vuitton-spring-summer-menswear-2025",
