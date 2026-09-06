@@ -255,7 +255,9 @@ The active September 24 Demo Day plan is maintained as an ordered Kanban in
 roadmap remains preserved in
 [`docs/TRAINSPOTTING_KANBAN.md`](docs/TRAINSPOTTING_KANBAN.md) for post-demo work.
 The exact credential-free presentation path and fallback are documented in
-[`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md).
+[`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md). The day-of endpoints,
+credentials checklist, release evidence, and Railway-to-Docker fallback are in
+[`docs/DEMO_REHEARSAL.md`](docs/DEMO_REHEARSAL.md).
 
 # OnesToManys (ListDetails)
 
