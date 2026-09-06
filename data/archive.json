@@ -34,6 +34,14 @@
       "biography": "London designer Craig Green founded his label in 2012 after completing the Central Saint Martins MA. Beginning with workwear, uniforms, and the worker jacket, he constructs deeply emotional menswear around protection, restraint, vulnerability, ritual, and collective movement. His processions often combine highly wearable garments with sculptural structures that resemble flags, shelters, machines, or devotional objects."
     },
     {
+      "key": "dao-yi-chow",
+      "full_name": "Dao-Yi Chow",
+      "nationality": "American",
+      "birth_year": null,
+      "website": "https://www.publicschoolnewyork.com",
+      "biography": "New York designer Dao-Yi Chow co-founded Public School with Maxwell Osborne. Together they developed a distinctly New York approach to sportswear, tailoring, street culture, and uniform, and received major American menswear honors for their work."
+    },
+    {
       "key": "demna-gvasalia",
       "full_name": "Demna Gvasalia",
       "nationality": "Georgian",
@@ -138,6 +146,14 @@
       "biography": "Designer who began his career at Comme des Garçons and launched his namesake line within the house."
     },
     {
+      "key": "kerby-jean-raymond",
+      "full_name": "Kerby Jean-Raymond",
+      "nationality": "American",
+      "birth_year": null,
+      "website": "https://pyermoss.com",
+      "biography": "Haitian-American designer Kerby Jean-Raymond founded Pyer Moss in New York in 2013. His work uses fashion, music, art, and performance to center Black history and contemporary American life, notably through the three-part American, Also series."
+    },
+    {
       "key": "kim-jones",
       "full_name": "Kim Jones",
       "nationality": "British",
@@ -210,6 +226,14 @@
       "biography": "French-Belgian designer Matthieu Blazy worked at Raf Simons, Maison Margiela, Céline, Calvin Klein, and Bottega Veneta before becoming Bottega's creative director in 2021. His material illusions and emphasis on movement made craft feel immediate rather than precious. He became artistic director of Chanel fashion activities in 2025, presenting his first ready-to-wear collection for Spring 2026."
     },
     {
+      "key": "maxwell-osborne",
+      "full_name": "Maxwell Osborne",
+      "nationality": "American",
+      "birth_year": null,
+      "website": "https://www.publicschoolnewyork.com",
+      "biography": "New York designer Maxwell Osborne co-founded Public School with Dao-Yi Chow. Their collaborative practice connected precise menswear, athletic references, and the lived visual language of New York, expanding into womenswear and creative leadership at DKNY."
+    },
+    {
       "key": "miuccia-prada",
       "full_name": "Miuccia Prada",
       "nationality": "Italian",
@@ -272,6 +296,14 @@
       "birth_year": 1962,
       "website": "https://www.rickowens.eu",
       "biography": "California-born designer who founded his independent namesake label in 1994 and later established it in Paris."
+    },
+    {
+      "key": "samuel-ross",
+      "full_name": "Samuel Ross",
+      "nationality": "British",
+      "birth_year": null,
+      "website": "https://www.a-cold-wall.com",
+      "biography": "British designer and artist Samuel Ross founded A-COLD-WALL* in 2015 after working with Virgil Abloh. His practice examines British class, architecture, industrial materials, and social environments across fashion, objects, and public art."
     },
     {
       "key": "sarah-burton",
@@ -671,6 +703,141 @@
       "youtube_video_id": null
     },
     {
+      "key": "dao-yi-chow-public-school-fall-winter-ready-to-wear-2016",
+      "designer_key": "dao-yi-chow",
+      "label": "Public School",
+      "name": null,
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 2016,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Public School's Fall 2016 collection continued Chow and Osborne's study of layered urban uniforms, proportion, and the intersection of streetwear and tailoring.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2016-ready-to-wear/public-school",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "co-designer",
+          "position": 1,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "dao-yi-chow"
+        },
+        {
+          "role": "co-designer",
+          "position": 2,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "maxwell-osborne"
+        }
+      ]
+    },
+    {
+      "key": "dao-yi-chow-public-school-spring-summer-ready-to-wear-2016",
+      "designer_key": "dao-yi-chow",
+      "label": "Public School",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2016,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Dao-Yi Chow and Maxwell Osborne brought Public School's New York vocabulary of uniform, sportswear, and tailoring into a shared womenswear and menswear presentation.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2016-ready-to-wear/public-school",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "co-designer",
+          "position": 1,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "dao-yi-chow"
+        },
+        {
+          "role": "co-designer",
+          "position": 2,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "maxwell-osborne"
+        }
+      ]
+    },
+    {
+      "key": "dao-yi-chow-public-school-fall-winter-ready-to-wear-2017",
+      "designer_key": "dao-yi-chow",
+      "label": "Public School",
+      "name": null,
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 2017,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Public School's Fall 2017 runway used the duo's language of protective layering, graphic identity, and hybrid street tailoring.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2017-ready-to-wear/public-school",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "co-designer",
+          "position": 1,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "dao-yi-chow"
+        },
+        {
+          "role": "co-designer",
+          "position": 2,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "maxwell-osborne"
+        }
+      ]
+    },
+    {
+      "key": "dao-yi-chow-public-school-spring-summer-ready-to-wear-2017",
+      "designer_key": "dao-yi-chow",
+      "label": "Public School",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2017,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Chow and Osborne developed Public School's relaxed tailoring and athletic construction through a New York-focused Spring 2017 collection.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2017-ready-to-wear/public-school",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "co-designer",
+          "position": 1,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "dao-yi-chow"
+        },
+        {
+          "role": "co-designer",
+          "position": 2,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "maxwell-osborne"
+        }
+      ]
+    },
+    {
+      "key": "dao-yi-chow-public-school-spring-summer-ready-to-wear-2018",
+      "designer_key": "dao-yi-chow",
+      "label": "Public School",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2018,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The Spring 2018 Public School collection extended Chow and Osborne's collaborative approach to American sportswear, utility, and city dressing.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2018-ready-to-wear/public-school",
+      "youtube_video_id": null,
+      "credits": [
+        {
+          "role": "co-designer",
+          "position": 1,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "dao-yi-chow"
+        },
+        {
+          "role": "co-designer",
+          "position": 2,
+          "attribution_note": "Public School co-founder.",
+          "designer_key": "maxwell-osborne"
+        }
+      ]
+    },
+    {
       "key": "demna-gvasalia-vetements-fall-winter-ready-to-wear-2015",
       "designer_key": "demna-gvasalia",
       "label": "Vetements",
@@ -1009,16 +1176,16 @@
       "youtube_video_id": null,
       "credits": [
         {
-          "designer_key": "eli-russell-linnetz",
           "role": "lead",
           "position": 1,
-          "attribution_note": "Guest designer for the Spring 2023 Dior Men collection."
+          "attribution_note": "Guest designer for the Spring 2023 Dior Men collection.",
+          "designer_key": "eli-russell-linnetz"
         },
         {
-          "designer_key": "kim-jones",
           "role": "collaborator",
           "position": 2,
-          "attribution_note": "Dior Men artistic director for the collaboration."
+          "attribution_note": "Dior Men artistic director for the collaboration.",
+          "designer_key": "kim-jones"
         }
       ]
     },
@@ -1647,6 +1814,19 @@
       "youtube_video_id": "zrXLlpu4YKU"
     },
     {
+      "key": "john-galliano-christian-dior-fall-winter-couture-2000",
+      "designer_key": "john-galliano",
+      "label": "Christian Dior",
+      "name": null,
+      "season": "Fall/Winter Couture",
+      "release_year": 2000,
+      "status": "archived",
+      "piece_count": null,
+      "description": "John Galliano's Fall 2000 haute couture collection for Dior used theatrical styling and couture construction to transform historical and cultural references into runway spectacle.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2000-couture/christian-dior",
+      "youtube_video_id": null
+    },
+    {
       "key": "john-galliano-christian-dior-spring-summer-couture-2004",
       "designer_key": "john-galliano",
       "label": "Christian Dior",
@@ -1970,6 +2150,71 @@
       "description": "A menswear collection combining formalwear with a punk sensibility.",
       "source_url": "https://www.vogue.com/fashion-shows/spring-2025-menswear/junya-watanabe",
       "youtube_video_id": "vQCKQaweG3M"
+    },
+    {
+      "key": "kerby-jean-raymond-pyer-moss-fall-winter-ready-to-wear-2017",
+      "designer_key": "kerby-jean-raymond",
+      "label": "Pyer Moss",
+      "name": null,
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 2017,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Jean-Raymond's Fall 2017 Pyer Moss collection continued his dialogue between contemporary American dress, identity, and social observation.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2017-ready-to-wear/pyer-moss",
+      "youtube_video_id": null
+    },
+    {
+      "key": "kerby-jean-raymond-pyer-moss-spring-summer-ready-to-wear-2017",
+      "designer_key": "kerby-jean-raymond",
+      "label": "Pyer Moss",
+      "name": null,
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2017,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Pyer Moss combined American sportswear with Jean-Raymond's socially engaged approach to storytelling and presentation.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2017-ready-to-wear/pyer-moss",
+      "youtube_video_id": null
+    },
+    {
+      "key": "kerby-jean-raymond-pyer-moss-fall-winter-ready-to-wear-2018",
+      "designer_key": "kerby-jean-raymond",
+      "label": "Pyer Moss",
+      "name": "American, Also. Lesson 1",
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 2018,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The first chapter of Pyer Moss's American, Also series began a sustained examination of Black American history, representation, and cultural authorship.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2018-ready-to-wear/pyer-moss",
+      "youtube_video_id": null
+    },
+    {
+      "key": "kerby-jean-raymond-pyer-moss-spring-summer-ready-to-wear-2019",
+      "designer_key": "kerby-jean-raymond",
+      "label": "Pyer Moss",
+      "name": "American, Also. Lesson 2",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2019,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The second chapter of Pyer Moss's American, Also series centered everyday Black American life and the history of the Negro Motorist Green Book, incorporating commissioned paintings by Derrick Adams.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-ready-to-wear/pyer-moss",
+      "youtube_video_id": null
+    },
+    {
+      "key": "kerby-jean-raymond-pyer-moss-spring-summer-ready-to-wear-2020",
+      "designer_key": "kerby-jean-raymond",
+      "label": "Pyer Moss",
+      "name": "Sister",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2020,
+      "status": "archived",
+      "piece_count": null,
+      "description": "The final chapter of the American, Also trilogy honored Sister Rosetta Tharpe and the obscured Black roots of rock and roll through fashion, music, and a large-scale performance at Brooklyn's Kings Theatre.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2020-ready-to-wear/pyer-moss",
+      "youtube_video_id": null
     },
     {
       "key": "kim-jones-dunhill-spring-summer-menswear-2010",
@@ -3155,16 +3400,16 @@
       "youtube_video_id": "z0IYqovHDJY",
       "credits": [
         {
-          "designer_key": "miuccia-prada",
           "role": "co-designer",
           "position": 1,
-          "attribution_note": "Prada co-creative director."
+          "attribution_note": "Prada co-creative director.",
+          "designer_key": "miuccia-prada"
         },
         {
-          "designer_key": "raf-simons",
           "role": "co-designer",
           "position": 2,
-          "attribution_note": "Prada co-creative director."
+          "attribution_note": "Prada co-creative director.",
+          "designer_key": "raf-simons"
         }
       ]
     },
@@ -3595,6 +3840,71 @@
       "piece_count": null,
       "description": "An extreme play of shoulders, transparency, and elongated form delivered glamour as both armor and provocation.",
       "source_url": "https://www.vogue.com/fashion-shows/spring-2023-menswear/rick-owens",
+      "youtube_video_id": null
+    },
+    {
+      "key": "samuel-ross-a-cold-wall-fall-winter-menswear-2019",
+      "designer_key": "samuel-ross",
+      "label": "A-COLD-WALL*",
+      "name": null,
+      "season": "Fall/Winter Menswear",
+      "release_year": 2019,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Ross continued A-COLD-WALL*'s investigation of industrial Britain, class, protection, and architectural form through technical materials and structured layering.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2019-menswear/a-cold-wall",
+      "youtube_video_id": null
+    },
+    {
+      "key": "samuel-ross-a-cold-wall-spring-summer-menswear-2019",
+      "designer_key": "samuel-ross",
+      "label": "A-COLD-WALL*",
+      "name": null,
+      "season": "Spring/Summer Menswear",
+      "release_year": 2019,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Samuel Ross examined social mobility and the built environment through industrial construction, protective layers, distressed surfaces, and a performance that physically broke apart the show's set.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-menswear/a-cold-wall",
+      "youtube_video_id": null
+    },
+    {
+      "key": "samuel-ross-a-cold-wall-fall-winter-menswear-2020",
+      "designer_key": "samuel-ross",
+      "label": "A-COLD-WALL*",
+      "name": null,
+      "season": "Fall/Winter Menswear",
+      "release_year": 2020,
+      "status": "archived",
+      "piece_count": null,
+      "description": "A-COLD-WALL* translated industrial surfaces, functional clothing, and social architecture into a rigorous Fall 2020 menswear system.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2020-menswear/a-cold-wall",
+      "youtube_video_id": null
+    },
+    {
+      "key": "samuel-ross-a-cold-wall-spring-summer-menswear-2020",
+      "designer_key": "samuel-ross",
+      "label": "A-COLD-WALL*",
+      "name": "A Material Study for Social Architecture",
+      "season": "Spring/Summer Menswear",
+      "release_year": 2020,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Presented at Printworks in London, the collection developed Ross's study of social architecture through material experimentation, workwear-derived forms, tailoring, and industrial references.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2020-menswear/a-cold-wall",
+      "youtube_video_id": null
+    },
+    {
+      "key": "samuel-ross-a-cold-wall-spring-summer-menswear-2021",
+      "designer_key": "samuel-ross",
+      "label": "A-COLD-WALL*",
+      "name": null,
+      "season": "Spring/Summer Menswear",
+      "release_year": 2021,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Ross refined A-COLD-WALL*'s material-led vocabulary through modular construction, utility, and a continuing study of the relationship between clothing and environment.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2021-menswear/a-cold-wall",
       "youtube_video_id": null
     },
     {
@@ -5039,6 +5349,19 @@
       "description": "Presented at Madison Square Garden before an audience of roughly 20,000, Yeezy Season 3 combined a large-scale fashion presentation with the premiere of The Life of Pablo.",
       "source_url": "https://www.vogue.com/video/watch/yeezy-season-3-kanye-west-kim-kardashian-west-new-york-fashion-week",
       "youtube_video_id": "1Ph6qxV06AA"
+    },
+    {
+      "key": "ye-kanye-west-yeezy-spring-summer-ready-to-wear-2016",
+      "designer_key": "ye-kanye-west",
+      "label": "Yeezy",
+      "name": "Yeezy Season 2",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2016,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Yeezy Season 2 continued Ye's monochromatic approach to casting and dress through layered foundations, utilitarian separates, oversized outerwear, and coordinated footwear.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2016-ready-to-wear/kanye-west-adidas-originals",
+      "youtube_video_id": null
     },
     {
       "key": "ye-kanye-west-yeezy-spring-summer-ready-to-wear-2017",
