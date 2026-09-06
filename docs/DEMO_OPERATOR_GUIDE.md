@@ -341,6 +341,153 @@ If an instructor asks for concrete evidence, show these in this order:
 5. `.github/workflows/deploy-staging.yml` to show release orchestration.
 6. `Dockerfile.backup` and `docs/BACKUP_AND_RESTORE.md` to show recovery design.
 
+## How the recommendation system is coded
+
+The recommendation system is deterministic and explainable. It does not use a
+machine-learning model, personal tracking, popularity, or a third-party
+recommendation API. The implementation is in `app/recommendations.py`; the
+FastAPI endpoint that retrieves candidates is in `app/main.py` at
+`GET /collections/{collection_id}/related`.
+
+### 1. Controlled editorial vocabulary
+
+`EDITORIAL_FACETS` defines six categories and approved canonical descriptors:
+
+- theme;
+- motif;
+- material;
+- texture;
+- color;
+- silhouette.
+
+Each canonical value has aliases. For example, `oversize` and `oversized`
+normalize to the silhouette `oversized`; `transparent` and `transparency`
+normalize to the texture `sheer`. This converts varied editorial language into
+stable, comparable values.
+
+`editorial_facets(collection)` combines two sources:
+
+1. structured descriptors that passed the enrichment moderation workflow; and
+2. deterministic whole-word matches inferred from the collection name and
+   description.
+
+Only values in the controlled vocabulary are accepted. Regex word boundaries
+avoid substring matches. The color `black` has an additional context rule: it
+must occur near clothing, material, or garment language. This prevents a phrase
+such as “Black American history” from being incorrectly treated as a garment
+color.
+
+### 2. SQL candidate retrieval
+
+The API does not load every collection and compare everything in memory. It
+first asks MySQL for plausible candidates that share at least one retrieval
+signal:
+
+- label;
+- season;
+- release year within two years;
+- a credited designer through the credit junction table;
+- an editorial alias found in the name or description; or
+- an approved structured descriptor.
+
+`editorial_search_terms()` expands detected canonical facets back into their
+known aliases for candidate retrieval. Results are read in stable ID order in
+batches of 200. This bounds memory use while allowing the ranking layer to keep
+the best results across batches.
+
+### 3. Transparent weighted scoring
+
+`rank_related_collections()` compares the target with each unique candidate.
+Editorial overlap has the strongest weights:
+
+| Signal | Points |
+| --- | ---: |
+| Each shared theme | 5 |
+| Each shared motif | 5 |
+| Each shared material | 5 |
+| Each shared texture | 4 |
+| Each shared color | 4 |
+| Each shared silhouette | 3 |
+| Each shared credited designer | 3 |
+| Same label | 2 |
+| Same season | 1 |
+| Same year or within two years | 1 |
+| Each shared meaningful editorial term, up to three | 1 |
+
+This weighting lets a cross-label collection with strong material or thematic
+overlap outrank a nearby collection from the same designer or house. Season and
+year are only supporting signals: a candidate must also share an editorial
+facet, contributor, or label before it can appear.
+
+The target collection is excluded, repeated candidate IDs are ignored, and
+designer names are removed from free-text terms so the same relationship is not
+accidentally counted twice.
+
+### 4. Reasons and match strength
+
+Every scoring contribution creates a visitor-facing reason such as:
+
+- `Shared material: denim, leather`;
+- `Shared silhouette: sculptural`;
+- `Shared contributor: Raf Simons`; or
+- `Released 1 year apart`.
+
+The integer score is translated into a stable label:
+
+- `Strong`: 14 or more;
+- `Notable`: 9–13;
+- `Contextual`: below 9.
+
+The API returns the numeric score, match-strength label, and reasons with each
+recommended collection. The React interface renders these fields directly, so
+the explanation shown to a visitor is produced by the same logic that produced
+the ranking.
+
+### 5. Diversity pass
+
+Pure relevance can fill the result list with one house or designer. After the
+initial ranking, `_diversify()` examines candidates within two points of the
+current best score. Inside that near-equal relevance window, it prefers the
+candidate that repeats the fewest already selected labels and credited
+designers.
+
+The algorithm never replaces a clearly stronger result merely for variety.
+After selection, results remain displayed in descending score order with
+release year and collection ID as deterministic tie-breakers.
+
+### 6. Regression and editorial evaluation
+
+`tests/test_recommendations.py` verifies exact scores and reasons, stable ties,
+strength thresholds, alias normalization, sparse-result behavior, duplicate and
+self exclusion, cross-label editorial ranking, diversity, and the contextual
+handling of `black`.
+
+`tests/test_recommendation_journeys.py` evaluates curated end-to-end journeys
+defined in `docs/recommendation-evaluation.json`. The primary Mugler journey and
+fallback Loewe journey specify expected collections, distinct-label diversity,
+required explanation types, and prohibited inference outcomes. These fixtures
+make the demo journey repeatable rather than dependent on a subjective visual
+check.
+
+### Sixty-second recommendation explanation
+
+> “I built a deterministic, explainable recommendation system rather than a
+> black-box model. A controlled vocabulary normalizes themes, motifs, materials,
+> textures, colors, and silhouettes from reviewed descriptors and curated
+> collection copy. MySQL first retrieves a bounded candidate set using indexed
+> archive relationships and editorial search terms. Python then applies explicit
+> weights, with editorial overlap weighted above designer, label, season, and
+> year proximity. Every point produces a visible reason, and broad time signals
+> cannot establish a match by themselves. A diversity pass can prefer another
+> house or designer only when candidates are within two relevance points. Exact
+> scores, explanations, exclusions, cultural-context safeguards, and two curated
+> demo journeys are protected by deterministic regression tests.”
+
+If asked why this is not machine learning, explain that the current archive is
+small and editorial trust is more important than opaque personalization. The
+rules provide a measurable baseline and labeled evaluation set that could later
+support learning-to-rank experiments without discarding explainability.
+
 ## Instructor-ready answers
 
 **Why Railway if Docker already works?**
