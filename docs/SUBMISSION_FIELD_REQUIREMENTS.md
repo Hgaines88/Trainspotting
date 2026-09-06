@@ -49,7 +49,7 @@ valid only for a correction targeting an existing collection.
 - Only nullable canonical fields may be cleared.
 - An empty correction is invalid when submitted for review.
 - Approval will apply the proposed patch transactionally; merely submitting a
-proposal will never update the canonical archive.
+  proposal will never update the canonical archive.
 
 ## Proposed collection enrichment
 
