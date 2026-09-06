@@ -3,6 +3,7 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.engine import make_url
 
 from app.auth import ClerkIdentity, require_authenticated_user
 from app.database import connect
@@ -12,11 +13,22 @@ from app.main import app
 MYSQL_TEST_DATABASE_URL = os.getenv("MYSQL_TEST_DATABASE_URL")
 
 
+def require_disposable_mysql_test_database(database_url):
+    url = make_url(database_url)
+    database_name = url.database or ""
+    if url.get_backend_name() != "mysql" or not database_name.endswith("_test"):
+        raise RuntimeError(
+            "MySQL runtime tests require a dedicated database whose name "
+            "ends in '_test'; refusing to modify a persistent application database"
+        )
+
+
 @pytest.mark.skipif(
     not MYSQL_TEST_DATABASE_URL,
     reason="MYSQL_TEST_DATABASE_URL is required for the MySQL runtime test",
 )
 def test_mysql_submission_approval_audit_and_rollback(monkeypatch):
+    require_disposable_mysql_test_database(MYSQL_TEST_DATABASE_URL)
     monkeypatch.setenv("DATABASE_URL", MYSQL_TEST_DATABASE_URL)
     tag = uuid.uuid4().hex[:12]
     member_identity = f"mysql-member-{tag}"
@@ -128,6 +140,7 @@ def test_mysql_submission_approval_audit_and_rollback(monkeypatch):
     reason="MYSQL_TEST_DATABASE_URL is required for the MySQL runtime test",
 )
 def test_mysql_multiple_collection_credits_round_trip(monkeypatch):
+    require_disposable_mysql_test_database(MYSQL_TEST_DATABASE_URL)
     monkeypatch.setenv("DATABASE_URL", MYSQL_TEST_DATABASE_URL)
     tag = uuid.uuid4().hex[:12]
     admin_identity = f"mysql-credit-admin-{tag}"
