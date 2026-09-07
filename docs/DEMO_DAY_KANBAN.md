@@ -268,6 +268,25 @@ new workflow states, and destructive cleanup inside an ordinary database.
 authentic collaboration reaches the public archive through existing governance,
 repeat setup is harmless, and reset cannot affect ordinary local or hosted data.
 
+### DEMO-X15 — Verified collection-video expansion
+
+**Priority:** P1 · **Size:** M · **Dependencies:** DEMO-X01, DEMO-X13
+
+- Audit canonical collections without video and prioritize demo-relevant records.
+- Add only exact collection matches from the represented designer or fashion
+  house's own YouTube channel.
+- Record the verified title and publisher for every new mapping in a
+  machine-checkable curation registry.
+- Keep canonical video values as normalized 11-character YouTube IDs and test
+  that registry mappings cannot drift from the archive.
+- Evaluate Vimeo as a separate provider-aware follow-up; never place a Vimeo URL
+  in the YouTube field.
+
+**Done when:** the first verified tranche renders through the existing embed,
+live YouTube metadata confirms every selected publisher and title, archive
+auditing remains deterministic as coverage grows, and the full application
+suite passes.
+
 ### DEMO-REL-01 — Feature freeze and release candidate
 
 **Priority:** P0 · **Size:** M · **Dependencies:** DEMO-01 through DEMO-06  
