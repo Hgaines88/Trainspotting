@@ -65,6 +65,83 @@
       "title": "BALENCIAGA - The Lost Tape Dec 8th, 2 PM CET",
       "publisher": "ASVOFF",
       "match_type": "collection-film"
+    },
+    {
+      "collection_key": "demna-gvasalia-balenciaga-fall-winter-ready-to-wear-2021",
+      "video_id": "497631342",
+      "title": "Balenciaga | FW21 Virtual Show",
+      "publisher": "Builders Club",
+      "match_type": "collection-film"
+    },
+    {
+      "collection_key": "miuccia-prada-prada-fall-winter-ready-to-wear-2020",
+      "video_id": "496819395",
+      "title": "Prada | FW20 Womenswear | Chrono Photography",
+      "publisher": "Matteo Frittelli",
+      "match_type": "process-film"
+    },
+    {
+      "collection_key": "sarah-burton-alexander-mcqueen-spring-summer-ready-to-wear-2020",
+      "video_id": "399200030",
+      "title": "Alexander McQueen - Spring Summer 2020 Campaign",
+      "publisher": "DroneScope",
+      "match_type": "campaign"
+    },
+    {
+      "collection_key": "iris-van-herpen-iris-van-herpen-fall-winter-couture-2022",
+      "video_id": "881769361",
+      "title": "ECHOES IN DESIGN: Iris van Herpen",
+      "publisher": "Michael Langan",
+      "match_type": "process-film"
+    },
+    {
+      "collection_key": "rick-owens-rick-owens-spring-summer-menswear-2016",
+      "video_id": "131855857",
+      "title": "RICK OWENS ' CYCLOPS ' SPRING / SUMMER 2016 MENS",
+      "publisher": "RICKOWENSONLINE",
+      "match_type": "official-full-show"
+    },
+    {
+      "collection_key": "rick-owens-rick-owens-fall-winter-menswear-2016",
+      "video_id": "152690342",
+      "title": "RICK OWENS FW16 MENS - MASTODON",
+      "publisher": "RICKOWENSONLINE",
+      "match_type": "official-full-show"
+    },
+    {
+      "collection_key": "rick-owens-rick-owens-spring-summer-menswear-2018",
+      "video_id": "261327909",
+      "title": "RICK OWENS SS18 DIRT MENS BACKSTAGE",
+      "publisher": "RICKOWENSONLINE",
+      "match_type": "official-backstage"
+    },
+    {
+      "collection_key": "willy-chavarria-willy-chavarria-fall-winter-menswear-2025",
+      "video_id": "1053815117",
+      "title": "WILLY CHAVARRIA TARANTULA Director's cut",
+      "publisher": "Otman Qrita",
+      "match_type": "collection-film"
+    },
+    {
+      "collection_key": "willy-chavarria-willy-chavarria-spring-summer-menswear-2025",
+      "video_id": "1016324158",
+      "title": "Willy Chavarria SS25 – AMÉRICA",
+      "publisher": "Noel Zheng",
+      "match_type": "collection-film"
+    },
+    {
+      "collection_key": "willy-chavarria-willy-chavarria-spring-summer-menswear-2026",
+      "video_id": "1097655703",
+      "title": "WILLY CHAVARRIA | SS26 HURON",
+      "publisher": "Dawes + Co",
+      "match_type": "collection-film"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-fall-winter-menswear-2020",
+      "video_id": "422291542",
+      "title": "Telfar • FW20 Pitti Uomo No.97 • Bloodshed",
+      "publisher": "HARBINGER CREATIVE",
+      "match_type": "collection-film"
     }
   ]
 }
