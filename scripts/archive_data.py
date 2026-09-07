@@ -127,8 +127,6 @@ def database_archive(database_path: Path) -> dict:
         credits_by_collection.setdefault(collection_id, []).append(credit)
     for row in collection_rows:
         record = dict(row)
-        if record.get("vimeo_video_id") is None:
-            record.pop("vimeo_video_id", None)
         collection_id = record.pop("collection_id")
         designer_key = designer_keys[record.pop("designer_name")]
         key = stable_key(

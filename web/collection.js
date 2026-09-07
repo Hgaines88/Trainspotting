@@ -96,7 +96,7 @@ async function loadCollection() {
 
         if (collection.vimeo_video_id) {
             const videoContainer =
-                document.querySelector("#collection-video");
+                document.querySelector("#collection-vimeo");
             const iframe = document.createElement("iframe");
 
             iframe.src =
