@@ -1,6 +1,6 @@
 {
   "curated_at": "2026-09-07",
-  "policy": "Exact collection match published by the represented designer or fashion house.",
+  "policy": "Exact collection match published by the represented designer or fashion house. Prefer full shows; accept exact official collection films, campaigns, or highlights when no full show is available.",
   "videos": [
     {
       "collection_key": "iris-van-herpen-iris-van-herpen-fall-winter-couture-2022",
@@ -109,6 +109,102 @@
       "video_id": "krfcr9DtB4M",
       "title": "Men's Spring-Summer 2025 Show",
       "channel": "Louis Vuitton"
+    },
+    {
+      "collection_key": "demna-gvasalia-balenciaga-fall-winter-couture-2021",
+      "video_id": "i7ZiT-iEMxQ",
+      "title": "Balenciaga 50th Couture Collection",
+      "channel": "Balenciaga"
+    },
+    {
+      "collection_key": "demna-gvasalia-balenciaga-fall-winter-ready-to-wear-2021",
+      "video_id": "hu_08WchxnU",
+      "title": "Afterworld: The Age of Tomorrow | Balenciaga",
+      "channel": "Balenciaga"
+    },
+    {
+      "collection_key": "miuccia-prada-miu-miu-fall-winter-ready-to-wear-2016",
+      "video_id": "SZkKlORSwnI",
+      "title": "Miu Miu Fall/Winter 2016 Fashion Show",
+      "channel": "Miu Miu"
+    },
+    {
+      "collection_key": "miuccia-prada-prada-fall-winter-ready-to-wear-2020",
+      "video_id": "QAzmwfJRMOI",
+      "title": "Prada Fall/Winter 2020 Womenswear Show",
+      "channel": "Prada"
+    },
+    {
+      "collection_key": "olivier-rousteing-balmain-spring-summer-2012",
+      "video_id": "0YsONLp8jx4",
+      "title": "Balmain Spring/Summer 2012 Womenswear Show",
+      "channel": "Balmain"
+    },
+    {
+      "collection_key": "olivier-rousteing-balmain-fall-winter-2014",
+      "video_id": "uqIZuvWZYHs",
+      "title": "Balmain Fall/Winter 2014 Womenswear Show",
+      "channel": "Balmain"
+    },
+    {
+      "collection_key": "olivier-rousteing-balmain-spring-summer-2022",
+      "video_id": "zIOxfqp52W0",
+      "title": "Balmain Spring-Summer 2022 Fashion Show",
+      "channel": "Balmain"
+    },
+    {
+      "collection_key": "pierpaolo-piccioli-valentino-fall-winter-2022",
+      "video_id": "Ev49cQsR25E",
+      "title": "Valentino Pink PP Collection",
+      "channel": "Valentino"
+    },
+    {
+      "collection_key": "sarah-burton-alexander-mcqueen-spring-summer-ready-to-wear-2016",
+      "video_id": "rW-fDqkwpXI",
+      "title": "Alexander McQueen | Spring/Summer 2016 | Runway Show",
+      "channel": "McQueen"
+    },
+    {
+      "collection_key": "sarah-burton-alexander-mcqueen-fall-winter-ready-to-wear-2018",
+      "video_id": "WoChubevcUI",
+      "title": "Alexander McQueen | Womenswear Autumn/Winter 2018",
+      "channel": "McQueen"
+    },
+    {
+      "collection_key": "sarah-burton-alexander-mcqueen-spring-summer-ready-to-wear-2020",
+      "video_id": "_cdkLfp0i-E",
+      "title": "Alexander McQueen | Womenswear Spring/Summer 2020",
+      "channel": "McQueen"
+    },
+    {
+      "collection_key": "thom-browne-thom-browne-fall-winter-2024",
+      "video_id": "fdvO7ylDJ_M",
+      "title": "... thom browne fall 2024 collection ...",
+      "channel": "THOM BROWNE."
+    },
+    {
+      "collection_key": "virgil-abloh-louis-vuitton-fall-winter-menswear-2020",
+      "video_id": "n2NmF2cBiCo",
+      "title": "Louis Vuitton Men's Fall-Winter 2020 Fashion Show Highlights | LOUIS VUITTON",
+      "channel": "Louis Vuitton"
+    },
+    {
+      "collection_key": "alessandro-michele-gucci-fall-winter-2015",
+      "video_id": "YcJpyaZ8N8M",
+      "title": "The Gucci Fall Winter 2015 Campaign",
+      "channel": "GUCCI"
+    },
+    {
+      "collection_key": "alessandro-michele-gucci-spring-summer-2022",
+      "video_id": "Ix-yAEJ51Vw",
+      "title": "The Gucci Love Parade Advertising Campaign",
+      "channel": "GUCCI"
+    },
+    {
+      "collection_key": "alessandro-michele-valentino-spring-summer-2025",
+      "video_id": "lf4PxvAHv9Y",
+      "title": "Valentino Pavillon des Folies | The Full Show",
+      "channel": "Valentino"
     }
   ]
 }
