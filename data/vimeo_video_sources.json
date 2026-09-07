@@ -1,0 +1,70 @@
+{
+  "curated_at": "2026-09-07",
+  "verification": "Each entry was matched to one canonical collection and confirmed public through Vimeo's oEmbed endpoint before inclusion.",
+  "policy": "Prefer official full shows and exact official collection films. When those are unavailable, accept exact campaigns, highlights, or behind-the-scenes films from the represented brand, a credited production contributor, or an established fashion-film publisher.",
+  "videos": [
+    {
+      "collection_key": "kerby-jean-raymond-pyer-moss-fall-winter-ready-to-wear-2018",
+      "video_id": "255821464",
+      "title": "\"American, Also; Lesson 1.\" — Runway",
+      "publisher": "Pyer Moss",
+      "match_type": "official-full-show"
+    },
+    {
+      "collection_key": "kerby-jean-raymond-pyer-moss-spring-summer-ready-to-wear-2019",
+      "video_id": "288998794",
+      "title": "\"American, Also; Lesson 2.\" – Runway",
+      "publisher": "Pyer Moss",
+      "match_type": "official-full-show"
+    },
+    {
+      "collection_key": "kerby-jean-raymond-pyer-moss-spring-summer-ready-to-wear-2020",
+      "video_id": "426360547",
+      "title": "\"American, Also.\" Film — Trailer",
+      "publisher": "Pyer Moss",
+      "match_type": "official-collection-film"
+    },
+    {
+      "collection_key": "marine-serre-marine-serre-spring-summer-2020",
+      "video_id": "447972146",
+      "title": "Maree Noire for Marine Serre by Rick Farin & Claire Cochran",
+      "publisher": "ASVOFF",
+      "match_type": "collection-film"
+    },
+    {
+      "collection_key": "willy-chavarria-willy-chavarria-fall-winter-menswear-2024",
+      "video_id": "1019512858",
+      "title": "SAFE FROM HARM A FILM BY WILLY CHAVARRIA",
+      "publisher": "ASVOFF",
+      "match_type": "collection-film"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-spring-summer-2020",
+      "video_id": "444253903",
+      "title": "The World Isn't Everything for Telfar Clip #2",
+      "publisher": "Clayton Vomero",
+      "match_type": "collection-highlight"
+    },
+    {
+      "collection_key": "miuccia-prada-prada-spring-summer-ready-to-wear-2014",
+      "video_id": "95518942",
+      "title": "Prada – SS14 Campaign",
+      "publisher": "DJA",
+      "match_type": "official-campaign"
+    },
+    {
+      "collection_key": "olivier-rousteing-balmain-x-h-m-fall-winter-2015",
+      "video_id": "702758250",
+      "title": "H&M - Balmain x H&M Collection",
+      "publisher": "Ohlogy",
+      "match_type": "official-campaign"
+    },
+    {
+      "collection_key": "demna-gvasalia-balenciaga-spring-summer-ready-to-wear-2022",
+      "video_id": "654238989",
+      "title": "BALENCIAGA - The Lost Tape Dec 8th, 2 PM CET",
+      "publisher": "ASVOFF",
+      "match_type": "collection-film"
+    }
+  ]
+}
