@@ -18,7 +18,7 @@ def test_curated_youtube_sources_match_canonical_collections():
     curation = load_json(CURATION_PATH)
     collections = {item["key"]: item for item in archive["collections"]}
 
-    assert len(curation["videos"]) >= 40
+    assert len(curation["videos"]) >= 52
     assert len({item["collection_key"] for item in curation["videos"]}) == len(
         curation["videos"]
     )
