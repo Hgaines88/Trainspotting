@@ -25,7 +25,7 @@ def test_canonical_audit_is_deterministic_and_separates_optional_absence():
         report["counts"]["warnings"] + report["counts"]["review"]
     )
     assert report["optional_missing"] == {
-        field: sum(item.get(field) is None for item in payload["collections"])
+        field: sum(item.get(field) in (None, "") for item in payload["collections"])
         for field in ("name", "piece_count", "youtube_video_id")
     }
 
