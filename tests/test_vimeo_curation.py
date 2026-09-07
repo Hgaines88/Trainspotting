@@ -11,6 +11,7 @@ MATCH_TYPES = {
     "official-full-show",
     "official-collection-film",
     "official-campaign",
+    "campaign",
     "collection-film",
     "collection-highlight",
 }
