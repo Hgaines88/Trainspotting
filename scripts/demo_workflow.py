@@ -266,6 +266,8 @@ def setup(admin_clerk_user_id: str) -> dict:
     try:
         tyler = one(connection, "SELECT id FROM designers WHERE full_name = 'Tyler Okonma'")
         tyler_id = tyler["id"]
+        connection.rollback()
+        connection.execute("BEGIN IMMEDIATE")
         connection.execute(
             """INSERT INTO designer_aliases
                (designer_id, alias, normalized_alias, alias_type, source_url)
@@ -278,6 +280,9 @@ def setup(admin_clerk_user_id: str) -> dict:
             ),
         )
         connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
     finally:
         connection.close()
 
