@@ -21,9 +21,10 @@ approving any new automated access or content reuse.
   does not download or rehost video.
 - Trainspotting does not currently scrape, crawl, mirror, or call a third-party
   content API.
-- Images and long excerpts remain excluded until MEDIA-01 establishes an
-  item-specific rights, attribution, deletion, accessibility, and recovery
-  strategy.
+- Third-party still images and long excerpts remain excluded. The accepted
+  [`IMAGE_STRATEGY_DECISION.md`](IMAGE_STRATEGY_DECISION.md) defines the
+  item-specific rights, attribution, deletion, accessibility, storage, and
+  recovery gate for any later media pilot.
 
 ## Reliability and attribution
 

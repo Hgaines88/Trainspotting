@@ -231,6 +231,22 @@ ambiguous normalized aliases are rejected, and SQLite/MySQL paths agree.
 **Done when:** every automated or proposed source has a reviewable legal and
 technical basis and the current curated workflow remains unchanged.
 
+### DEMO-X11 — Archive image strategy decision
+
+**Priority:** P2 · **Size:** Research · **Parent roadmap card:** MEDIA-01
+
+- Compare platform embeds, hotlinks, open-license media, written permissions,
+  and hosted copies without acquiring any new third-party asset.
+- Define rights evidence, attribution, alt text, moderation, takedown, storage,
+  caching, cost, and recovery requirements.
+- Decide whether still-image implementation belongs before or after Demo Day.
+
+**Excluded from this slice:** downloading, scraping, uploading, publishing, or
+rendering any new third-party image and all schema, API, or UI changes.
+
+**Done when:** an accepted decision record defines permitted media paths,
+prohibited shortcuts, operational safeguards, and a clear go/no-go result.
+
 ### DEMO-REL-01 — Feature freeze and release candidate
 
 **Priority:** P0 · **Size:** M · **Dependencies:** DEMO-01 through DEMO-06  

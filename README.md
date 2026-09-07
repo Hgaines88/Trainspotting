@@ -163,6 +163,10 @@ reconciliation workflow, and safe apply command.
 The evidence and automation boundary is documented in
 [`docs/SOURCE_REGISTRY_AND_LICENSING.md`](docs/SOURCE_REGISTRY_AND_LICENSING.md),
 with machine-checked coverage for every canonical source host.
+The accepted
+[`docs/IMAGE_STRATEGY_DECISION.md`](docs/IMAGE_STRATEGY_DECISION.md) keeps
+third-party still images out of the demo release and defines the rights,
+accessibility, storage, and takedown gate for a later media pilot.
 
 ## Preserve and restore archive content
 
