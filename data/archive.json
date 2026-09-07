@@ -31,7 +31,14 @@
       "nationality": "French",
       "birth_year": 1905,
       "website": "https://www.dior.com",
-      "biography": "French couturier Christian Dior founded his Paris house in 1946 and transformed postwar fashion with the sculpted shoulders, narrow waist, and expansive skirts of his 1947 debut. Through a succession of named lines, he continually revised proportion while rebuilding Paris haute couture as an international cultural and commercial force."
+      "biography": "French couturier Christian Dior founded his Paris house in 1946 and transformed postwar fashion with the sculpted shoulders, narrow waist, and expansive skirts of his 1947 debut. Through a succession of named lines, he continually revised proportion while rebuilding Paris haute couture as an international cultural and commercial force.",
+      "aliases": [
+        {
+          "alias": "Christian Ernest Dior",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Christian_Dior"
+        }
+      ]
     },
     {
       "key": "craig-green",
@@ -85,7 +92,14 @@
       "nationality": "Georgian",
       "birth_year": null,
       "website": null,
-      "biography": "Designer and co-founder of Vetements whose career includes creative leadership at Balenciaga and Gucci."
+      "biography": "Designer and co-founder of Vetements whose career includes creative leadership at Balenciaga and Gucci.",
+      "aliases": [
+        {
+          "alias": "Demna",
+          "alias_type": "alternate-name",
+          "source_url": "https://en.wikipedia.org/wiki/Demna_(designer)"
+        }
+      ]
     },
     {
       "key": "dries-van-noten",
@@ -173,7 +187,14 @@
       "nationality": "German",
       "birth_year": 1943,
       "website": "https://www.jilsander.com",
-      "biography": "German designer Jil Sander established her label in Hamburg in 1968 and became one of modern fashion's defining minimalists. Her precise tailoring, luxurious textiles, controlled color, and refusal of ornament reshaped professional dress in the 1980s and 1990s. Sander left and returned to her namesake house several times; this profile attributes only collections from her own creative tenures rather than later work by Raf Simons, Luke and Lucie Meier, or Simone Bellotti."
+      "biography": "German designer Jil Sander established her label in Hamburg in 1968 and became one of modern fashion's defining minimalists. Her precise tailoring, luxurious textiles, controlled color, and refusal of ornament reshaped professional dress in the 1980s and 1990s. Sander left and returned to her namesake house several times; this profile attributes only collections from her own creative tenures rather than later work by Raf Simons, Luke and Lucie Meier, or Simone Bellotti.",
+      "aliases": [
+        {
+          "alias": "Heidemarie Jiline Sander",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Jil_Sander"
+        }
+      ]
     },
     {
       "key": "john-elliott",
@@ -323,7 +344,14 @@
       "nationality": "Italian",
       "birth_year": null,
       "website": null,
-      "biography": "Designer and creative director of Prada and Miu Miu."
+      "biography": "Designer and creative director of Prada and Miu Miu.",
+      "aliases": [
+        {
+          "alias": "Maria Bianchi",
+          "alias_type": "alternate-name",
+          "source_url": "https://en.wikipedia.org/wiki/Miuccia_Prada"
+        }
+      ]
     },
     {
       "key": "nigo",
@@ -402,7 +430,14 @@
       "nationality": "American",
       "birth_year": 1962,
       "website": "https://www.rickowens.eu",
-      "biography": "California-born designer who founded his independent namesake label in 1994 and later established it in Paris."
+      "biography": "California-born designer who founded his independent namesake label in 1994 and later established it in Paris.",
+      "aliases": [
+        {
+          "alias": "Richard Saturnino Owens",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Rick_Owens"
+        }
+      ]
     },
     {
       "key": "samuel-ross",
@@ -465,7 +500,14 @@
       "nationality": "American",
       "birth_year": 1961,
       "website": "https://www.tomfordfashion.com",
-      "biography": "American designer and filmmaker Tom Ford transformed Gucci in the 1990s through a precise vocabulary of erotic glamour, then directed Yves Saint Laurent Rive Gauche while overseeing the Gucci Group. He founded his namesake house in 2005, extending his vision across menswear, womenswear, beauty, eyewear, and film. This profile attributes only collections designed during Ford's own tenures, separating his authorship from the houses that continued after him."
+      "biography": "American designer and filmmaker Tom Ford transformed Gucci in the 1990s through a precise vocabulary of erotic glamour, then directed Yves Saint Laurent Rive Gauche while overseeing the Gucci Group. He founded his namesake house in 2005, extending his vision across menswear, womenswear, beauty, eyewear, and film. This profile attributes only collections designed during Ford's own tenures, separating his authorship from the houses that continued after him.",
+      "aliases": [
+        {
+          "alias": "Thomas Carlyle Ford",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Tom_Ford"
+        }
+      ]
     },
     {
       "key": "virgil-abloh",
@@ -505,7 +547,19 @@
       "nationality": "American",
       "birth_year": 1977,
       "website": null,
-      "biography": "American designer, artist, and musician who founded Yeezy. His fashion work includes independent collections and former collaborations with Nike, Adidas, and Gap."
+      "biography": "American designer, artist, and musician who founded Yeezy. His fashion work includes independent collections and former collaborations with Nike, Adidas, and Gap.",
+      "aliases": [
+        {
+          "alias": "Kanye West",
+          "alias_type": "former-name",
+          "source_url": "https://en.wikipedia.org/wiki/Kanye_West"
+        },
+        {
+          "alias": "Ye",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Kanye_West"
+        }
+      ]
     },
     {
       "key": "yohji-yamamoto",

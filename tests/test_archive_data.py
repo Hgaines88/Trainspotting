@@ -78,33 +78,69 @@ def test_demo_alias_enrichment_is_sourced_and_keeps_display_names():
     expected = {
         "cristobal-balenciaga": (
             "Cristóbal Balenciaga",
-            "Cristóbal Balenciaga Eizaguirre",
+            ["Cristóbal Balenciaga Eizaguirre"],
+        ),
+        "christian-dior": (
+            "Christian Dior",
+            ["Christian Ernest Dior"],
+        ),
+        "demna-gvasalia": (
+            "Demna Gvasalia",
+            ["Demna"],
+        ),
+        "jil-sander": (
+            "Jil Sander",
+            ["Heidemarie Jiline Sander"],
         ),
         "john-galliano": (
             "John Galliano",
-            "Juan Carlos Antonio Galliano-Guillén",
+            ["Juan Carlos Antonio Galliano-Guillén"],
         ),
         "lee-alexander-mcqueen": (
             "Lee Alexander McQueen",
-            "Alexander McQueen",
+            ["Alexander McQueen"],
+        ),
+        "miuccia-prada": (
+            "Miuccia Prada",
+            ["Maria Bianchi"],
+        ),
+        "rick-owens": (
+            "Rick Owens",
+            ["Richard Saturnino Owens"],
         ),
         "thierry-mugler": (
             "Thierry Mugler",
-            "Manfred Thierry Mugler",
+            ["Manfred Thierry Mugler"],
+        ),
+        "tom-ford": (
+            "Tom Ford",
+            ["Thomas Carlyle Ford"],
+        ),
+        "ye-kanye-west": (
+            "Ye (Kanye West)",
+            ["Kanye West", "Ye"],
         ),
         "yves-saint-laurent": (
             "Yves Saint Laurent",
-            "Yves Henri Donat Mathieu-Saint-Laurent",
+            ["Yves Henri Donat Mathieu-Saint-Laurent"],
         ),
     }
 
-    for key, (display_name, alias) in expected.items():
+    for key, (display_name, aliases) in expected.items():
         designer = designers[key]
         assert designer["full_name"] == display_name
-        assert [item["alias"] for item in designer["aliases"]] == [alias]
-        assert designer["aliases"][0]["source_url"].startswith(
-            "https://en.wikipedia.org/wiki/"
+        assert [item["alias"] for item in designer["aliases"]] == aliases
+        assert all(
+            item["source_url"].startswith("https://en.wikipedia.org/wiki/")
+            for item in designer["aliases"]
         )
+
+    ye_aliases = designers["ye-kanye-west"]["aliases"]
+    assert [item["alias_type"] for item in ye_aliases] == [
+        "former-name",
+        "legal-name",
+    ]
+    assert "Yeezy" not in {item["alias"] for item in ye_aliases}
 
 
 def test_demo_collaborations_have_ordered_credits_and_sources():
