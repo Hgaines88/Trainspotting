@@ -41,6 +41,7 @@ valid only for a correction targeting an existing collection.
 | Description | Optional | Optional; may be explicitly cleared |
 | Curated source URL | Optional | Optional; may be explicitly cleared |
 | YouTube video | Optional | Optional; may be explicitly cleared |
+| Vimeo video | Optional | Optional; may be explicitly cleared |
 
 ## Patch semantics for corrections
 

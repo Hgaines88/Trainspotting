@@ -69,7 +69,9 @@ def database_archive(database_path: Path) -> dict:
                 MAX(CASE WHEN collection_media.media_type = 'source'
                     THEN collection_media.media_value END) AS source_url,
                 MAX(CASE WHEN collection_media.media_type = 'youtube'
-                    THEN collection_media.media_value END) AS youtube_video_id
+                    THEN collection_media.media_value END) AS youtube_video_id,
+                MAX(CASE WHEN collection_media.media_type = 'vimeo'
+                    THEN collection_media.media_value END) AS vimeo_video_id
             FROM collections
             JOIN designers ON designers.id = collections.designer_id
             LEFT JOIN collection_media
@@ -125,6 +127,8 @@ def database_archive(database_path: Path) -> dict:
         credits_by_collection.setdefault(collection_id, []).append(credit)
     for row in collection_rows:
         record = dict(row)
+        if record.get("vimeo_video_id") is None:
+            record.pop("vimeo_video_id", None)
         collection_id = record.pop("collection_id")
         designer_key = designer_keys[record.pop("designer_name")]
         key = stable_key(
@@ -300,6 +304,7 @@ def import_archive(
             media = [
                 (collection_id, "source", collection.get("source_url")),
                 (collection_id, "youtube", collection.get("youtube_video_id")),
+                (collection_id, "vimeo", collection.get("vimeo_video_id")),
             ]
             connection.executemany(
                 """

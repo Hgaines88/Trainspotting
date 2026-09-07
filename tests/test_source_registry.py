@@ -58,6 +58,9 @@ def test_source_registry_reports_invalid_automation_status_actionably():
 
 
 def test_source_registry_preserves_first_owner_and_ignores_invalid_hosts():
+    expected_registered_hosts = validate_registry(
+        ARCHIVE, REGISTRY
+    )["registered_hosts"]
     registry = copy.deepcopy(REGISTRY)
     rights_holder_hosts = registry["categories"]["rights-holder"]["hosts"]
     cultural_hosts = registry["categories"]["cultural-institution"]["hosts"]
@@ -66,7 +69,7 @@ def test_source_registry_preserves_first_owner_and_ignores_invalid_hosts():
 
     report = validate_registry(ARCHIVE, registry)
 
-    assert report["registered_hosts"] == 48
+    assert report["registered_hosts"] == expected_registered_hosts
     assert any("listed more than once" in error for error in report["errors"])
     assert any("belongs to both" in error for error in report["errors"])
     assert any("noncanonical host ''" in error for error in report["errors"])

@@ -320,6 +320,40 @@ def test_export_import_preserves_non_default_collection_credits(tmp_path):
     assert json.loads(exported.read_text()) == json.loads(reexported.read_text())
 
 
+def test_export_import_preserves_vimeo_collection_media(tmp_path):
+    source = tmp_path / "vimeo-source.db"
+    restored = tmp_path / "vimeo-restored.db"
+    exported = tmp_path / "vimeo.json"
+    reexported = tmp_path / "vimeo-restored.json"
+    import_archive(source, ARCHIVE, replace=True)
+
+    connection = sqlite3.connect(source)
+    try:
+        collection_id = connection.execute(
+            "SELECT id FROM collections ORDER BY id LIMIT 1"
+        ).fetchone()[0]
+        connection.execute(
+            """INSERT INTO collection_media
+               (collection_id, media_type, media_value)
+               VALUES (?, 'vimeo', '76979871')""",
+            (collection_id,),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    export_archive(source, exported)
+    payload = json.loads(exported.read_text())
+    assert any(
+        collection.get("vimeo_video_id") == "76979871"
+        for collection in payload["collections"]
+    )
+
+    import_archive(restored, exported, replace=True)
+    export_archive(restored, reexported)
+    assert json.loads(exported.read_text()) == json.loads(reexported.read_text())
+
+
 def test_drift_check_detects_and_export_resolves_canonical_changes(tmp_path):
     database = tmp_path / "archive.db"
     archive = tmp_path / "archive.json"

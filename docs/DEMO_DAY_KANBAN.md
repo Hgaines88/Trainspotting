@@ -287,6 +287,24 @@ live YouTube metadata confirms every selected publisher and title, archive
 auditing remains deterministic as coverage grows, and the full application
 suite passes.
 
+### DEMO-X16 — Provider-aware Vimeo collection media
+
+**Priority:** P1 · **Size:** M · **Dependencies:** DEMO-X15
+
+- Store Vimeo IDs independently from YouTube IDs in `collection_media`.
+- Normalize supported Vimeo page and player URLs to numeric video IDs.
+- Carry Vimeo through canonical import/export, MySQL synchronization,
+  ingestion, moderation, API payloads, and both collection interfaces.
+- Render Vimeo with the platform-supported player and retain the text-first
+  fallback when no media is present.
+- Prefer official full shows; accept exact official collection films,
+  campaigns, highlights, or behind-the-scenes footage when a full show is not
+  available.
+
+**Done when:** Vimeo survives every write and round-trip path, invalid hosts are
+rejected, both interfaces render provider-specific embeds, migration and
+application tests pass, and verified Vimeo curation can proceed separately.
+
 ### DEMO-REL-01 — Feature freeze and release candidate
 
 **Priority:** P0 · **Size:** M · **Dependencies:** DEMO-01 through DEMO-06  

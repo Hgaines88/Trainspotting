@@ -196,7 +196,13 @@ COLLECTION_SELECT = """
             FROM collection_media
             WHERE collection_id = collections.id
               AND media_type = 'youtube'
-        ) AS youtube_video_id
+        ) AS youtube_video_id,
+        (
+            SELECT media_value
+            FROM collection_media
+            WHERE collection_id = collections.id
+              AND media_type = 'vimeo'
+        ) AS vimeo_video_id
     FROM collections
     JOIN designers
         ON designers.id = collections.designer_id
@@ -418,6 +424,7 @@ def sync_collection_media(
     media = [
         ("source", payload.source_url),
         ("youtube", payload.youtube_video_id),
+        ("vimeo", payload.vimeo_video_id),
     ]
     connection.executemany(
         """
@@ -754,7 +761,13 @@ def list_designer_collections(designer_id: int):
                     FROM collection_media
                     WHERE collection_id = collections.id
                       AND media_type = 'youtube'
-                ) AS youtube_video_id
+                ) AS youtube_video_id,
+                (
+                    SELECT media_value
+                    FROM collection_media
+                    WHERE collection_id = collections.id
+                      AND media_type = 'vimeo'
+                ) AS vimeo_video_id
             FROM collections
             WHERE EXISTS (
                 SELECT 1
@@ -1355,7 +1368,13 @@ def list_collections(
                     FROM collection_media
                     WHERE collection_id = collections.id
                       AND media_type = 'youtube'
-                ) AS youtube_video_id
+                ) AS youtube_video_id,
+                (
+                    SELECT media_value
+                    FROM collection_media
+                    WHERE collection_id = collections.id
+                      AND media_type = 'vimeo'
+                ) AS vimeo_video_id
             FROM collections
             JOIN designers
                 ON designers.id = collections.designer_id

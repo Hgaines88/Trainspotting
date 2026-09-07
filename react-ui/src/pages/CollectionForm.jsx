@@ -7,6 +7,7 @@ import { useApplicationUser } from "../auth/ApplicationUserContext";
 const emptyCollection = {
   label: "", name: "", season: "", release_year: "", status: "concept",
   piece_count: "", description: "", source_url: "", youtube_video_id: "",
+  vimeo_video_id: "",
 };
 
 export default function CollectionForm() {
@@ -56,6 +57,7 @@ export default function CollectionForm() {
         description: collection.description || "",
         source_url: collection.source_url || "",
         youtube_video_id: collection.youtube_video_id || "",
+        vimeo_video_id: collection.vimeo_video_id || "",
       });
       setStatus("");
     }).catch((requestError) => { setError(requestError.message); setStatus(""); });
@@ -115,6 +117,7 @@ export default function CollectionForm() {
       description: form.description || null,
       source_url: form.source_url || null,
       youtube_video_id: form.youtube_video_id || null,
+      vimeo_video_id: form.vimeo_video_id || null,
       credits: credits.map((credit, index) => ({
         designer_id: Number(credit.designer_id),
         role: index === 0 ? "lead" : credit.role,
@@ -171,6 +174,7 @@ export default function CollectionForm() {
           <legend>Curated media</legend>
           <label>Collection source URL<input name="source_url" type="url" placeholder="https://www.vogue.com/..." value={form.source_url} onChange={updateField} /></label>
           <label>YouTube URL or video ID<input name="youtube_video_id" placeholder="https://www.youtube.com/watch?v=..." value={form.youtube_video_id} onChange={updateField} /></label>
+          <label>Vimeo URL or video ID<input name="vimeo_video_id" placeholder="https://vimeo.com/..." value={form.vimeo_video_id} onChange={updateField} /></label>
           <small>Use a source you trust and an official brand or publisher video.</small>
         </fieldset>
         <button className="button" type="submit">{editing ? "Save changes" : "Save collection"}</button>

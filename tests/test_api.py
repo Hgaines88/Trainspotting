@@ -727,6 +727,7 @@ def test_collection_media_is_normalized_and_updated(client):
             "youtube_video_id": (
                 "https://www.youtube.com/watch?v=M7lc1UVf-VE"
             ),
+            "vimeo_video_id": "https://player.vimeo.com/video/76979871",
         },
     )
 
@@ -740,6 +741,7 @@ def test_collection_media_is_normalized_and_updated(client):
         "https://example.com/runway-review"
     )
     assert detail_response.json()["youtube_video_id"] == "M7lc1UVf-VE"
+    assert detail_response.json()["vimeo_video_id"] == "76979871"
 
     update_response = client.put(
         f"/collections/{collection_id}",
@@ -754,6 +756,7 @@ def test_collection_media_is_normalized_and_updated(client):
             "description": None,
             "source_url": None,
             "youtube_video_id": "https://youtu.be/dQw4w9WgXcQ",
+            "vimeo_video_id": "https://vimeo.com/channels/staffpicks/22439234",
         },
     )
 
@@ -763,6 +766,7 @@ def test_collection_media_is_normalized_and_updated(client):
 
     assert updated_detail["source_url"] is None
     assert updated_detail["youtube_video_id"] == "dQw4w9WgXcQ"
+    assert updated_detail["vimeo_video_id"] == "22439234"
 
     delete_response = client.delete(f"/collections/{collection_id}")
     assert delete_response.status_code == 204
@@ -781,6 +785,23 @@ def test_collection_media_is_normalized_and_updated(client):
         connection.close()
 
     assert remaining_media == 0
+
+
+def test_collection_rejects_non_vimeo_media_url(client):
+    response = client.post(
+        "/collections",
+        json={
+            "designer_id": 1,
+            "label": "Invalid Vimeo Label",
+            "season": "Resort",
+            "release_year": 2027,
+            "status": "concept",
+            "vimeo_video_id": "https://example.com/video/76979871",
+        },
+    )
+
+    assert response.status_code == 422
+    assert "official Vimeo URL" in response.text
 
 
 def test_deleting_designer_cascades_to_collections(client):

@@ -29,6 +29,7 @@ CSV_FIELDS = {
     "source_title",
     "source_notes",
     "youtube_video_id",
+    "vimeo_video_id",
 }
 REQUIRED_CSV_FIELDS = {
     "designer_name",
@@ -109,6 +110,7 @@ def normalized_row(connection, raw: dict[str, str]) -> dict:
         "description": cleaned.get("description") or None,
         "source_url": cleaned["source_url"],
         "youtube_video_id": cleaned.get("youtube_video_id") or None,
+        "vimeo_video_id": cleaned.get("vimeo_video_id") or None,
     }
     validated = CollectionCreate.model_validate(proposed)
     return {

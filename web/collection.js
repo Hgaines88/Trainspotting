@@ -94,6 +94,23 @@ async function loadCollection() {
             mediaSection.hidden = false;
         }
 
+        if (collection.vimeo_video_id) {
+            const videoContainer =
+                document.querySelector("#collection-video");
+            const iframe = document.createElement("iframe");
+
+            iframe.src =
+                `https://player.vimeo.com/video/${collection.vimeo_video_id}`;
+            iframe.title =
+                `${collection.label} ${collection.season} ` +
+                `${collection.release_year} Vimeo collection video`;
+            iframe.allow = "autoplay; fullscreen; picture-in-picture";
+            iframe.allowFullscreen = true;
+            videoContainer.append(iframe);
+            videoContainer.hidden = false;
+            mediaSection.hidden = false;
+        }
+
         if (collection.source_url) {
             const sourceLink = document.createElement("a");
 

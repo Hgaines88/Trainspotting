@@ -166,7 +166,7 @@ def build_plan(connection, payload: dict) -> dict:
                 continue
         matched_ids.add(current["id"])
         changes = {field: item.get(field) for field in COLLECTION_FIELDS if current[field] != item.get(field)}
-        desired_media = {k: item.get(v) for k, v in (("source", "source_url"), ("youtube", "youtube_video_id")) if item.get(v) is not None}
+        desired_media = {k: item.get(v) for k, v in (("source", "source_url"), ("youtube", "youtube_video_id"), ("vimeo", "vimeo_video_id")) if item.get(v) is not None}
         media = {r["media_type"]: r["media_value"] for r in _rows(connection, "SELECT media_type, media_value FROM collection_media WHERE collection_id = ?", (current["id"],))}
         credits = _rows(connection, "SELECT designers.full_name, collection_credits.credit_role AS role, collection_credits.credit_order AS position, collection_credits.attribution_note FROM collection_credits JOIN designers ON designers.id = collection_credits.designer_id WHERE collection_id = ? ORDER BY credit_order", (current["id"],))
         desired_credits = [{"full_name": next(d["full_name"] for d in payload["designers"] if d["key"] == c["designer_key"]), "role": c["role"], "position": c["position"], "attribution_note": c.get("attribution_note")} for c in canonical_credits(item)]
@@ -251,7 +251,7 @@ def apply_plan(connection, payload: dict, plan: dict) -> dict:
             else:
                 connection.execute("UPDATE collections SET designer_id = ?, label = ?, name = ?, season = ?, release_year = ?, status = ?, piece_count = ?, description = ? WHERE id = ?", (*values, collection_id))
             connection.execute("DELETE FROM collection_media WHERE collection_id = ?", (collection_id,))
-            media = [(collection_id, kind, item.get(field)) for kind, field in (("source", "source_url"), ("youtube", "youtube_video_id")) if item.get(field) is not None]
+            media = [(collection_id, kind, item.get(field)) for kind, field in (("source", "source_url"), ("youtube", "youtube_video_id"), ("vimeo", "vimeo_video_id")) if item.get(field) is not None]
             connection.executemany("INSERT INTO collection_media (collection_id, media_type, media_value) VALUES (?, ?, ?)", media)
             connection.execute("DELETE FROM collection_credits WHERE collection_id = ?", (collection_id,))
             connection.executemany("INSERT INTO collection_credits (collection_id, designer_id, credit_role, credit_order, attribution_note) VALUES (?, ?, ?, ?, ?)", [(collection_id, designer_ids[c["designer_key"]], c["role"], c["position"], c.get("attribution_note")) for c in canonical_credits(item)])

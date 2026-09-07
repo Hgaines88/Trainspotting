@@ -64,6 +64,8 @@ async function loadCollectionForEditing() {
 
         document.querySelector("#youtube-video").value =
             collection.youtube_video_id || "";
+        document.querySelector("#vimeo-video").value =
+            collection.vimeo_video_id || "";
 
         statusMessage.textContent = "";
     } catch (error) {
@@ -93,6 +95,8 @@ form.addEventListener("submit", async function (event) {
         source_url: formData.get("source_url") || null,
         youtube_video_id:
             formData.get("youtube_video_id") || null,
+        vimeo_video_id:
+            formData.get("vimeo_video_id") || null,
     };
 
     statusMessage.textContent = "Saving collection...";

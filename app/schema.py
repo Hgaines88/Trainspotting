@@ -214,7 +214,10 @@ collection_media = Table(
     ),
     Column("media_type", String(32), nullable=False),
     Column("media_value", Text, nullable=False),
-    CheckConstraint("media_type IN ('source', 'youtube')", name="valid_media_type"),
+    CheckConstraint(
+        "media_type IN ('source', 'youtube', 'vimeo')",
+        name="valid_media_type",
+    ),
     CheckConstraint("length(trim(media_value)) > 0", name="media_value_not_blank"),
     UniqueConstraint("collection_id", "media_type", name="uq_collection_media"),
 )

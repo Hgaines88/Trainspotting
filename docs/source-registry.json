@@ -113,13 +113,13 @@
       "review_owner": "Archive administrator"
     },
     "video-platform": {
-      "description": "YouTube video identifiers displayed through links or platform-supported embeds.",
-      "hosts": ["www.youtube.com", "youtu.be"],
+      "description": "YouTube and Vimeo video identifiers displayed through platform-supported embeds.",
+      "hosts": ["www.youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"],
       "attribution": "Identify the channel or rights holder where known and retain the platform video ID.",
       "access_method": "Human-selected video ID and platform-supported playback.",
-      "licensing_position": "Availability on YouTube does not authorize downloading, rehosting, or extracting audiovisual content.",
+      "licensing_position": "Availability on YouTube or Vimeo does not authorize downloading, rehosting, or extracting audiovisual content.",
       "reliability": "Useful audiovisual evidence; uploader identity, edits, and availability require review.",
-      "rate_limits": "No Data API use is approved. Future API access requires a reviewed Google project, quota, and current developer-policy compliance.",
+      "rate_limits": "No platform API use is approved. Future API access requires reviewed credentials, quotas, and current developer-policy compliance.",
       "automation_status": "embed-only",
       "retention": "Store only the video ID and related archive metadata.",
       "review_owner": "Archive administrator"

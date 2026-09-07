@@ -121,6 +121,7 @@ def collection_snapshot(connection, collection_id):
     }
     result["source_url"] = media.get("source")
     result["youtube_video_id"] = media.get("youtube")
+    result["vimeo_video_id"] = media.get("vimeo")
     return result
 
 
@@ -552,7 +553,7 @@ def write_collection(connection, record_id, values):
     connection.execute("DELETE FROM collection_media WHERE collection_id = ?", (record_id,))
     connection.executemany(
         "INSERT INTO collection_media (collection_id, media_type, media_value) VALUES (?, ?, ?)",
-        [(record_id, kind, value) for kind, value in (("source", payload.source_url), ("youtube", payload.youtube_video_id)) if value],
+        [(record_id, kind, value) for kind, value in (("source", payload.source_url), ("youtube", payload.youtube_video_id), ("vimeo", payload.vimeo_video_id)) if value],
     )
     return record_id
 

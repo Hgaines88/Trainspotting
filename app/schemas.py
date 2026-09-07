@@ -21,6 +21,28 @@ CollectionCreditRole = Literal[
 ]
 
 
+def normalize_vimeo_video_id(value: str | None) -> str | None:
+    if value is None:
+        return None
+    cleaned_value = value.strip()
+    if not cleaned_value:
+        return None
+
+    video_id = cleaned_value
+    if "://" in cleaned_value:
+        parsed = urlparse(cleaned_value)
+        hostname = (parsed.hostname or "").lower()
+        if hostname not in {"vimeo.com", "www.vimeo.com", "player.vimeo.com"}:
+            video_id = ""
+        else:
+            numeric_parts = [part for part in parsed.path.split("/") if part.isdigit()]
+            video_id = numeric_parts[-1] if numeric_parts else ""
+
+    if not re.fullmatch(r"[0-9]{6,12}", video_id):
+        raise ValueError("Enter an official Vimeo URL or numeric video ID")
+    return video_id
+
+
 class CollectionCredit(BaseModel):
     designer_id: int = Field(ge=1)
     role: CollectionCreditRole
@@ -80,6 +102,7 @@ class CollectionCreate(BaseModel):
     description: str | None = Field(default=None, max_length=10_000)
     source_url: str | None = Field(default=None, max_length=500)
     youtube_video_id: str | None = Field(default=None, max_length=200)
+    vimeo_video_id: str | None = Field(default=None, max_length=200)
     credits: list[CollectionCredit] | None = Field(default=None, max_length=20)
 
     @model_validator(mode="after")
@@ -179,3 +202,8 @@ class CollectionCreate(BaseModel):
             raise ValueError("Enter an official YouTube URL or 11-character video ID")
 
         return video_id
+
+    @field_validator("vimeo_video_id")
+    @classmethod
+    def normalize_vimeo_id(cls, value: str | None) -> str | None:
+        return normalize_vimeo_video_id(value)
