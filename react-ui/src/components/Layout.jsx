@@ -4,22 +4,31 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import UserSync from "./UserSync";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 export default function Layout() {
   const { appUser } = useApplicationUser();
+
+  function skipToContent(event) {
+    event.preventDefault();
+    const mainContent = document.getElementById("main-content");
+    mainContent?.focus();
+    mainContent?.scrollIntoView();
+  }
+
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content" onClick={skipToContent}>Skip to archive content</a>
       <header className="site-header">
         <Link className="brand" to="/">
           <span>TRAINSPOTTING</span>
           <small>FASHION HISTORY IN MOTION</small>
         </Link>
         <nav className="archive-navigation" aria-label="Public archive">
-          <Link to="/">Designers</Link>
-          <Link to="/collections">Collections</Link>
+          <NavLink end to="/">Designers</NavLink>
+          <NavLink to="/collections">Collections</NavLink>
         </nav>
         <div className="signal-stack">
           <div className="auth-controls" aria-label="Account controls">
@@ -57,7 +66,7 @@ export default function Layout() {
           LABEL → SEASON → IMAGE → MOVEMENT → MEMORY →
         </span>
       </div>
-      <main className="page">
+      <main className="page" id="main-content" tabIndex={-1}>
         <Outlet />
       </main>
       <footer className="site-footer">

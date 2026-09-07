@@ -79,6 +79,52 @@ test("homepage offers a self-guided path into collection discovery", async ({ pa
 });
 
 
+test("public shell exposes keyboard navigation and accessible status semantics", async ({ page }) => {
+  await page.route("**/api/designers**", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1_000));
+    await route.continue();
+  });
+  await page.goto("/");
+
+  const loadingStatus = page.locator('p.status[role="status"]').filter({ hasText: /^Searching the archive…$/ });
+  await expect(loadingStatus).toBeVisible();
+  const designersLink = page.getByRole("navigation", { name: "Public archive" }).getByRole("link", { name: "Designers" });
+  await expect(designersLink).toHaveAttribute("aria-current", "page");
+
+  await page.keyboard.press("Tab");
+  const skipLink = page.getByRole("link", { name: "Skip to archive content" });
+  await expect(skipLink).toBeFocused();
+  await page.keyboard.press("Enter");
+  const mainContent = page.locator("#main-content");
+  await expect(mainContent).toBeFocused();
+  await expect(mainContent).toHaveCSS("outline-style", "solid");
+
+  await page.getByLabel("Search the archive").fill("No such archive record");
+  await page.getByRole("button", { name: "Apply filters" }).click();
+  await expect(loadingStatus).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "No profiles match these filters." })).toBeVisible();
+
+  await page.goto("/collections");
+  await expect(page.getByRole("navigation", { name: "Public archive" }).getByRole("link", { name: "Collections" })).toHaveAttribute("aria-current", "page");
+});
+
+
+test("primary public pages remain usable without horizontal overflow on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  for (const path of ["/", "/collections", "/collections/1"]) {
+    await page.goto(path);
+    await expect(page.locator("#main-content")).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Public archive" })).toBeVisible();
+    const viewport = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(viewport.scrollWidth).toBeLessThanOrEqual(viewport.clientWidth);
+  }
+});
+
+
 test("public collection explorer preserves discovery filters in a shareable URL", async ({ page }) => {
   await page.goto("/collections");
 
