@@ -487,6 +487,7 @@ def test_collection_approval_promotes_media_in_same_transaction(client):
                 "status": "concept",
                 "source_url": "https://example.com/collection-source",
                 "youtube_video_id": "abcdefghijk",
+                "vimeo_video_id": "76979871",
             },
             "explanation": "Add this sourced collection.",
             "sources": [SOURCE],
@@ -515,6 +516,7 @@ def test_collection_approval_promotes_media_in_same_transaction(client):
     assert media == {
         "source": "https://example.com/collection-source",
         "youtube": "abcdefghijk",
+        "vimeo": "76979871",
     }
     provenance = client.get(f"/collections/{record_id}").json()["provenance"]
     assert [source["url"] for source in provenance["sources"]] == [

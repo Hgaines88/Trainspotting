@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
-from app.schemas import CollectionStatus
+from app.schemas import CollectionStatus, normalize_vimeo_video_id
 from app.recommendations import EDITORIAL_FACETS
 from app.url_safety import normalize_public_http_url
 
@@ -66,6 +66,7 @@ class CollectionProposal(SubmissionModel):
     description: str | None = Field(default=None, max_length=10_000)
     source_url: str | None = Field(default=None, max_length=500)
     youtube_video_id: str | None = Field(default=None, max_length=200)
+    vimeo_video_id: str | None = Field(default=None, max_length=200)
 
     @field_validator("label", "season")
     @classmethod
@@ -83,6 +84,11 @@ class CollectionProposal(SubmissionModel):
     @classmethod
     def source_url_must_be_http(cls, value: str | None) -> str | None:
         return normalize_optional_http_url(value, "Source URL")
+
+    @field_validator("vimeo_video_id")
+    @classmethod
+    def normalize_vimeo_id(cls, value: str | None) -> str | None:
+        return normalize_vimeo_video_id(value)
 
 
 class SubmissionDraftBase(SubmissionModel):

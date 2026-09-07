@@ -17,8 +17,10 @@ approving any new automated access or content reuse.
 - Canonical records retain citation URLs, source titles where available, and
   reviewed community evidence.
 - Curated CSV ingestion accepts supplied URLs but does not fetch them.
-- Trainspotting stores YouTube identifiers for platform-supported playback; it
-  does not download or rehost video.
+- Trainspotting stores YouTube and Vimeo identifiers for platform-supported
+  playback; it does not download or rehost video. Full shows are preferred,
+  with exact official collection films, campaigns, highlights, or
+  behind-the-scenes footage accepted when they add verified visual context.
 - Trainspotting does not currently scrape, crawl, mirror, or call a third-party
   content API.
 - Third-party still images and long excerpts remain excluded. The accepted
@@ -73,6 +75,8 @@ integration:
 - [Condé Nast user agreement](https://www.condenast.com/user-agreement)
 - [YouTube Terms of Service](https://www.youtube.com/static?template=terms)
 - [YouTube API Services Terms](https://developers.google.com/youtube/terms/api-services-terms-of-service)
+- [Vimeo Terms of Service](https://vimeo.com/terms)
+- [Vimeo Developer Guidelines](https://developer.vimeo.com/guidelines)
 - [Wikimedia Foundation Terms of Use](https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use)
 - [Creative Commons license overview](https://creativecommons.org/share-your-work/cclicenses/)
 - [The Met Terms and Conditions](https://www.metmuseum.org/policies/terms-and-conditions)

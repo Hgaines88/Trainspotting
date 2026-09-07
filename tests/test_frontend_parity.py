@@ -47,6 +47,7 @@ def test_collection_forms_expose_the_same_fields_and_statuses():
         "description",
         "source_url",
         "youtube_video_id",
+        "vimeo_video_id",
     }
     expected_statuses = {
         "concept",

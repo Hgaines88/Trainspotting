@@ -132,7 +132,7 @@ CREATE TABLE collection_media (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     collection_id INTEGER NOT NULL,
     media_type TEXT NOT NULL
-        CHECK (media_type IN ('source', 'youtube')),
+        CHECK (media_type IN ('source', 'youtube', 'vimeo')),
     media_value TEXT NOT NULL
         CHECK (length(trim(media_value)) > 0),
 

@@ -23,6 +23,7 @@ const FIELD_LIMITS = {
   description: 10_000,
   source_url: 500,
   youtube_video_id: 200,
+  vimeo_video_id: 200,
 };
 
 export function startedSources(sources) {

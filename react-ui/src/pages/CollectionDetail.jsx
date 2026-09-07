@@ -69,15 +69,25 @@ export default function CollectionDetail() {
         {collection.descriptors.length === 0 ? <p className="meta">This collection has not been manually enriched yet.</p> : <dl className="details">{collection.descriptors.map((descriptor) => <div key={`${descriptor.category}-${descriptor.canonical_value}`}><dt>{descriptor.category}</dt><dd><strong>{descriptor.canonical_value}</strong> · {descriptor.strength}<small>{descriptor.evidence_note}</small>{descriptor.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.title || "Supporting source"} ↗</a>)}</dd></div>)}</dl>}
       </section>
 
-      {collection.youtube_video_id && (
+      {(collection.youtube_video_id || collection.vimeo_video_id) && (
         <section className="section media-section">
-          <h2>Runway media</h2>
+          <h2>Collection media</h2>
           {collection.youtube_video_id && (
             <div className="video-frame">
               <iframe
                 src={`https://www.youtube.com/embed/${collection.youtube_video_id}`}
                 title={`${collection.label} ${collection.season} ${collection.release_year} runway video`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          )}
+          {collection.vimeo_video_id && (
+            <div className="video-frame">
+              <iframe
+                src={`https://player.vimeo.com/video/${collection.vimeo_video_id}`}
+                title={`${collection.label} ${collection.season} ${collection.release_year} Vimeo collection video`}
+                allow="autoplay; fullscreen; picture-in-picture"
                 allowFullScreen
               />
             </div>

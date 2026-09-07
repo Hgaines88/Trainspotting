@@ -22,6 +22,7 @@ const collectionFields = [
   ["release_year", "Release year", "number"],
   ["piece_count", "Piece count", "number"], ["description", "Description", "textarea"],
   ["source_url", "Curated source URL", "url"], ["youtube_video_id", "YouTube URL or video ID"],
+  ["vimeo_video_id", "Vimeo URL or video ID"],
 ];
 const requiredCanonicalFields = {
   designer: new Set(["full_name"]),
