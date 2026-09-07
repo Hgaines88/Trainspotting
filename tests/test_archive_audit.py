@@ -14,19 +14,19 @@ def canonical_payload():
 
 
 def test_canonical_audit_is_deterministic_and_separates_optional_absence():
-    report = audit_archive(canonical_payload())
+    payload = canonical_payload()
+    report = audit_archive(payload)
 
-    assert report == audit_archive(canonical_payload())
-    assert report["counts"]["designers"] == 60
-    assert report["counts"]["collections"] == 442
+    assert report == audit_archive(payload)
+    assert report["counts"]["designers"] == len(payload["designers"])
+    assert report["counts"]["collections"] == len(payload["collections"])
     assert report["counts"]["errors"] == 0
     assert report["counts"]["findings"] == (
         report["counts"]["warnings"] + report["counts"]["review"]
     )
     assert report["optional_missing"] == {
-        "name": 211,
-        "piece_count": 409,
-        "youtube_video_id": 384,
+        field: sum(item.get(field) in (None, "") for item in payload["collections"])
+        for field in ("name", "piece_count", "youtube_video_id")
     }
 
 
