@@ -1,0 +1,5 @@
+designer_name,label,name,season,release_year,status,piece_count,description,source_url,source_title,source_notes,youtube_video_id
+Tyler Okonma,Golf le Fleur,Season 2,Spring/Summer,2022,released,,A pastel travel wardrobe extending Tyler Okonma's preppy design language.,https://www.gq.com/story/tyler-the-creator-golf-le-fleur-interview,GQ profile,Requires editorial review before canonical promotion,
+Imaginary Demo Designer,Imaginary Label,Unverified Collection,Spring/Summer,2024,released,,This deliberately invalid row demonstrates unknown-entity handling.,https://example.com/invalid-demo-record,Deliberately invalid demo source,Demo-only ingestion fixture,
+Tyler Okonma,Louis Vuitton,Spring 2024 Men's Capsule,Spring,2024,released,17,A standalone capsule translating Tyler's preppy Golf vocabulary into Louis Vuitton's travel and Damier codes.,https://www.lvmh.com/en/news-lvmh/louis-vuitton-and-pharrell-williams-tap-tyler-the-creator-for-spring-2024-mens-capsule-collection/,LVMH announcement,Deliberate duplicate of the promoted narrative anchor,
+
