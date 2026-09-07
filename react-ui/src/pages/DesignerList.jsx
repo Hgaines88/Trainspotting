@@ -5,6 +5,7 @@ import { collectionCreditLine } from "../collectionAttribution";
 import StatusMessage from "../components/StatusMessage";
 import { nationalityFlags } from "../nationalityFlags";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
+import CollectionCover from "../components/CollectionCover";
 
 const EMPTY_PAGINATION = { page: 1, page_size: 12, total: 0, total_pages: 0 };
 const FILTER_NAMES = ["search", "nationality", "label", "season", "year", "status"];
@@ -109,7 +110,7 @@ export default function DesignerList() {
         {recentCollections.length > 0 && <div className="recent-collections">
           <p className="eyebrow">Recent archive arrivals</p>
           <ol className="collection-list">
-            {recentCollections.map((collection, index) => <li key={collection.id}><Link to={`/collections/${collection.id}`}><i>{String(index + 1).padStart(2, "0")}</i><strong>{collection.name || collection.label}</strong><span>{collectionCreditLine(collection)} · {collection.season} {collection.release_year}</span></Link></li>)}
+            {recentCollections.map((collection, index) => <li key={collection.id}><Link to={`/collections/${collection.id}`}><CollectionCover collection={collection} index={index + 1} compact /><span className="collection-list-copy"><strong>{collection.name || collection.label}</strong><span>{collectionCreditLine(collection)} · {collection.season} {collection.release_year}</span></span></Link></li>)}
           </ol>
           <p className="discovery-hint">Open a collection to follow its explainable related-collection trail.</p>
         </div>}

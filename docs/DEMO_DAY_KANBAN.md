@@ -247,6 +247,23 @@ rendering any new third-party image and all schema, API, or UI changes.
 **Done when:** an accepted decision record defines permitted media paths,
 prohibited shortcuts, operational safeguards, and a clear go/no-go result.
 
+### DEMO-X13 — Metadata-generated collection covers
+
+**Priority:** P1 · **Size:** S · **Dependency:** DEMO-X11
+
+- Give every collection a deterministic editorial cover derived from stable,
+  existing public metadata.
+- Reuse one accessible presentation across collection discovery, recent archive
+  arrivals, designer profiles, and related recommendations.
+- Preserve useful fallbacks for sparse records without implying the presence of
+  photographs, logos, or visual evidence that the archive does not possess.
+- Keep external images, storage, schema changes, and YouTube-player changes out
+  of this slice.
+
+**Done when:** every public collection-browse surface has a consistent visual
+fallback, the same record retains the same treatment, and responsive frontend
+verification passes.
+
 ### DEMO-REL-01 — Feature freeze and release candidate
 
 **Priority:** P0 · **Size:** M · **Dependencies:** DEMO-01 through DEMO-06  

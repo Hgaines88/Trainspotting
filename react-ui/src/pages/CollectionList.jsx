@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { apiRequest } from "../api";
 import { collectionCreditLine } from "../collectionAttribution";
 import StatusMessage from "../components/StatusMessage";
+import CollectionCover from "../components/CollectionCover";
 
 const EMPTY_PAGINATION = { page: 1, page_size: 12, total: 0, total_pages: 0 };
 const FILTER_NAMES = ["search", "nationality", "label", "season", "year", "status"];
@@ -93,7 +94,7 @@ export default function CollectionList() {
       {!loading && !error && collections.length > 0 && <ol className="collection-explorer-results">
         {collections.map((collection, index) => {
           const resultNumber = (pagination.page - 1) * pagination.page_size + index + 1;
-          return <li key={collection.id}><Link to={`/collections/${collection.id}`}><span className="collection-result-index">{String(resultNumber).padStart(3, "0")}</span><span className="collection-result-title"><strong>{collection.name || `${collection.season} ${collection.release_year}`}</strong><small>{collection.label}</small></span><span className="collection-result-credit">{collectionCreditLine(collection)}</span><span className="collection-result-meta">{collection.season} {collection.release_year}<small>{collection.status}</small></span><span aria-hidden="true">↗</span></Link></li>;
+          return <li key={collection.id}><Link to={`/collections/${collection.id}`}><CollectionCover collection={collection} index={resultNumber} /><span className="collection-result-title"><strong>{collection.name || `${collection.season} ${collection.release_year}`}</strong><small>{collection.label}</small></span><span className="collection-result-credit">{collectionCreditLine(collection)}</span><span className="collection-result-meta">{collection.season} {collection.release_year}<small>{collection.status}</small></span><span aria-hidden="true">↗</span></Link></li>;
         })}
       </ol>}
       {!loading && !error && pagination.total_pages > 1 && <nav className="pagination" aria-label="Collection result pages"><button className="secondary" type="button" disabled={pagination.page === 1} onClick={() => movePage(pagination.page - 1)}>Previous</button><span>Page {pagination.page} of {pagination.total_pages} · {pagination.total} collections</span><button className="secondary" type="button" disabled={pagination.page === pagination.total_pages} onClick={() => movePage(pagination.page + 1)}>Next</button></nav>}

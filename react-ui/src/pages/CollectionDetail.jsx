@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
+import CollectionCover from "../components/CollectionCover";
 
 function labelMonogram(label) {
   return label.split(/\s+/).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
@@ -104,7 +105,7 @@ export default function CollectionDetail() {
             {related.map((item, index) => (
               <li key={item.id}>
                 <Link to={`/collections/${item.id}`}>
-                  <span className="related-rank">{String(index + 1).padStart(2, "0")}</span>
+                  <CollectionCover collection={item} index={index + 1} compact />
                   <span className="related-record">
                     <strong>{item.name || `${item.season} ${item.release_year}`}</strong>
                     <small>{item.label} · {item.season} {item.release_year}</small>

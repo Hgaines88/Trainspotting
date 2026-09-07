@@ -4,6 +4,7 @@ import { apiRequest } from "../api";
 import StatusMessage from "../components/StatusMessage";
 import { nationalityFlags } from "../nationalityFlags";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
+import CollectionCover from "../components/CollectionCover";
 
 export default function DesignerDetail() {
   const { designerId } = useParams();
@@ -55,7 +56,7 @@ export default function DesignerDetail() {
         {collections.length === 0 ? <p>No collections have been added.</p> : (
           <ul className="collection-list">
             {collections.map((collection, index) => (
-              <li key={collection.id}><Link to={`/collections/${collection.id}`}><i>{String(index + 1).padStart(2, "0")}</i><strong>{collection.name || collection.label}</strong><span>{collection.name ? `${collection.label} · ${collection.season} ${collection.release_year}` : `${collection.season} ${collection.release_year}`}</span></Link></li>
+              <li key={collection.id}><Link to={`/collections/${collection.id}`}><CollectionCover collection={collection} index={index + 1} compact /><span className="collection-list-copy"><strong>{collection.name || collection.label}</strong><span>{collection.name ? `${collection.label} · ${collection.season} ${collection.release_year}` : `${collection.season} ${collection.release_year}`}</span></span></Link></li>
             ))}
           </ul>
         )}
