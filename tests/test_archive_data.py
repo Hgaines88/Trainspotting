@@ -70,8 +70,14 @@ def test_canonical_aliases_round_trip_with_sources(tmp_path):
     }]
 
 
-def test_demo_alias_enrichment_is_sourced_and_keeps_display_names():
-    payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
+def test_demo_alias_enrichment_is_sourced_and_keeps_display_names(tmp_path):
+    database = tmp_path / "demo-aliases.db"
+    exported = tmp_path / "demo-aliases.json"
+
+    import_archive(database, ARCHIVE, replace=True)
+    export_archive(database, exported)
+
+    payload = json.loads(exported.read_text(encoding="utf-8"))
     designers = {
         designer["key"]: designer for designer in payload["designers"]
     }
