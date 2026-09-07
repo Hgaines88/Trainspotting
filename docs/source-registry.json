@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "last_reviewed": "2026-09-06",
+  "policy_owner": "Trainspotting archive administrator",
+  "categories": {
+    "rights-holder": {
+      "description": "Official designer, label, collaborator, or corporate pages.",
+      "hosts": [
+        "about.puma.com",
+        "corporate.aboutyou.de",
+        "walesbonner.com",
+        "www.about.puma.com",
+        "www.adidas-group.com",
+        "www.balenciaga.com",
+        "www.bbcicecream.com",
+        "www.dior.com",
+        "www.driesvannoten.com",
+        "www.gapinc.com",
+        "www.gucci.com",
+        "www.isseymiyake.com",
+        "www.loewe.com",
+        "www.mariebliss.studio",
+        "www.miumiu.com",
+        "www.rickowens.eu",
+        "www.viviennewestwood.com"
+      ],
+      "attribution": "Link to the specific official page and identify the organization or creator.",
+      "access_method": "Human-reviewed public webpage citation.",
+      "licensing_position": "A public page supports citation only; it does not grant permission to copy text, images, video, or structured data.",
+      "reliability": "Primary for the rights holder's own credits and announcements; potentially promotional and not automatically independent.",
+      "rate_limits": "Not evaluated for automation. Respect published robots, API, and terms requirements before any machine access.",
+      "automation_status": "manual-only",
+      "retention": "Store the URL and short original archive summary; do not mirror page content or media.",
+      "review_owner": "Archive administrator"
+    },
+    "cultural-institution": {
+      "description": "Museum, gallery, and public cultural-heritage sources.",
+      "hosts": [
+        "museeyslparis.com",
+        "nga.gov.au",
+        "www.cristobalbalenciagamuseoa.com",
+        "www.guggenheim.org",
+        "www.metmuseum.org",
+        "www.moma.org",
+        "www.momu.be",
+        "www.vam.ac.uk"
+      ],
+      "attribution": "Name the institution and link to the object, exhibition, or research page.",
+      "access_method": "Human-reviewed public collection or research page citation.",
+      "licensing_position": "Institutional access and open-access policies vary by object and asset; verify the item-level rights statement before reuse.",
+      "reliability": "Strong for catalog records and institutional research; dates and attributions can still be revised.",
+      "rate_limits": "No automated access is approved. A documented API and its current terms are required first.",
+      "automation_status": "manual-only",
+      "retention": "Store citation metadata only unless an item-specific license authorizes additional material.",
+      "review_owner": "Archive administrator"
+    },
+    "editorial-publication": {
+      "description": "Established fashion, culture, business, and news publications.",
+      "hosts": [
+        "compute.vogue.com",
+        "hypebeast.com",
+        "pausemag.co.uk",
+        "time.com",
+        "www.dazeddigital.com",
+        "www.lofficielusa.com",
+        "www.lsnglobal.com",
+        "www.refinery29.com",
+        "www.showstudio.com",
+        "www.ssense.com",
+        "www.vogue.co.uk",
+        "www.vogue.com",
+        "www.vogue.in",
+        "www.vogue.it",
+        "www.wmagazine.com"
+      ],
+      "attribution": "Name the publication, preserve the article or show-page URL, and write an original concise summary.",
+      "access_method": "Human-reviewed public webpage citation; no paywall circumvention.",
+      "licensing_position": "Copyright remains with the publication or its licensors. Citation does not authorize copying editorial text, photography, or datasets.",
+      "reliability": "Useful secondary reporting and runway documentation; corroborate disputed or consequential claims.",
+      "rate_limits": "Automation is prohibited until written terms, robots directives, and any licensed API limits are reviewed.",
+      "automation_status": "manual-only",
+      "retention": "Store URL, title, notes, and original archive facts; do not reproduce articles or images.",
+      "review_owner": "Archive administrator"
+    },
+    "independent-research": {
+      "description": "Independent fashion research, criticism, and specialist project pages.",
+      "hosts": [
+        "dismagazine.com",
+        "markingdistance.com",
+        "relatedgarments.com",
+        "viacomit.net",
+        "www.articlesofclothing.com"
+      ],
+      "attribution": "Identify the author or project where available and retain the exact page URL.",
+      "access_method": "Human-reviewed public webpage citation.",
+      "licensing_position": "Assume ordinary copyright unless the page provides a specific reusable license.",
+      "reliability": "Potentially valuable specialist interpretation; corroborate identity, dates, and formal credits with primary or institutional evidence.",
+      "rate_limits": "No automated access is approved.",
+      "automation_status": "manual-only",
+      "retention": "Store citation metadata and original archive summaries only.",
+      "review_owner": "Archive administrator"
+    },
+    "general-reference": {
+      "description": "General collaborative reference used for narrow identity disambiguation.",
+      "hosts": ["en.wikipedia.org"],
+      "attribution": "Link the exact article and prefer its underlying citations for important claims.",
+      "access_method": "Human-reviewed public article citation.",
+      "licensing_position": "Reuse depends on the page's stated Creative Commons terms and attribution requirements; Trainspotting currently links rather than republishes.",
+      "reliability": "Tertiary and editable; acceptable as supporting evidence, not the sole authority for contested claims.",
+      "rate_limits": "No automated import is approved; any future use must follow Wikimedia API etiquette and current terms.",
+      "automation_status": "manual-only",
+      "retention": "Store the URL and independently written archive metadata only.",
+      "review_owner": "Archive administrator"
+    },
+    "video-platform": {
+      "description": "YouTube video identifiers displayed through links or platform-supported embeds.",
+      "hosts": ["www.youtube.com", "youtu.be"],
+      "attribution": "Identify the channel or rights holder where known and retain the platform video ID.",
+      "access_method": "Human-selected video ID and platform-supported playback.",
+      "licensing_position": "Availability on YouTube does not authorize downloading, rehosting, or extracting audiovisual content.",
+      "reliability": "Useful audiovisual evidence; uploader identity, edits, and availability require review.",
+      "rate_limits": "No Data API use is approved. Future API access requires a reviewed Google project, quota, and current developer-policy compliance.",
+      "automation_status": "embed-only",
+      "retention": "Store only the video ID and related archive metadata.",
+      "review_owner": "Archive administrator"
+    },
+    "community-evidence": {
+      "description": "HTTP(S) evidence proposed by authenticated Trainspotting members.",
+      "hosts": [],
+      "attribution": "Preserve the submitted URL, optional title and notes, submitter, reviewer, and decision history.",
+      "access_method": "Authenticated submission followed by moderator or administrator review.",
+      "licensing_position": "A submitted URL is evidence, not a license. Reviewers must reject copied material or unsafe reuse claims.",
+      "reliability": "Unknown until reviewed; approval records the decision but does not convert the source into an unquestionable authority.",
+      "rate_limits": "Submission APIs are rate limited. Trainspotting does not fetch or crawl submitted URLs automatically.",
+      "automation_status": "review-gated",
+      "retention": "Retain source metadata and append-only review history according to the moderation and backup policy.",
+      "review_owner": "Moderator for review; administrator for canonical promotion and rollback"
+    }
+  }
+}

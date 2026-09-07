@@ -6,6 +6,11 @@ retains the original rows, normalizes and validates supported fields, detects
 reruns using deterministic SHA-256 fingerprints, and creates ordinary audited
 submissions. It never inserts or updates canonical archive records.
 
+All source URLs remain subject to the
+[`SOURCE_REGISTRY_AND_LICENSING.md`](SOURCE_REGISTRY_AND_LICENSING.md) policy.
+Supplying or approving a citation never grants permission to scrape, copy, or
+redistribute the source's text or media.
+
 ## CSV contract
 
 The input must contain these columns:
