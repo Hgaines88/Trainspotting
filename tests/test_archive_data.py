@@ -70,6 +70,43 @@ def test_canonical_aliases_round_trip_with_sources(tmp_path):
     }]
 
 
+def test_demo_alias_enrichment_is_sourced_and_keeps_display_names():
+    payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
+    designers = {
+        designer["key"]: designer for designer in payload["designers"]
+    }
+    expected = {
+        "cristobal-balenciaga": (
+            "Cristóbal Balenciaga",
+            "Cristóbal Balenciaga Eizaguirre",
+        ),
+        "john-galliano": (
+            "John Galliano",
+            "Juan Carlos Antonio Galliano-Guillén",
+        ),
+        "lee-alexander-mcqueen": (
+            "Lee Alexander McQueen",
+            "Alexander McQueen",
+        ),
+        "thierry-mugler": (
+            "Thierry Mugler",
+            "Manfred Thierry Mugler",
+        ),
+        "yves-saint-laurent": (
+            "Yves Saint Laurent",
+            "Yves Henri Donat Mathieu-Saint-Laurent",
+        ),
+    }
+
+    for key, (display_name, alias) in expected.items():
+        designer = designers[key]
+        assert designer["full_name"] == display_name
+        assert [item["alias"] for item in designer["aliases"]] == [alias]
+        assert designer["aliases"][0]["source_url"].startswith(
+            "https://en.wikipedia.org/wiki/"
+        )
+
+
 def test_demo_collaborations_have_ordered_credits_and_sources():
     payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
     collections = {collection["key"]: collection for collection in payload["collections"]}

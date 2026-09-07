@@ -47,7 +47,14 @@
       "nationality": "Spanish",
       "birth_year": 1895,
       "website": "https://www.cristobalbalenciagamuseoa.com",
-      "biography": "Spanish couturier Cristóbal Balenciaga opened his first house in San Sebastián before establishing his Paris maison in 1937. Celebrated for technical mastery, architectural cutting, and an exact understanding of fabric, he progressively released the body through tunic, sack, baby-doll, and other abstract silhouettes that reshaped twentieth-century couture."
+      "biography": "Spanish couturier Cristóbal Balenciaga opened his first house in San Sebastián before establishing his Paris maison in 1937. Celebrated for technical mastery, architectural cutting, and an exact understanding of fabric, he progressively released the body through tunic, sack, baby-doll, and other abstract silhouettes that reshaped twentieth-century couture.",
+      "aliases": [
+        {
+          "alias": "Cristóbal Balenciaga Eizaguirre",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Crist%C3%B3bal_Balenciaga"
+        }
+      ]
     },
     {
       "key": "dao-yi-chow",
@@ -182,7 +189,14 @@
       "nationality": "British",
       "birth_year": 1960,
       "website": null,
-      "biography": "British fashion designer born in Gibraltar whose career includes his namesake label and creative leadership at Givenchy, Christian Dior, and Maison Margiela. His work is known for narrative-driven collections, historical research, technical cutting, and theatrical presentation."
+      "biography": "British fashion designer born in Gibraltar whose career includes his namesake label and creative leadership at Givenchy, Christian Dior, and Maison Margiela. His work is known for narrative-driven collections, historical research, technical cutting, and theatrical presentation.",
+      "aliases": [
+        {
+          "alias": "Juan Carlos Antonio Galliano-Guillén",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/John_Galliano"
+        }
+      ]
     },
     {
       "key": "jonathan-anderson",
@@ -230,7 +244,14 @@
       "nationality": "British",
       "birth_year": null,
       "website": "https://www.alexandermcqueen.com",
-      "biography": "Founder of the McQueen house, known for innovative tailoring and theatrical presentations."
+      "biography": "Founder of the McQueen house, known for innovative tailoring and theatrical presentations.",
+      "aliases": [
+        {
+          "alias": "Alexander McQueen",
+          "alias_type": "alternate-name",
+          "source_url": "https://en.wikipedia.org/wiki/Alexander_McQueen"
+        }
+      ]
     },
     {
       "key": "luka-sabbat",
@@ -421,7 +442,14 @@
       "nationality": "French",
       "birth_year": 1948,
       "website": "https://fashion.mugler.com",
-      "biography": "French designer Manfred Thierry Mugler founded his label in the 1970s and developed an unmistakable vocabulary of aerodynamic tailoring, corseted bodies, theatrical glamour, and science-fiction fantasy. His spectacular runway productions joined fashion, performance, celebrity, and image-making while celebrating transformation through exaggerated silhouette."
+      "biography": "French designer Manfred Thierry Mugler founded his label in the 1970s and developed an unmistakable vocabulary of aerodynamic tailoring, corseted bodies, theatrical glamour, and science-fiction fantasy. His spectacular runway productions joined fashion, performance, celebrity, and image-making while celebrating transformation through exaggerated silhouette.",
+      "aliases": [
+        {
+          "alias": "Manfred Thierry Mugler",
+          "alias_type": "alternate-name",
+          "source_url": "https://en.wikipedia.org/wiki/Thierry_Mugler"
+        }
+      ]
     },
     {
       "key": "thom-browne",
@@ -493,7 +521,14 @@
       "nationality": "French",
       "birth_year": 1936,
       "website": "https://www.ysl.com",
-      "biography": "French couturier Yves Saint Laurent succeeded Christian Dior at age 21 before founding his own house with Pierre Bergé in 1961. He transformed twentieth-century dress through the tuxedo, safari jacket, transparent blouse, trouser suit, and references spanning modern art and global cultural history. His Rive Gauche line made designer ready-to-wear central to modern fashion."
+      "biography": "French couturier Yves Saint Laurent succeeded Christian Dior at age 21 before founding his own house with Pierre Bergé in 1961. He transformed twentieth-century dress through the tuxedo, safari jacket, transparent blouse, trouser suit, and references spanning modern art and global cultural history. His Rive Gauche line made designer ready-to-wear central to modern fashion.",
+      "aliases": [
+        {
+          "alias": "Yves Henri Donat Mathieu-Saint-Laurent",
+          "alias_type": "legal-name",
+          "source_url": "https://en.wikipedia.org/wiki/Yves_Saint_Laurent_(designer)"
+        }
+      ]
     }
   ],
   "collections": [
