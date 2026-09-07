@@ -158,6 +158,84 @@ docker compose exec api python -m scripts.ingest_collections \
 Expected result: three input rows, one valid, one invalid, one duplicate,
 `dry_run: true`, `batch_id: null`, and `submissions_created: 0`.
 
+## Build the isolated narrative-demo environment
+
+Issue DEMO-X14 uses a separate Compose project, MySQL database, ports, and
+volume. Its constructed users and workflow history never enter the ordinary
+local database or Railway. The authentic narrative anchor is Louis Vuitton's
+Spring 2024 men's capsule by Tyler, The Creator, developed within Pharrell
+Williams's menswear direction.
+
+Stop the ordinary local stack first, then build the disposable environment:
+
+```bash
+docker compose down
+docker compose -f compose.yaml -f compose.demo.yaml up -d --build
+docker compose -f compose.yaml -f compose.demo.yaml ps
+```
+
+The merged configuration uses project name `trainspotting-demo-x14`, database
+`trainspotting_demo`, MySQL port `3308`, API port `8001`, web port `5174`, and a
+dedicated `trainspotting_demo_x14_mysql_data` volume. If any displayed value
+differs, stop and inspect the Compose configuration before continuing.
+
+Load the reviewed canonical baseline, then populate the narrative fixtures:
+
+```bash
+export TRAINSPOTTING_DEMO_ADMIN_ID='your-existing-Clerk-user-ID'
+docker compose -f compose.yaml -f compose.demo.yaml exec -T api \
+  python -m scripts.sync_canonical_mysql --apply
+docker compose -f compose.yaml -f compose.demo.yaml exec -T api \
+  python -m scripts.demo_workflow setup \
+  --admin-clerk-user-id "$TRAINSPOTTING_DEMO_ADMIN_ID"
+docker compose -f compose.yaml -f compose.demo.yaml exec -T api \
+  python -m scripts.demo_workflow status
+unset TRAINSPOTTING_DEMO_ADMIN_ID
+```
+
+The fixture command requires both the exact local database name and the guard
+set inside `compose.demo.yaml`. It refuses SQLite, Railway private hosts, the
+ordinary `trainspotting` database, and any missing guard. Running `setup` again
+must report `already-configured` with the same designer, collection, batch, and
+submission IDs.
+
+Open <http://localhost:5174>. The fictional `.invalid` identities exist only as
+credible member and moderator actors in audit history; they are not login
+credentials. Sign in with the Clerk account whose immutable ID was passed to
+`setup`; that account is the administrator for this isolated database. The ID
+is runtime configuration, not a password, but it must remain outside Git and
+screenshots. The command never needs a Clerk secret or session token.
+
+The narrative demonstrates:
+
+1. Tyler Okonma proposed and approved as a designer, with “Tyler, The Creator”
+   retained as a sourced alias.
+2. The Louis Vuitton Spring 2024 men's capsule proposed, reviewed, promoted,
+   and credited to Tyler as lead with Pharrell as collaborator.
+3. Draft, submitted, changes-requested, rejected, approved, and rolled-back
+   records with chronological audit events and credible reviewer notes.
+4. Approved, pending, changes-requested, rejected, and rolled-back editorial
+   enrichment suggestions; only the approved `sportswear` descriptor remains.
+5. The same ingestion file first classifying rows as valid, invalid, and
+   duplicate in dry-run mode, then creating one requiring-review submission in
+   apply mode without duplicating the canonical anchor.
+
+### Reset only the narrative-demo data
+
+After rehearsal, remove the isolated containers and their dedicated volume:
+
+```bash
+docker compose -f compose.yaml -f compose.demo.yaml down --volumes
+```
+
+Before confirming, verify the command reports project
+`trainspotting-demo-x14` and volume
+`trainspotting-demo-x14_trainspotting_demo_x14_mysql_data`. Never add
+`--volumes` to the ordinary `docker compose down` command. Rebuilding the
+narrative environment from the preceding steps produces a clean deterministic
+story while the ordinary `trainspotting_trainspotting_mysql_data` volume and
+Railway remain untouched.
+
 ## What Railway does
 
 Railway is the hosted staging environment. It proves that the application can
@@ -256,9 +334,27 @@ In the `staging` environment, open each service's **Deployments** tab. For the
 active `web`, `api`, and MySQL deployments, use the three-dot menu and choose
 **Remove**. This stops compute while preserving each service configuration.
 
-For `mysql-backup`, confirm no run is active and temporarily remove its cron
-schedule if no scheduled backups should run. Do not delete a service, detach or
-delete `mysql-volume`, delete the environment, or delete the project.
+Suspend `mysql-backup` separately and in this order:
+
+1. Open `mysql-backup` -> **Settings** -> **Source** and disable automatic
+   deployments. This prevents an ordinary push to `main` from launching the
+   backup container while MySQL is suspended.
+2. Confirm no backup execution is currently active.
+3. Remove `0 6 * * *` from **Settings** -> **Cron Schedule** and apply the
+   change.
+4. Removing the schedule converts the cron job back into a regular service and
+   may immediately create one configuration deployment. This is expected; it
+   does **not** mean the old cron schedule fired again.
+5. Open `mysql-backup` -> **Deployments**. From the three-dot menu on the new
+   active or crashed deployment, choose **Remove**. Do not choose **Redeploy**
+   and do not delete the `mysql-backup` service.
+6. Confirm the service tile is offline or has no active deployment and that no
+   next-run time is displayed.
+
+Do not delete a service, disconnect its source, remove its variables, detach or
+delete `mysql-volume`, delete the environment, or delete the project. A
+`Crashed` backup deployment is no longer executing, but removing it makes the
+intended suspended state unambiguous.
 
 The persistent volume may continue to incur a small storage charge even while
 compute is stopped.
@@ -269,8 +365,29 @@ compute is stopped.
 2. Redeploy the API and confirm its pre-deploy migration and `/ready` health
    check pass.
 3. Redeploy the web service and open its public HTTPS domain.
-4. Restore the backup cron schedule if scheduled protection is desired.
-5. Copy the current public web domain from Railway into a temporary shell
+4. Reconfigure `mysql-backup` only after MySQL is online:
+   - leave GitHub automatic deployments disabled unless the backup image itself
+     must be updated;
+   - confirm the source is the Trainspotting `main` branch, the builder is
+     `DOCKERFILE`, and the Dockerfile path is `/Dockerfile.backup`;
+   - confirm all eight variable **names** are present without revealing or
+     replacing their values: `DATABASE_URL`, `MYSQL_BACKUP_ENCRYPTION_KEY`,
+     `BACKUP_S3_ENDPOINT`, `BACKUP_S3_ACCESS_KEY_ID`,
+     `BACKUP_S3_SECRET_ACCESS_KEY`, `BACKUP_S3_BUCKET`, `BACKUP_S3_PREFIX`, and
+     `BACKUP_S3_REGION`;
+   - confirm `DATABASE_URL` is still a Railway reference to MySQL's private
+     `MYSQL_URL`, not a copied public address;
+   - set **Cron Schedule** to `0 6 * * *` (06:00 UTC daily) and apply the
+     change. Enter the expression exactly, without quotes or backslashes;
+   - keep the service private: no public domain, TCP proxy, volume, or
+     healthcheck;
+   - allow the configuration deployment to run and exit. A successful backup
+     job should finish rather than remain online.
+5. In the backup deployment logs, confirm exactly one
+   `mysql_backup_completed` event. In the private R2 bucket, confirm a new
+   `.sql.enc` object and matching `.sql.enc.json` manifest under
+   `staging/mysql/`. Never expose or paste their credentials while checking.
+6. Copy the current public web domain from Railway into a temporary shell
    variable, then run the smoke check:
 
    ```bash
@@ -279,7 +396,13 @@ compute is stopped.
      --base-url "$STAGING_BASE_URL"
    ```
 
-6. Confirm the smoke report names MySQL and revision `0007` before presenting.
+7. Confirm the smoke report names MySQL and revision `0007` before presenting.
+
+If the backup fails with `mysqldump` while `mysql84` is offline, suspend the
+backup using the preceding shutdown checklist, bring MySQL online, and then
+restore the schedule. Do not weaken encryption or expose MySQL publicly as a
+workaround. When backup code changes later, manually deploy the latest reviewed
+`main` commit while MySQL is online; automatic deployments can remain disabled.
 
 The first request after a restart can briefly return `502` while private
 services become ready. Start or resume the environment well before a live demo.

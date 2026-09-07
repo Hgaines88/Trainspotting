@@ -1,0 +1,30 @@
+name: trainspotting-demo-x14
+
+# Disposable, isolated Demo Day workflow environment. Always combine this file
+# with compose.yaml; never use its volume for ordinary development data.
+services:
+  api:
+    environment:
+      DATABASE_URL: mysql+pymysql://trainspotting:trainspotting_dev_only@mysql:3306/trainspotting_demo?charset=utf8mb4
+      TRAINSPOTTING_DEMO_FIXTURES: DEMO-X14-LOCAL-ONLY
+    ports: !override
+      - "127.0.0.1:8001:8000"
+
+  web:
+    ports: !override
+      - "127.0.0.1:5174:80"
+
+  mysql:
+    environment:
+      MYSQL_DATABASE: trainspotting_demo
+      MYSQL_USER: trainspotting
+      MYSQL_PASSWORD: trainspotting_dev_only
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    ports: !override
+      - "127.0.0.1:3308:3306"
+    volumes: !override
+      - trainspotting_demo_x14_mysql_data:/var/lib/mysql
+
+volumes:
+  trainspotting_demo_x14_mysql_data:
+

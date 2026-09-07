@@ -247,6 +247,27 @@ rendering any new third-party image and all schema, API, or UI changes.
 **Done when:** an accepted decision record defines permitted media paths,
 prohibited shortcuts, operational safeguards, and a clear go/no-go result.
 
+### DEMO-X14 — Narrative workflow demonstration dataset
+
+**Priority:** P1 · **Size:** M · **Dependencies:** DEMO-01, DEMO-03, DEMO-X05
+
+- Use the verified Louis Vuitton Spring 2024 men's capsule by Tyler, The
+  Creator as a production-eligible narrative anchor.
+- Exercise realistic designer, collection, correction, enrichment, decision,
+  promotion, rollback, audit, and ingestion records as one connected story.
+- Keep constructed identities and workflow states in a guarded, disposable
+  local Docker/MySQL environment.
+- Make setup idempotent and make reset remove only the isolated demo volume.
+- Document the exact instructor walkthrough without committing credentials or
+  private identities.
+
+**Excluded from this slice:** fabricated canonical facts, Railway demo fixtures,
+new workflow states, and destructive cleanup inside an ordinary database.
+
+**Done when:** every major workflow has convincing inspectable sample data, the
+authentic collaboration reaches the public archive through existing governance,
+repeat setup is harmless, and reset cannot affect ordinary local or hosted data.
+
 ### DEMO-REL-01 — Feature freeze and release candidate
 
 **Priority:** P0 · **Size:** M · **Dependencies:** DEMO-01 through DEMO-06  

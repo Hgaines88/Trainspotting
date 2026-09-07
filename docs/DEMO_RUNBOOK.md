@@ -6,6 +6,23 @@ identifiers.
 
 ## Featured record
 
+For the full workflow demonstration, use **Louis Vuitton — Spring 2024 Men's
+Capsule by Tyler, The Creator** in the isolated DEMO-X14 environment documented
+in [`DEMO_OPERATOR_GUIDE.md`](DEMO_OPERATOR_GUIDE.md). It begins outside the
+canonical baseline and enters through a sourced designer proposal followed by a
+sourced collection proposal. Tyler Okonma is the lead designer; Pharrell
+Williams is credited second as Louis Vuitton men's artistic director and
+creative collaborator.
+
+This narrative shows the instructor realistic draft, submitted,
+changes-requested, approved, rejected, and rolled-back records; evidence-backed
+enrichment; ordered credits; ingestion reconciliation; and chronological audit
+history. Use the approved sportswear descriptor to follow a recommendation into
+the wider archive.
+
+For the credential-free or canonical-only fallback, use the established Prada
+record below.
+
 Use **Prada — Spring/Summer 2024**. Its Vogue Runway source documents the
 collection created under co-creative directors Miuccia Prada and Raf Simons.
 The record connects four headline capabilities without requiring a disposable
@@ -28,6 +45,10 @@ co-design leadership, while California Couture represents a guest
 collaboration.
 
 ## Primary walkthrough (about five minutes)
+
+When the isolated narrative environment is prepared, begin with its moderation
+queue and Tyler/Louis Vuitton anchor. When it is unavailable, follow the Prada
+fallback steps exactly as written.
 
 1. **Anonymous visitor:** Open the homepage. Point out the guided discovery
    paths, search for `Prada`, and open the Spring/Summer 2024 result.
