@@ -10,9 +10,17 @@ import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 export default function Layout() {
   const { appUser } = useApplicationUser();
+
+  function skipToContent(event) {
+    event.preventDefault();
+    const mainContent = document.getElementById("main-content");
+    mainContent?.focus();
+    mainContent?.scrollIntoView();
+  }
+
   return (
     <div className="app-shell">
-      <a className="skip-link" href="#main-content">Skip to archive content</a>
+      <a className="skip-link" href="#main-content" onClick={skipToContent}>Skip to archive content</a>
       <header className="site-header">
         <Link className="brand" to="/">
           <span>TRAINSPOTTING</span>

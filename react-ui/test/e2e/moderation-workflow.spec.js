@@ -80,13 +80,14 @@ test("homepage offers a self-guided path into collection discovery", async ({ pa
 
 
 test("public shell exposes keyboard navigation and accessible status semantics", async ({ page }) => {
-  await page.route("**/api/designers?**", async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 250));
+  await page.route("**/api/designers**", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1_000));
     await route.continue();
   });
   await page.goto("/");
 
-  await expect(page.getByRole("status")).toHaveText("Searching the archive…");
+  const loadingStatus = page.locator('p.status[role="status"]').filter({ hasText: /^Searching the archive…$/ });
+  await expect(loadingStatus).toBeVisible();
   const designersLink = page.getByRole("navigation", { name: "Public archive" }).getByRole("link", { name: "Designers" });
   await expect(designersLink).toHaveAttribute("aria-current", "page");
 
@@ -94,11 +95,13 @@ test("public shell exposes keyboard navigation and accessible status semantics",
   const skipLink = page.getByRole("link", { name: "Skip to archive content" });
   await expect(skipLink).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.locator("#main-content")).toBeFocused();
+  const mainContent = page.locator("#main-content");
+  await expect(mainContent).toBeFocused();
+  await expect(mainContent).toHaveCSS("outline-style", "solid");
 
   await page.getByLabel("Search the archive").fill("No such archive record");
   await page.getByRole("button", { name: "Apply filters" }).click();
-  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(loadingStatus).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "No profiles match these filters." })).toBeVisible();
 
   await page.goto("/collections");
