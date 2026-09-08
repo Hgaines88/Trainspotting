@@ -1,5 +1,5 @@
 {
-  "curated_at": "2026-09-07",
+  "curated_at": "2026-09-08",
   "verification": "Each entry was matched to one canonical collection and confirmed public through Vimeo's oEmbed endpoint before inclusion.",
   "policy": "Prefer official full shows and exact official collection films. When those are unavailable, accept exact campaigns, highlights, or behind-the-scenes films from the represented brand, a credited production contributor, or an established fashion-film publisher.",
   "videos": [
@@ -156,6 +156,20 @@
       "title": "RICK OWENS ' MOUNTAIN ' FALL / WINTER 2012 - 2013 MENS",
       "publisher": "RICKOWENSONLINE",
       "match_type": "official-full-show"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-fall-winter-2018",
+      "video_id": "348268880",
+      "title": "Telfar Collection Show | NYFW 2018",
+      "publisher": "PARK",
+      "match_type": "collection-highlight"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-spring-summer-2019",
+      "video_id": "300962571",
+      "title": "Telfar X FAKA: Not For You, For Everyone - NOWNESS",
+      "publisher": "NOWNESS",
+      "match_type": "collection-film"
     }
   ]
 }
