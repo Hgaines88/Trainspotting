@@ -455,15 +455,13 @@ def test_hedi_slimane_profile_spans_three_houses_with_sourced_media():
         collection["youtube_video_id"] or collection["vimeo_video_id"]
         for collection in collections
     )
-    assert all(
-        collection["credits"] == [{
-            "role": "lead",
-            "position": 1,
-            "attribution_note": collection["credits"][0]["attribution_note"],
-            "designer_key": "hedi-slimane",
-        }]
-        for collection in collections
-    )
+    for collection in collections:
+        assert len(collection["credits"]) == 1
+        credit = collection["credits"][0]
+        assert credit["role"] == "lead"
+        assert credit["position"] == 1
+        assert credit["designer_key"] == "hedi-slimane"
+        assert credit["attribution_note"].strip()
 
 
 def test_demo_x03_expansion_has_sources_and_ordered_credits():
