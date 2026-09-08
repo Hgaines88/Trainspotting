@@ -28,7 +28,7 @@ def test_curated_vimeo_sources_match_canonical_collections():
     curation = load_json(CURATION_PATH)
     collections = {item["key"]: item for item in archive["collections"]}
 
-    assert len(curation["videos"]) >= 22
+    assert len(curation["videos"]) >= 24
     assert len({item["collection_key"] for item in curation["videos"]}) == len(
         curation["videos"]
     )

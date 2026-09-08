@@ -1,6 +1,6 @@
 {
-  "curated_at": "2026-09-07",
-  "policy": "Exact collection match published by the represented designer or fashion house. Prefer full shows; accept exact official collection films, campaigns, or highlights when no full show is available.",
+  "curated_at": "2026-09-08",
+  "policy": "Prefer exact full shows and collection films. When unavailable, accept exact campaigns, highlights, backstage, presentation, or event films from the represented brand/designer or a credible fashion and cultural publisher.",
   "videos": [
     {
       "collection_key": "iris-van-herpen-iris-van-herpen-fall-winter-couture-2022",
@@ -649,6 +649,90 @@
       "video_id": "6vj2p4XrcWw",
       "title": "Off-White | Fall Winter 2017/2018 Full Fashion Show | Menswear",
       "channel": "FF Channel"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-fall-winter-2008",
+      "video_id": "7ijl8OuKAL0",
+      "title": "Telfar EXO-Society Autumn-Winter 2008",
+      "channel": "Scott Hug"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-fall-winter-2009",
+      "video_id": "paQRhPIrnuE",
+      "title": "Telfar Fall 2009 Collection",
+      "channel": "modaCYCLE"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-spring-summer-2009",
+      "video_id": "qklgts2MS6g",
+      "title": "TELFAR S/S09",
+      "channel": "Scott Hug"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-spring-summer-2010",
+      "video_id": "whY9FB3f1SM",
+      "title": "TELFAR Spring/Summer 2010 Collection @ X-Initiative",
+      "channel": "electrisco"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-fall-winter-2014",
+      "video_id": "Ytk0_oKIgXE",
+      "title": "TELFAR F/W 2014 w/ Mike The Ruler | XTREME FASHION WEEK",
+      "channel": "VFILES"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-fall-winter-2016",
+      "video_id": "DbuV-CEL-OE",
+      "title": "TELFAR #MADEfw FW16",
+      "channel": "MADE NEW YORK"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-spring-summer-2017",
+      "video_id": "gPxOhs063e8",
+      "title": "Telfar Spring/Summer 2017 | New York Fashion Week",
+      "channel": "pham hoan"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-x-white-castle-summer-2017",
+      "video_id": "AJIPDXr6xSU",
+      "title": "TELFAR - LEFRAK",
+      "channel": "Finn Mactaggart"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-fall-winter-2019",
+      "video_id": "3CTV-EsSIn4",
+      "title": "Telfar at NYFW: February 2019",
+      "channel": "NYFW: The Shows"
+    },
+    {
+      "collection_key": "telfar-clemens-telfar-spring-summer-2019",
+      "video_id": "bAGDD1GrGbg",
+      "title": "Park Nights 2018: TELFAR - NOT FOR YOU, FOR EVERYONE",
+      "channel": "Serpentine"
+    },
+    {
+      "collection_key": "shayne-oliver-hood-by-air-spring-summer-2017",
+      "video_id": "n5uhsXtajd0",
+      "title": "A Provocative Collection from HOOD BY AIR for #NYFW Spring/Summer 2017",
+      "channel": "Videofashion"
+    },
+    {
+      "collection_key": "shayne-oliver-colmar-a-g-e-by-shayne-oliver-fall-winter-capsule-2018",
+      "video_id": "dIcWX-AEmmE",
+      "title": "1st SHAYNE OLIVER for COLMAR Collection",
+      "channel": "designscene"
+    },
+    {
+      "collection_key": "shayne-oliver-longchamp-by-shayne-oliver-spring-summer-capsule-2018",
+      "video_id": "RbuOdtHaffc",
+      "title": "Longchamp By Shayne Oliver",
+      "channel": "Longchamp"
+    },
+    {
+      "collection_key": "shayne-oliver-hood-by-air-ready-to-wear-2021",
+      "video_id": "x-81jEhvv_4",
+      "title": "THE PROLOGUE",
+      "channel": "Anonymous Club"
     }
   ]
 }
