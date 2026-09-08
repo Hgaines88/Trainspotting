@@ -22,7 +22,7 @@
       "video_id": "426360547",
       "title": "\"American, Also.\" Film — Trailer",
       "publisher": "Pyer Moss",
-      "match_type": "official-collection-film"
+      "match_type": "collection-film"
     },
     {
       "collection_key": "marine-serre-marine-serre-spring-summer-2020",
@@ -170,6 +170,13 @@
       "title": "Telfar X FAKA: Not For You, For Everyone - NOWNESS",
       "publisher": "NOWNESS",
       "match_type": "collection-film"
+    },
+    {
+      "collection_key": "hedi-slimane-celine-homme-spring-summer-menswear-2021",
+      "video_id": "751748205",
+      "title": "CELINE - The Dancing Kid",
+      "publisher": "OPERANDI MGMT",
+      "match_type": "official-collection-film"
     }
   ]
 }

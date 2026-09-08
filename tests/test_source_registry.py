@@ -18,7 +18,7 @@ def test_source_registry_covers_every_canonical_evidence_host():
     report = validate_registry(ARCHIVE, REGISTRY)
 
     assert report["errors"] == []
-    assert report["canonical_hosts"] == 46
+    assert report["canonical_hosts"] == 47
     assert report["categories"] == 7
 
 

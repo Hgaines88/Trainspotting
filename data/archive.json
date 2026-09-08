@@ -150,6 +150,14 @@
       "biography": "Colombian-born, Antwerp-trained designer Haider Ackermann launched his namesake label in 2001 and developed a distinctive language of fluid tailoring, rich color, layered draping, and sensual restraint. His career includes creative leadership at Berluti and Tom Ford, as well as a celebrated one-season haute couture collaboration with Jean Paul Gaultier."
     },
     {
+      "key": "hedi-slimane",
+      "full_name": "Hedi Slimane",
+      "nationality": "French",
+      "birth_year": 1968,
+      "website": "https://www.hedislimane.com",
+      "biography": "French designer, photographer, and image-maker Hedi Slimane transformed modern menswear at Dior Homme through an exacting narrow silhouette shaped by tailoring, youth culture, and rock music. He later repositioned Saint Laurent through a comprehensive approach spanning collections, casting, photography, architecture, and branding, then expanded that model at Celine by launching menswear and directing the house across fashion, fragrance, and image."
+    },
+    {
       "key": "helmut-lang",
       "full_name": "Helmut Lang",
       "nationality": "Austrian",
@@ -2215,6 +2223,138 @@
       "source_url": "https://www.vogue.com/fashion-shows/fall-2025-ready-to-wear/tom-ford",
       "youtube_video_id": "0q0x65Vn-aI",
       "vimeo_video_id": null
+    },
+    {
+      "key": "hedi-slimane-dior-homme-fall-winter-menswear-2003",
+      "designer_key": "hedi-slimane",
+      "label": "Dior Homme",
+      "name": "Luster",
+      "season": "Fall/Winter Menswear",
+      "release_year": 2003,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Luster crystallized Slimane’s revolution in menswear through attenuated black tailoring, narrow trousers, metallic and waxed surfaces, leather, jewelry, and a glam-rock severity. The collection made the fragile, androgynous rock silhouette a defining image of early-2000s fashion.",
+      "source_url": "https://www.vogue.com/video/watch/throwback-thursdays-with-tim-blanks-the-evolution-of-masculinity-hedi-slimane-at-dior-homme",
+      "youtube_video_id": "uT0fXLvoUQw",
+      "vimeo_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Creative director of Dior Homme.",
+          "designer_key": "hedi-slimane"
+        }
+      ]
+    },
+    {
+      "key": "hedi-slimane-dior-homme-spring-summer-menswear-2004",
+      "designer_key": "hedi-slimane",
+      "label": "Dior Homme",
+      "name": "Strip",
+      "season": "Spring/Summer Menswear",
+      "release_year": 2004,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Strip pushed Slimane’s Dior Homme vocabulary toward an even leaner collision of formal precision and damaged rock dress. Razor-cut suits, abbreviated jackets, distressed denim, leather, boots, and stark monochrome styling treated the male wardrobe as both uniform and stage costume.",
+      "source_url": "https://www.metmuseum.org/art/collection/search/857014",
+      "youtube_video_id": "BudcVQUiP2A",
+      "vimeo_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Creative director of Dior Homme.",
+          "designer_key": "hedi-slimane"
+        }
+      ]
+    },
+    {
+      "key": "hedi-slimane-saint-laurent-fall-winter-ready-to-wear-2013",
+      "designer_key": "hedi-slimane",
+      "label": "Saint Laurent",
+      "name": null,
+      "season": "Fall/Winter Ready-to-Wear",
+      "release_year": 2013,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Slimane’s California-grunge proposition recast baby-doll dresses, tartan shirts, worn cardigans, biker leather, floral prints, fishnets, and heavy boots as luxury ready-to-wear. Its deliberate collision of subcultural familiarity and Saint Laurent scale became one of the most debated—and commercially influential—shows of his tenure.",
+      "source_url": "https://www.vogue.com/fashion-shows/fall-2013-ready-to-wear/saint-laurent",
+      "youtube_video_id": "YBOMcQBTg8o",
+      "vimeo_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Creative and image director of Saint Laurent.",
+          "designer_key": "hedi-slimane"
+        }
+      ]
+    },
+    {
+      "key": "hedi-slimane-saint-laurent-spring-summer-ready-to-wear-2016",
+      "designer_key": "hedi-slimane",
+      "label": "Saint Laurent",
+      "name": "Skin",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2016,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Skin compressed Slimane’s Saint Laurent system into a direct wardrobe of slip dresses, sequins, denim, camouflage, leather jackets, rubber boots, and delicate tiaras. The collection demonstrated how completely his music-led casting, styling, image-making, and accessible product logic had repositioned the house.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2016-ready-to-wear/saint-laurent",
+      "youtube_video_id": "cLnJLxMWMi4",
+      "vimeo_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Creative and image director of Saint Laurent.",
+          "designer_key": "hedi-slimane"
+        }
+      ]
+    },
+    {
+      "key": "hedi-slimane-celine-spring-summer-ready-to-wear-2019",
+      "designer_key": "hedi-slimane",
+      "label": "Celine",
+      "name": "Paris La Nuit",
+      "season": "Spring/Summer Ready-to-Wear",
+      "release_year": 2019,
+      "status": "archived",
+      "piece_count": 96,
+      "description": "Slimane’s Celine debut announced a decisive regime change through sharp New Wave tailoring, narrow ties, glittering abbreviated dresses, sculpted shoulders, and a coed cast. The 96-look presentation also introduced menswear at Celine and placed the house inside his larger photographic vision of nocturnal youth culture.",
+      "source_url": "https://www.vogue.com/fashion-shows/spring-2019-ready-to-wear/celine",
+      "youtube_video_id": "qSWRdAxPhD8",
+      "vimeo_video_id": null,
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Artistic, creative, and image director of Celine.",
+          "designer_key": "hedi-slimane"
+        }
+      ]
+    },
+    {
+      "key": "hedi-slimane-celine-homme-spring-summer-menswear-2021",
+      "designer_key": "hedi-slimane",
+      "label": "Celine Homme",
+      "name": "The Dancing Kid",
+      "season": "Spring/Summer Menswear",
+      "release_year": 2021,
+      "status": "archived",
+      "piece_count": null,
+      "description": "Filmed at Circuit Paul Ricard, The Dancing Kid documented the creativity of TikTok’s E-boy generation during social confinement. Fluorescent motocross shapes, oversized knits, sequined tailoring, animal print, distressed denim, bucket hats, and helmets translated online youth expression into a digitally native Celine Homme collection.",
+      "source_url": "https://www.vogue.fr/vogue-hommes/article/projet-celine-homme-the-dancing-kid-instagram",
+      "youtube_video_id": null,
+      "vimeo_video_id": "751748205",
+      "credits": [
+        {
+          "role": "lead",
+          "position": 1,
+          "attribution_note": "Artistic, creative, and image director of Celine.",
+          "designer_key": "hedi-slimane"
+        }
+      ]
     },
     {
       "key": "helmut-lang-helmut-lang-spring-summer-ready-to-wear-1992",
