@@ -430,6 +430,42 @@ def test_new_designer_profiles_have_expected_career_records():
     )
 
 
+def test_hedi_slimane_profile_spans_three_houses_with_sourced_media():
+    payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
+    designers = {
+        designer["key"]: designer
+        for designer in payload["designers"]
+    }
+    collections = [
+        collection
+        for collection in payload["collections"]
+        if collection["designer_key"] == "hedi-slimane"
+    ]
+
+    assert designers["hedi-slimane"]["nationality"] == "French"
+    assert len(collections) == 6
+    assert {collection["label"] for collection in collections} == {
+        "Celine",
+        "Celine Homme",
+        "Dior Homme",
+        "Saint Laurent",
+    }
+    assert all(collection["source_url"] for collection in collections)
+    assert all(
+        collection["youtube_video_id"] or collection["vimeo_video_id"]
+        for collection in collections
+    )
+    assert all(
+        collection["credits"] == [{
+            "role": "lead",
+            "position": 1,
+            "attribution_note": collection["credits"][0]["attribution_note"],
+            "designer_key": "hedi-slimane",
+        }]
+        for collection in collections
+    )
+
+
 def test_demo_x03_expansion_has_sources_and_ordered_credits():
     payload = json.loads(ARCHIVE.read_text(encoding="utf-8"))
     designer_keys = {
