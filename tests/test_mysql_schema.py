@@ -29,7 +29,7 @@ def test_mysql_schema_and_append_only_audit_guards():
                     "WHERE table_schema = DATABASE() "
                     "AND table_name <> 'alembic_version'"
                 )
-            ).scalar_one() == 15
+            ).scalar_one() == 16
             assert connection.execute(
                 text(
                     "SELECT COUNT(*) FROM information_schema.triggers "

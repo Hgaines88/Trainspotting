@@ -16,6 +16,8 @@ export default function CollectionDetail() {
   const [related, setRelated] = useState(null);
   const [relatedError, setRelatedError] = useState("");
   const [error, setError] = useState("");
+  const [favorited, setFavorited] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -26,6 +28,18 @@ export default function CollectionDetail() {
       .catch((requestError) => { if (active) setError(requestError.message); });
     return () => { active = false; };
   }, [collectionId]);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      setFavorited(false);
+      return undefined;
+    }
+    let active = true;
+    authorizedRequest(`/favorites/${collectionId}`)
+      .then((result) => { if (active) setFavorited(result.favorited); })
+      .catch((requestError) => { if (active) setError(requestError.message); });
+    return () => { active = false; };
+  }, [authorizedRequest, collectionId, isSignedIn]);
 
   useEffect(() => {
     let active = true;
@@ -50,6 +64,21 @@ export default function CollectionDetail() {
     }
   }
 
+  async function toggleFavorite() {
+    setFavoriteLoading(true);
+    setError("");
+    try {
+      await authorizedRequest(`/favorites/${collectionId}`, {
+        method: favorited ? "DELETE" : "PUT",
+      });
+      setFavorited((current) => !current);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  }
+
   return (
     <article>
       <div className="collection-heading">
@@ -62,7 +91,7 @@ export default function CollectionDetail() {
         <div><dt>Piece count</dt><dd>{collection.piece_count ?? "Unavailable"}</dd></div>
       </dl>
       <p>{collection.description || "No description is available."}</p>
-      <div className="actions">{isSignedIn && <Link className="button secondary" to={`/collections/${collectionId}/enrichment/new`}>Suggest enrichment</Link>}{isAdmin && <><Link className="button" to={`/collections/${collectionId}/edit`}>Edit collection</Link><button className="danger" type="button" onClick={deleteCollection}>Delete collection</button></>}</div>
+      <div className="actions">{isSignedIn && <><button className={favorited ? "favorite-button active" : "favorite-button secondary"} type="button" onClick={toggleFavorite} disabled={favoriteLoading} aria-pressed={favorited}>{favoriteLoading ? "Updating…" : favorited ? "Saved to favorites" : "Save to favorites"}</button><Link className="button secondary" to={`/collections/${collectionId}/enrichment/new`}>Suggest enrichment</Link></>}{isAdmin && <><Link className="button" to={`/collections/${collectionId}/edit`}>Edit collection</Link><button className="danger" type="button" onClick={deleteCollection}>Delete collection</button></>}</div>
 
       <section className="section" aria-labelledby="editorial-descriptors-heading">
         <div className="section-heading"><h2 id="editorial-descriptors-heading">Editorial descriptors</h2><span>Reviewed vocabulary</span></div>

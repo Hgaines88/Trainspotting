@@ -285,6 +285,25 @@ users = Table(
 )
 Index("idx_users_role", users.c.role)
 
+collection_favorites = Table(
+    "collection_favorites",
+    metadata,
+    Column(
+        "user_id",
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "collection_id",
+        Integer,
+        ForeignKey("collections.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("created_at", DateTime, nullable=False, server_default=func.current_timestamp()),
+)
+Index("idx_collection_favorites_collection", collection_favorites.c.collection_id)
+
 submissions = Table(
     "submissions",
     metadata,

@@ -178,6 +178,7 @@ def test_migration_upgrades_legacy_data_and_preserves_user_records(
         "007_create_users.sql",
         "008_create_moderation_workflow.sql",
         "009_add_archive_version.sql",
+        "010_create_collection_favorites.sql",
     ]
     assert second_run == []
     assert tuple(archive_state) == (1, 1)
