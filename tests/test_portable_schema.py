@@ -9,6 +9,7 @@ EXPECTED_TABLES = {
     "archive_state",
     "collection_credits",
     "collection_descriptors",
+    "collection_favorites",
     "collection_media",
     "collections",
     "designers",
@@ -89,7 +90,7 @@ def test_every_table_compiles_for_mysql_8():
     assert all(
         "AUTO_INCREMENT" in statement
         for statement in statements
-        if "archive_state" not in statement
+        if "archive_state" not in statement and "collection_favorites" not in statement
     )
     assert all("ENGINE=InnoDB" in statement for statement in statements)
     assert all("CHARSET=utf8mb4" in statement for statement in statements)

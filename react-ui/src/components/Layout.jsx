@@ -6,6 +6,7 @@ import {
 } from "@clerk/react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import UserSync from "./UserSync";
+import BrandMark from "./BrandMark";
 import { useApplicationUser } from "../auth/ApplicationUserContext";
 
 export default function Layout() {
@@ -22,9 +23,9 @@ export default function Layout() {
     <div className="app-shell">
       <a className="skip-link" href="#main-content" onClick={skipToContent}>Skip to archive content</a>
       <header className="site-header">
-        <Link className="brand" to="/">
-          <span>TRAINSPOTTING</span>
-          <small>FASHION HISTORY IN MOTION</small>
+        <Link className="brand" to="/" aria-label="Trainspotting — Fashion History in Motion">
+          <BrandMark />
+          <small><i aria-hidden="true" />FASHION HISTORY IN MOTION</small>
         </Link>
         <nav className="archive-navigation" aria-label="Public archive">
           <NavLink end to="/">Designers</NavLink>
@@ -46,6 +47,7 @@ export default function Layout() {
               </SignUpButton>
             </Show>
             <Show when="signed-in">
+              <Link className="auth-button secondary" to="/favorites">Favorites</Link>
               <Link className="auth-button secondary" to="/submissions/mine">Submissions</Link>
               {["moderator", "admin"].includes(appUser?.role) && <Link className="auth-button secondary" to="/moderation">Review</Link>}
               <span className="account-label">Account</span>
@@ -70,7 +72,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="site-footer">
-        <span>PUBLIC ACCESS / OPEN ARCHIVE</span>
+        <span><b className="footer-route">TSX</b> PUBLIC ACCESS / OPEN ARCHIVE</span>
         <span className="digital-signature" aria-label="Created by H Gaines">
           (h)gaines.
         </span>

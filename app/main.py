@@ -19,6 +19,7 @@ from app.request_limits import RequestSizeLimitMiddleware
 from app.rate_limits import (
     ACCOUNT_SYNC_LIMIT,
     ADMIN_WRITE_LIMIT,
+    FAVORITE_WRITE_LIMIT,
     enforce_identity_rate_limit,
 )
 from app.observability import (
@@ -490,6 +491,106 @@ def current_user(
         limit=ACCOUNT_SYNC_LIMIT,
     )
     return sync_clerk_user_profile(identity.user_id)
+
+
+def authenticated_app_user(
+    identity: ClerkIdentity = Depends(require_authenticated_user),
+) -> dict:
+    return get_or_create_user(identity.user_id)
+
+
+@app.get("/favorites")
+def list_favorites(user: dict = Depends(authenticated_app_user)):
+    connection = connect()
+    try:
+        rows = connection.execute(
+            COLLECTION_SELECT
+            + """
+              JOIN collection_favorites
+                ON collection_favorites.collection_id = collections.id
+              WHERE collection_favorites.user_id = ?
+              ORDER BY collection_favorites.created_at DESC,
+                       collection_favorites.collection_id DESC
+            """,
+            (user["id"],),
+        ).fetchall()
+        return collection_payloads(connection, rows)
+    finally:
+        connection.close()
+
+
+@app.get("/favorites/{collection_id}")
+def favorite_status(
+    collection_id: int,
+    user: dict = Depends(authenticated_app_user),
+):
+    connection = connect()
+    try:
+        favorite = connection.execute(
+            """SELECT 1 FROM collection_favorites
+               WHERE user_id = ? AND collection_id = ?""",
+            (user["id"], collection_id),
+        ).fetchone()
+        return {"favorited": favorite is not None}
+    finally:
+        connection.close()
+
+
+@app.put("/favorites/{collection_id}")
+def save_favorite(
+    collection_id: int,
+    user: dict = Depends(authenticated_app_user),
+):
+    enforce_identity_rate_limit(
+        "favorite-write",
+        user["clerk_user_id"],
+        limit=FAVORITE_WRITE_LIMIT,
+    )
+    connection = connect()
+    try:
+        collection = connection.execute(
+            "SELECT 1 FROM collections WHERE id = ?", (collection_id,)
+        ).fetchone()
+        if collection is None:
+            raise HTTPException(status_code=404, detail="Collection not found")
+        existing = connection.execute(
+            """SELECT 1 FROM collection_favorites
+               WHERE user_id = ? AND collection_id = ?""",
+            (user["id"], collection_id),
+        ).fetchone()
+        if existing is None:
+            connection.execute(
+                """INSERT INTO collection_favorites (user_id, collection_id)
+                   VALUES (?, ?)""",
+                (user["id"], collection_id),
+            )
+            connection.commit()
+        return {"favorited": True}
+    finally:
+        connection.close()
+
+
+@app.delete("/favorites/{collection_id}")
+def remove_favorite(
+    collection_id: int,
+    user: dict = Depends(authenticated_app_user),
+):
+    enforce_identity_rate_limit(
+        "favorite-write",
+        user["clerk_user_id"],
+        limit=FAVORITE_WRITE_LIMIT,
+    )
+    connection = connect()
+    try:
+        connection.execute(
+            """DELETE FROM collection_favorites
+               WHERE user_id = ? AND collection_id = ?""",
+            (user["id"], collection_id),
+        )
+        connection.commit()
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    finally:
+        connection.close()
 
 def pagination_payload(rows, *, page: int, page_size: int, total: int):
     return {

@@ -212,7 +212,7 @@ def test_react_archive_writes_use_fresh_clerk_tokens():
     )
 
     assert forms.count("authorizedRequest(") == 2
-    assert details.count("authorizedRequest(") == 2
+    assert details.count("authorizedRequest(") == 4
     assert 'method: "DELETE"' in details
 
 

@@ -15,6 +15,7 @@ import SubmissionDetail from "./pages/SubmissionDetail";
 import MySubmissions from "./pages/MySubmissions";
 import ModerationQueue from "./pages/ModerationQueue";
 import EnrichmentSubmissionForm from "./pages/EnrichmentSubmissionForm";
+import Favorites from "./pages/Favorites";
 import "./App.css";
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
       <Route path="/submissions/:submissionId/edit" element={<RequireAuthenticated><SubmissionForm /></RequireAuthenticated>} />
       <Route path="/submissions/:submissionId" element={<RequireAuthenticated><SubmissionDetail /></RequireAuthenticated>} />
       <Route path="/submissions/mine" element={<RequireAuthenticated><MySubmissions /></RequireAuthenticated>} />
+      <Route path="/favorites" element={<RequireAuthenticated><Favorites /></RequireAuthenticated>} />
       <Route path="/moderation" element={<RequireModerator><ModerationQueue /></RequireModerator>} />
       <Route path="*" element={<NotFound />} />
     </Route></Routes></BrowserRouter>
