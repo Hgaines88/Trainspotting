@@ -25,7 +25,6 @@ export default function Layout() {
       <header className="site-header">
         <Link className="brand" to="/" aria-label="Trainspotting — Fashion History in Motion">
           <BrandMark />
-          <small><i aria-hidden="true" />FASHION HISTORY IN MOTION</small>
         </Link>
         <nav className="archive-navigation" aria-label="Public archive">
           <NavLink end to="/">Designers</NavLink>
