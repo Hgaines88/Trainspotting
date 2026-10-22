@@ -1,5 +1,9 @@
 # Trainspotting
 
+![Trainspotting architecture: visitors and authenticated contributors use React and Vanilla JavaScript clients backed by FastAPI, governed application logic, SQLAlchemy, and relational storage.](docs/architecture/trainspotting-architecture.png)
+
+*A full-stack fashion-history platform with public discovery, governed contributions, and durable relational storage.*
+
 **Fashion history in motion.**
 
 Trainspotting is a public, structured record of the designers, labels, and
