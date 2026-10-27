@@ -6,6 +6,12 @@
 
 **Fashion history in motion.**
 
+## Explore the live project
+
+[Open the Trainspotting development site](https://web-staging-decf.up.railway.app/)
+
+*This link opens the current Railway-hosted development deployment. The staging-style URL reflects the environment and may change as the project evolves.*
+
 Trainspotting is a public, structured record of the designers, labels, and
 collections that shape fashion history. It began as **Collection Archive
 (OneToManys)**, a three-tier learning project built around a designer-to-
